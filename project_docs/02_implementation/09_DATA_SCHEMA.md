@@ -50,7 +50,7 @@
 | `data/processed/pages.jsonl` | 페이지별 추출 결과(§6.2) |
 | `data/processed/chunks.jsonl` | 청크(§6.3) |
 | `data/processed/chunking_manifest.json` | 청킹 설정(`params`), 통계(청크 수·평균/최소/최대 글자 수), 경고 |
-| `data/processed/index_manifest.json` | 색인 정보와 처리 통계(§7) |
+| `data/processed/index_manifest__{embedding_version}.json` | 컬렉션(임베딩 모델)별 색인 정보와 처리 통계(§7). 예: `index_manifest__e5large-v1.json` |
 | `results/{experiment_id}/manifest.json` | 실행 설정 스냅샷(§12) |
 | `results/{experiment_id}/runs.jsonl` | 요청별 run 레코드(§9) |
 | `results/{experiment_id}/evaluations.jsonl` | 질문×방식별 평가 결과(§11) |
@@ -155,7 +155,9 @@ PDF 1개당 1행이다.
 - `chunk_text`는 본문만 담고(머리말·꼬리말 제외), 임베딩·BM25에 넣는 검색용 텍스트는 `metadata`의 머리말·제목·소제목을 접두로 붙여 코드(`retrieval_text`)에서 만든다. 저장하지 않는다.
 - 청킹 설정이 바뀌면 기존 청크를 덮어쓰지 않고 새 `chunking_version`으로 만든다.
 
-## 7. 색인 매니페스트 (`index_manifest.json`)
+## 7. 색인 매니페스트 (`index_manifest__{embedding_version}.json`)
+
+컬렉션마다 파일 하나를 만든다(후보 비교 때문에 컬렉션이 둘 이상이므로). 아래 필드 외에 구현은 `embedding_license`, `max_seq_length`, 접두어, `device`, `qdrant_mode`, `token_stats`, PDF별 `per_pdf`(페이지 수·추출 상태·추출 시간·청크 수·임베딩 시간), `verification`(저장 수, 탐침 검색), `status`를 함께 기록한다.
 
 | 필드 | 자료형 | 설명 |
 |---|---|---|

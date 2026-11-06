@@ -1,0 +1,23 @@
+{
+  "experiment_id": "dev-embed-select-001",
+  "track": "development",
+  "step": "3",
+  "k": 5,
+  "question_set": "development",
+  "questions": 30,
+  "retrieval": "dense",
+  "selection_rule": "DECISIONS.md D-026",
+  "chunking_version": "chunk-v1",
+  "candidates": {
+    "e5": {
+      "collection": "basic__chunk-v1__e5large-v1",
+      "revision": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3"
+    },
+    "bgem3": {
+      "collection": "basic__chunk-v1__bgem3-v1",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181"
+    }
+  },
+  "langfuse_trace_id": "44c458373e32b046f5290221769a27cc",
+  "created_at": "2026-11-06T08:15:03+00:00"
+}

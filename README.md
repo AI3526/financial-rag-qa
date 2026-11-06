@@ -58,6 +58,22 @@ uv run python scripts/chunk_pages.py
 
 페이지 경계를 넘지 않고, 문단을 450자까지 묶는다(450자 초과 문단은 800자 이내면 통째로 유지). 머리말·문서 제목·소제목은 `metadata`로 옮기고 꼬리말은 버린다. 설정과 이유는 `DECISIONS.md` D-025. Trace `document-chunking`(문서마다 Span `chunk-pdf FB01.pdf`, 청크 텍스트 포함)으로 Langfuse에도 기록되며 `--no-langfuse`로 끌 수 있다. 결과가 있으면 `--force` 없이는 중단한다.
 
+## 임베딩과 색인 (STEP 3)
+
+`.env`에 `QDRANT_URL`, `QDRANT_API_KEY`를 넣으면 Qdrant Cloud에, 비워 두면 `QDRANT_PATH`(기본 `data/qdrant`)의 로컬 폴더에 저장한다.
+
+```bash
+# 컬렉션마다 한 번씩 (이미 있으면 덮어쓰지 않고 중단한다)
+uv run python scripts/build_index.py --model e5
+uv run python scripts/build_index.py --model bgem3
+# development 30문항으로 두 후보를 비교한다 (결과는 results/dev-embed-select-001/)
+uv run python scripts/compare_embeddings.py
+```
+
+- 공식 임베딩 모델은 `intfloat/multilingual-e5-large`로 동결했다(`DECISIONS.md` D-026, D-027). BGE-M3 컬렉션과 비교 결과는 확장 실험을 위해 보존한다.
+- 모델은 처음 실행할 때 내려받아 HF 캐시(`C:\Users\<사용자>\.cache\huggingface\hub`, 저장소 밖)에 저장된다. `.env`의 `HF_HOME`을 비워 두면 기본 위치를 쓴다(빈 값은 설정하지 않은 것으로 처리). GPU는 CUDA 12.8 이상용 PyTorch가 필요하다.
+- Langfuse에는 색인(`document-indexing`)과 비교(`embedding-comparison`)가 기록된다. `--no-langfuse`로 끌 수 있다(색인 스크립트).
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

@@ -1,0 +1,170 @@
+{
+  "collection_name": "basic__chunk-v1__bgem3-v1",
+  "qdrant_mode": "remote",
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_version": "bgem3-v1",
+  "embedding_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+  "embedding_license": "mit",
+  "embedding_dimension": 1024,
+  "max_seq_length": 1024,
+  "query_prefix": "",
+  "passage_prefix": "",
+  "distance": "cosine",
+  "normalized": true,
+  "device": "cuda",
+  "chunking_version": "chunk-v1",
+  "document_count": 15,
+  "chunk_count": 1056,
+  "failed_chunk_count": 0,
+  "avg_chunk_size": 325.5,
+  "chunk_size_unit": "chars",
+  "token_stats": {
+    "unit": "tokens (model tokenizer, prefix included)",
+    "avg": 190.8,
+    "max": 372,
+    "over_limit": 0
+  },
+  "indexing_seconds": {
+    "model_load": 405.39,
+    "embedding": 29.83,
+    "upsert": 27.08,
+    "total_index_loop": 57.38
+  },
+  "per_pdf": [
+    {
+      "book_id": "FB01",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.766,
+      "chunks": 72,
+      "embed_seconds": 2.832
+    },
+    {
+      "book_id": "FB02",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.506,
+      "chunks": 72,
+      "embed_seconds": 2.028
+    },
+    {
+      "book_id": "FB03",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.682,
+      "chunks": 71,
+      "embed_seconds": 2.098
+    },
+    {
+      "book_id": "FB04",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.356,
+      "chunks": 74,
+      "embed_seconds": 2.11
+    },
+    {
+      "book_id": "FB05",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.504,
+      "chunks": 68,
+      "embed_seconds": 2.072
+    },
+    {
+      "book_id": "FB06",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.625,
+      "chunks": 72,
+      "embed_seconds": 2.09
+    },
+    {
+      "book_id": "FB07",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.745,
+      "chunks": 71,
+      "embed_seconds": 2.041
+    },
+    {
+      "book_id": "FB08",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.31,
+      "chunks": 71,
+      "embed_seconds": 1.894
+    },
+    {
+      "book_id": "FB09",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.886,
+      "chunks": 67,
+      "embed_seconds": 1.834
+    },
+    {
+      "book_id": "FB10",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.081,
+      "chunks": 70,
+      "embed_seconds": 1.834
+    },
+    {
+      "book_id": "FB11",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.999,
+      "chunks": 70,
+      "embed_seconds": 1.798
+    },
+    {
+      "book_id": "FB12",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.958,
+      "chunks": 69,
+      "embed_seconds": 1.669
+    },
+    {
+      "book_id": "FB13",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.925,
+      "chunks": 71,
+      "embed_seconds": 1.882
+    },
+    {
+      "book_id": "FB14",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 0.312,
+      "chunks": 69,
+      "embed_seconds": 1.852
+    },
+    {
+      "book_id": "FB15",
+      "page_count": 24,
+      "extraction_status": "success",
+      "extraction_seconds": 1.461,
+      "chunks": 69,
+      "embed_seconds": 1.798
+    }
+  ],
+  "verification": {
+    "stored_count": 1056,
+    "expected_count": 1056,
+    "count_ok": true,
+    "probe_chunk_id": "FB08-p11-c2",
+    "probe_top1": "FB08-p11-c2",
+    "probe_ok": true,
+    "probe_source": {
+      "file_name": "FB08.pdf",
+      "page": 11
+    }
+  },
+  "status": "success",
+  "track": "development",
+  "created_at": "2026-11-06T08:05:32+00:00"
+}

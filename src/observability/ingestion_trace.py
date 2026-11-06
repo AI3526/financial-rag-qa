@@ -142,6 +142,31 @@ class _RunTracer:
         return result
 
 
+class _StepTracer(_RunTracer):
+    """결과 dict를 그대로 Span 출력으로 기록하는 단계 Tracer. compute()가 {"error": ...}를 담으면 ERROR 수준."""
+
+    def record(self, span_name: str, span_input: dict, span_metadata: dict, compute: Callable[[], dict]) -> dict:
+        def summarize(result: dict):
+            error = result.get("error")
+            return result, bool(error), str(error) if error else None
+
+        return self._traced(span_name, span_input, span_metadata, compute, summarize)
+
+
+class IndexingTracer(_StepTracer):
+    """임베딩·색인 실행 기록. 문서마다 Span `index-pdf FB01.pdf` (벡터 자체는 기록하지 않는다)."""
+
+    TRACE_NAME = "document-indexing"
+    TAGS = ["indexing"]
+
+
+class ComparisonTracer(_StepTracer):
+    """임베딩 후보 비교 실행 기록. 모델마다 Span `retrieve-eval {모델}`, 질문별 결과를 출력에 담는다."""
+
+    TRACE_NAME = "embedding-comparison"
+    TAGS = ["evaluation", "retrieval"]
+
+
 class IngestionTracer(_RunTracer):
     """PDF 추출 실행 기록. `with IngestionTracer(langfuse, meta) as tracer:` 안에서 tracer.extract(...)를 호출한다."""
 

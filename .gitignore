@@ -40,3 +40,7 @@ project_docs/00_assignment/
 
 # 이전 버전 설계 문서: 현행 문서와 충돌하므로 저장소에 올리지 않는다 (로컬에는 유지)
 project_docs/10_old/
+
+# 모델 캐시가 저장소 안에 생긴 경우(빈 HF_HOME 사고 방지용), 라이브러리가 만드는 파일
+hub/
+.agent_harnesses.json

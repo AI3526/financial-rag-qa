@@ -133,7 +133,8 @@ def check_langfuse(openai_result: dict | None) -> bool:
     usage = result["usage"]
     with propagate_attributes(
         trace_name="connection-test",
-        tags=["connection_test", "development"],
+        environment="development",
+        tags=["connection_test"],
         metadata={"request_id": request_id, "track": "development", "step": "0"},
     ):
         with langfuse.start_as_current_observation(

@@ -6,6 +6,7 @@ dependencies = [
     "langchain-openai>=1.7.4",
     "langfuse>=5.2.0",
     "openai>=3.46.0",
+    "pypdf>=6.21.4",
     "python-dotenv>=1.2.4",
 ]
 

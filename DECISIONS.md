@@ -28,6 +28,7 @@
 | openai | 3.46.0 | |
 | langfuse | 5.2.0 | 환경 변수는 `LANGFUSE_BASE_URL` (코드 확인, `LANGFUSE_HOST`는 하위 호환) |
 | langchain-core / langchain-openai | 1.7.6 / 1.7.4 | |
+| pypdf | 6.21.4 | BSD-3-Clause (패키지 메타데이터 확인). PDF 추출(D-021) |
 | python-dotenv | 1.2.4 | |
 | pydantic (간접 의존) | 2.14.3 | |
 
@@ -53,12 +54,42 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - LLM 출력은 `json_schema`(strict)로 형식을 강제할 수 있다. 다만 `source_ids`가 최종 문맥에 있는 ID인지는 코드가 따로 검증해야 한다.
 - 토큰 사용량 기록에 `reasoning_tokens`를 별도 필드로 둔다(`09_DATA_SCHEMA.md`).
 
+### 1.3 STEP 1에서 확인한 데이터 특성 (2026-11-06, Basic PDF 15개)
+
+| 항목 | 확인 결과 |
+|---|---|
+| 규모 | 15개 × 24쪽 = 360쪽(과제 안내와 일치). 암호화·손상·이미지 없음, 모든 쪽에 텍스트(쪽당 평균 약 1,000자) → OCR 불필요 |
+| 표 | 선(ruling) 기반 표 0개(pdfplumber 탐지). 숫자는 본문 문장 안에 있음. 표 처리 성능은 Basic에서 검증하지 못함 → Intermediate 확장 시 재비교 |
+| 머리말 | FB01~08은 모든 쪽 첫 줄이 `FBxx \| 부서명`, FB09~15는 `FBxx`와 문서 제목만 있음 |
+| 꼬리말 | 360쪽 모두 `N / 24`. PDF 페이지 번호와 일치함을 360쪽 전체에서 검증(테스트) |
+| 줄바꿈 | 고정 폭 줄바꿈으로 단어 중간에서 끊김. 근거 원문과 대조한 줄 경계 134곳 중 87곳(65%)이 단어 중간, 47곳(35%)이 단어 사이 → 줄을 이을 때 공백 처리를 STEP 2에서 결정(빈 문자로 이으면 근거 원문과 정확 일치 24/64, 공백으로 이으면 9/64로 어느 쪽도 완벽하지 않음) |
+| 개인정보 | 전화번호·주민번호·카드번호·URL 0건. 이메일 8건(FB11, FB15)은 모두 `.example` 도메인의 부서 공용 주소로 문서가 "실제 연락·인증에 사용할 수 없다"고 설명. 이름은 자동 검출하지 못했고 샘플로만 확인. **공개된 가상 연락처로 보고 개인정보 해당 없음(D-022)** |
+| 대표 페이지 원문 대조 | FB10 p2(정정 공지: 아시아 280→260억, 유럽 240→260억)와 FB01 p6(수치·날짜 다수)를 PDF 렌더링 이미지와 비교해 수치·날짜·머리말·꼬리말이 모두 일치함을 확인(AI 보조 육안 대조) |
+
+### 1.4 Langfuse 기능 조사 결과 (2026-11-06, 공식 문서 확인)
+
+출처는 `https://langfuse.com/docs/...` 각 페이지이며, 문서에 없는 부분은 "확인 못함"으로 적는다.
+
+| 기능 | 확인한 내용 | 우리 프로젝트에서의 의미 |
+|---|---|---|
+| Trace 이어붙이기 | `start_as_current_observation(trace_context={"trace_id", "parent_span_id"})`로 기존 Trace에 span을 붙일 수 있음. HTTP 전파(`traceparent`)와 Python의 자동 중첩은 해당 페이지에서 확인 못함 | 실험 Trace와 서비스 Trace의 연결 방식 설계에 영향(D-023 열린 점) |
+| 외부 Trace의 데이터셋 항목 연결 | 문서 페이지에서 확인 못함. OpenTelemetry 속성으로 실험을 묶는 방법이 별도 페이지에 있음 | 사전 검증 필요(D-023) |
+| 토큰·비용 | 전송한 `cost_details`가 우선, 없으면 모델 정의(Project Settings > Models, `match_pattern`+단가)로 계산. `usage_details`의 각 키는 **서로 겹치지 않는 구간**이어야 하며 `output`에서 `output_reasoning_tokens`를 빼야 이중 계산을 피함(OpenAI 사용량 스키마로 보내면 Langfuse가 자동으로 뺌) | `gpt-6-luna`는 `completion_tokens`에 추론 토큰이 포함됨. Langfuse로 보낼 때 이중 계산이 생기지 않게 처리 필요(STEP 8). 모델 단가가 확인되면 Models에 등록, 확인 전에는 비용을 계산하지 않음 |
+| Scores / Score Analytics | 임의의 점수를 Trace·Observation에 붙일 수 있고, 사람 점수와 LLM Judge 점수의 일치도 분석 제공 | Hit/Recall/Faithfulness/Judge 점수를 같은 Trace에 붙이는 후보(STEP 11) |
+| Annotation Queues | 도메인 전문가가 Trace·Observation·Session에 점수·코멘트·수정 출력을 남기는 검토 대기열. 데이터셋 실행 항목 추가는 문서에서 확인 못함 | "대표 자동 평가 결과를 사람이 원문과 대조", `human_review`·중대 오류 판정 작업에 맞음 [선택] |
+| 관리형 LLM-as-a-Judge | Langfuse 워커가 평가 실행, 평가 모델은 LLM Connection, 평가 1회 비용 약 $0.01~0.10 추정(FAQ), 평가 실행도 `langfuse-llm-as-a-judge` 환경의 Trace가 됨. 내장 Faithfulness 템플릿은 없음. **Trace 단위 평가는 deprecated이며 2026-11-16 이후 Cloud에서 실행 중단**, Observation 단위 권장 | 과제 필수는 RAGAS Faithfulness 공식 예제 방식과 맞춤 Judge이므로 현행(자체 스크립트) 유지. 관리형을 쓴다면 Observation 단위로만 |
+| Prompt Management | 프롬프트 버전 관리, SDK로 가져와 generation에 연결하면 버전별 지연·토큰·비용·점수 중앙값 비교. 폴백 프롬프트는 연결을 만들지 않음, Generation만 연결 | 프롬프트는 Git 파일로 버전 관리하기로 한 07번과 기준이 이중이 됨. STEP 8~9 프롬프트 조정 때 재검토 [보류] |
+| Metrics API / 대시보드 | 비용·토큰·지연·점수 집계, `environment` 필터 가능. p50/p95와 태그·이름별 그룹은 해당 페이지에서 확인 못함 | 운영 지표의 기준 데이터는 결과 JSON(D-012). 대시보드는 시각화용 [선택] |
+| Environments | 기록을 환경별로 구분, 화면·Metrics API 필터 | 도입함(D-022) |
+| Masking | 클라이언트 초기화 때 `mask` 함수로 전송 전에 가림 | 개인정보 게이트(D-022) |
+| (도입 결정) | 비용·Scores·Annotation Queues·Prompt Management·대시보드는 모두 도입하기로 함(D-024). 위 표의 [선택]·[보류] 표기는 도입 시점과 설계 결정이 남았다는 뜻으로 읽는다 | |
+| 데이터 보존 | Hobby 플랜은 조회 가능한 기록이 30일, 이전 데이터는 저장되지만 업그레이드 시 조회 가능(요금 페이지) | **발표·제출에 필요한 Langfuse 화면은 30일 안에 캡처·링크 정리** 필요, Trace URL·내보내기로 보존 계획 필요 |
+
 ## 2. 확인 대기 항목 (실제 값 확인 후 채움)
 
 | 항목 | 확인 시점 | 상태 |
 |---|---|---|
-| `reasoning_effort`, `max_completion_tokens`, `seed` 사용 여부의 최종값 | STEP 8 | 제안 대기 |
-| PyTorch·sentence-transformers·qdrant-client·rank_bm25·kiwipiepy·ragas 등 나머지 패키지 버전 | 설치 시 (`uv.lock`으로 고정) | 미확인 |
+| `reasoning_effort`, `max_completion_tokens`, `seed` 사용 여부의 최종값 | STEP 8 | 제안 대기 || PyTorch·sentence-transformers·qdrant-client·rank_bm25·kiwipiepy·ragas 등 나머지 패키지 버전 | 설치 시 (`uv.lock`으로 고정) | 미확인 |
 | `intfloat/multilingual-e5-large`, `BAAI/bge-m3`, `BAAI/bge-reranker-v2-m3`의 revision과 라이선스 | STEP 3·6 다운로드 시 모델 카드 확인 | 미확인 |
 | 임베딩 소규모 확인 결과(Hit@5, Recall@5, 시간)와 승자 | STEP 3 | 미실행 |
 | timeout, 최대 호출 수, 재시도 횟수의 값 | STEP 7~8에서 제안, 공식 실행 전 확정 | 미정 |
@@ -178,9 +209,59 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **영향**: 01, 08, 10
 
 ### D-020 저장소(Git/GitHub) 정책
-- **결정**: 제출물이 GitHub 저장소이므로 저장소 하나로 관리한다. `project_docs/`, `CLAUDE.md`, `TASKS.md`, `DECISIONS.md`, `data/finance_basic/`(합성 데이터, 총 약 6.3MB)는 모두 커밋한다. `project_docs/00_assignment/`(과제 안내 복사본)는 공개 여부가 확인되지 않아 `.gitignore`로 제외한다(로컬에는 유지). `project_docs/10_old/`(이전 버전 설계 문서)도 현행 문서와 충돌하므로 제외한다(로컬에는 유지). `.env`, 가상환경, Qdrant 로컬 저장소, 모델 가중치·캐시는 제외한다. `uv.lock`과 `pyproject.toml`은 커밋한다. `.env.example`은 변수 이름만 둔다(모델 이름 같은 비밀이 아닌 값은 채워도 됨).
+- **결정**: 제출물이 GitHub 저장소이므로 저장소 하나로 관리한다. `project_docs/`, `CLAUDE.md`, `TASKS.md`, `DECISIONS.md`, `data/finance_basic/`(합성 데이터, 총 약 6.3MB)는 모두 커밋한다. `project_docs/00_assignment/`(과제 안내 복사본)는 공개 여부가 확인되지 않아 `.gitignore`로 제외한다(로컬에는 유지). `project_docs/10_old/`(이전 버전 설계 문서)도 현행 문서와 충돌하므로 제외한다(로컬에는 유지). `.env`, 가상환경, Qdrant 로컬 저장소, 모델 가중치·캐시는 제외한다. `data/processed/`(추출·청크 등 파생 데이터)도 원본과 같은 공개 범위로 커밋한다(원본이 이미 공개 저장소에 포함되므로 파생 데이터만 제외해도 보호가 되지 않음). `uv.lock`과 `pyproject.toml`은 커밋한다. `.env.example`은 변수 이름만 둔다(모델 이름 같은 비밀이 아닌 값은 채워도 됨).
 - **이유**: 설계 문서와 커밋 이력은 "선택 규칙을 실험 전에 확정"했다는 증거이고 재현 가능성(과제 평가 관점)을 뒷받침한다. 문서를 `.gitignore`에 넣으면 로컬 이력도 사라진다(CLAUDE.md §8 위배). 데이터는 사용자가 합성 데이터라 올려도 무방하다고 확인했다.
 - **주의**: 한 번 올린 파일은 이력에서 지우기 어려우므로 첫 커밋 전에 `.gitignore`를 적용한다. 첫 `git add` 전에 `.env`가 추적되지 않는지 확인한다.
+- **승인**: 사용자 (2026-11-06)
+
+### D-021 PDF 추출 라이브러리: pypdf
+- **결정**: PDF 추출은 `pypdf`(6.21.4, 기본 `extract_text()`)를 사용한다. `pages.jsonl`에는 추출 텍스트를 가공하지 않고 저장하고(머리말·꼬리말·줄바꿈 포함), 줄 잇기와 머리말·꼬리말 처리는 청킹(STEP 2)에서 한다. 결과 파일은 덮어쓰지 않으며 재실행에는 `--force`가 필요하다.
+- **비교 근거**: pypdf, pdfplumber 0.11.10, pypdfium2 5.14.0, PyMuPDF 2.1을 실제 360쪽에서 비교. 평가 데이터 `development.json`의 근거 원문 64개 포함률은 네 후보 모두 64/64(공백 무시 비교)로 **품질 차이 없음**. 공백을 유지한 비교도 네 후보 모두 9/64로 동일. 추출 시간은 pypdf 17초, pdfplumber 9초, pypdfium2 0.9초, PyMuPDF 0.8초. 이 비교는 추출 충실도 점검 용도였고 색인·생성에는 사용하지 않았으며 공식 평가용 `additional`은 사용하지 않았다.
+- **이유**: 품질이 같으므로 라이선스·단순성으로 선택. pypdf는 과제 권장 도구, BSD-3-Clause, 순수 Python. 속도는 이 규모에서 문제 없음(Advanced 18,000쪽도 약 15분 추정, 실측 아님). PyMuPDF는 AGPL-3.0(또는 상용)이라 공개 저장소·재사용 시 조건이 붙을 수 있어 제외. pypdfium2는 `\r\n` 줄바꿈 정규화와 바이너리 의존이 필요하고, pdfplumber는 이번 데이터에서 이점(표)이 없고 의존성이 늘어남.
+- **한계와 재검토**: Basic에는 표가 없어 표 처리 성능은 검증하지 못했다. Intermediate/Advanced 확장 시 pdfplumber·pypdfium2를 다시 비교한다([확장]).
+- **승인**: 사용자 (2026-11-06)
+
+### D-022 문서 추출 실행의 Langfuse 기록과 개인정보·마스킹 정책
+- **결정 1 (Langfuse 기록)**: 추출 실행 1회를 Trace 1개(`document-ingestion`)로, PDF마다 Span 1개(`extract-pdf`)로 기록한다. Span 출력에 문서 요약(페이지 수, sha256, 상태, 시간, 오류)과 **페이지 텍스트까지 포함**한다. 질문 처리 Trace(`rag-query`)와 구분한다. Langfuse 실패는 추출을 막지 않는다(`--no-langfuse`로 오프라인 실행 가능). 이는 08번 §5의 [필수] 항목이었으나 STEP 1 첫 구현에서 누락되었다가 보완했다.
+- **근거**: Langfuse Cloud 무료(Hobby) 플랜은 월 50,000유닛, 조회 30일, 사용자 2명(2026-11-06 공식 요금 페이지 확인). 유닛은 Trace·Observation·Score의 개수이며 텍스트 길이가 아니다. 페이지마다 Span을 만들지 않고 문서별 Span에 텍스트를 담아 한 번에 16유닛만 쓴다. 실제 실행으로 Trace 1 + Span 15, 페이지 360쪽, 텍스트 368,449자가 기록된 것을 API로 확인했다. 한도 초과 시 Hobby의 동작은 요금 페이지에 명시되어 있지 않아 확인하지 못했다.
+- **결정 1-1 (Span 이름과 환경)**: Span 이름에 원본 PDF 파일명을 넣는다(`extract-pdf FB01.pdf`)와 metadata에 `book_id`를 둔다. Langfuse 기본 필드 `environment`를 도입하고 `track`과 같은 값(`development` / `official` / `extension`)을 쓴다. 이에 따라 `development` 태그는 제거했다(태그는 `ingestion`, `connection_test` 같은 종류 구분에만 사용). 이름이 파일별로 달라져 대시보드의 이름 기준 집계는 쪼개지지만, 운영 지표의 기준 데이터는 결과 JSON이므로(D-012) 영향이 작다고 판단했다.
+- **결정 2 (개인정보)**: 문서 속 이메일 8건(`.example` 도메인 부서 공용 주소, FB11·FB15)은 문서가 부서 공용 연락처이며 실제 연락·인증에 쓸 수 없다고 설명하는 **공개된 가상 연락처**로 보고 개인정보 해당 없음으로 한다. 마스킹하지 않으며 모델 입력·결과 JSON·Langfuse 기록 모두 원문이다.
+- **이유**: 마스킹하면 "공시 문의 주소는?" 같은 질문에 `[EMAIL]`로 답하게 된다(평가 데이터에는 `@`가 없어 점수 영향은 없음).
+- **저장소 공개 범위**: 이번 Basic 데이터는 합성 데이터라 원본(`data/finance_basic/`)과 파생 데이터(`data/processed/`)를 모두 공개 저장소에 포함한다. 원본이 이미 공개되므로 파생 데이터만 제외해도 보호가 되지 않는다.
+- **정책 (게이트)**: **실제 개인정보가 포함된 데이터를 처리하기 전에**, ① `data/` 전체(원본과 파생 데이터, 결과)를 처음부터 `.gitignore`에 넣거나 비공개 저장소를 사용하고, ② Langfuse `mask` 함수(SDK가 클라이언트 초기화 때 지정하는 기능을 지원함을 설치된 소스에서 확인)를 `langfuse_client.py`에 구현·테스트하며, ③ OpenAI·Langfuse Cloud 같은 외부 서비스로 보내도 되는지 별도로 검토한다(법적 판단은 이 프로젝트에서 하지 않음). 이미 커밋한 파일은 이력에서 지우기 어려우므로 데이터를 넣기 전에 먼저 정한다. 그 전까지 실제 개인정보를 처리하지 않는다.
+- **영향**: 05 §10.2, 08 §5, 09 §16
+- **승인**: 사용자 (2026-11-06)
+
+### D-023 Langfuse Datasets/Experiments 도입 시점과 규칙
+- **결정**: Datasets/Experiments는 **STEP 11~12(평가·공식 비교)에서 도입**한다. 규칙은 지금 확정한다.
+  1. 항목 `input`에는 **질문만** 둔다. 정답은 `expected_output`에, 필수 사실·금지 주장·근거 문서·`expected_action`은 metadata에 둔다. 서비스로는 `input`(질문)만 전달하며 테스트로 확인한다.
+  2. 결과 JSON이 기준 데이터, Langfuse는 사본(보기·비교용)이다. 점수는 한 번 계산해 양쪽에 같은 값을 넣는다.
+  3. 데이터셋은 평가 세트별로 나눈다(development, additional, expansion_validation). 보안 질문 2개는 방어 프롬프트 비교라 별도 구성으로 둔다.
+  4. 공식 실행은 `run_name`에 실험 ID와 방식을 넣어 방식별 실행으로 구분한다.
+  5. 서비스 코드 안에서 데이터셋을 읽지 않는다.
+- **이유**: 세 방식을 질문별로 나란히 비교한다는 목적에 실험 비교 화면(기준 실행 지정, 평균 점수·비용·지연, 케이스별 나란히 보기, Trace 열기)이 맞다. 데이터셋 항목·실행은 유닛으로 세지 않지만(Billable Units 페이지) 실험 중 생기는 Trace·Observation·Score는 유닛이다(질문당 지표 7개 × 180건 ≈ 1,260유닛이 공식 실행 한 번에 추가).
+- **열린 점**: 실험이 만드는 Trace와 우리 서비스가 만드는 Trace를 어떻게 이을지(서비스가 현재 Trace 안에 중첩, 또는 trace_id·parent_span_id를 전달해 이어붙임). 현재 설계(서비스가 `request_id`에서 만든 trace_id로 독립 Trace 생성)와 충돌할 수 있어, STEP 11 전에 작은 실험으로 검증하고 04 §8, 05 §4.2, 09 §4.1을 함께 조정한다.
+- **승인**: 사용자 (2026-11-06)
+
+### D-024 Langfuse 기능 도입 범위와 로컬(JSON)-클라우드 기록 규칙
+- **결정 1 (도입)**: 비용 추적, Scores, Annotation Queues, Prompt Management, 대시보드를 모두 도입한다.
+
+  | 기능 | 시점 | 선결 사항 |
+  |---|---|---|
+  | 비용 추적 | STEP 8(사용량 기록), 단가 확인 후 Models 등록 | `gpt-6-luna` 단가를 **아직 확인하지 못함**. 확인 전에는 비용을 계산하지 않고 확인 불가로 기록(과제 원칙). 이중 계산 방지를 위해 추론 토큰은 `output`에서 분리해 전송 |
+  | Scores | STEP 11 | Hit/Recall/Faithfulness/Judge를 같은 Trace에 붙이는 방법을 spike로 확인 |
+  | Annotation Queues | STEP 11 | 사람 점수·코멘트를 로컬로 내려받는 단계 필요(결정 2) |
+  | Prompt Management | STEP 8~9 | **프롬프트 원본(master) 위치를 정해야 함**(아래 열린 결정) |
+  | 대시보드 | STEP 14 | 보여 줄 지표 정의 |
+
+- **결정 2 (기록 규칙)**:
+  1. 서비스·평가가 만드는 기록(Trace, 모델 입출력, 사용량, Score)은 **같은 코드 경로에서 로컬 JSON과 Langfuse에 함께 기록**한다. Langfuse 기록 실패가 JSON 저장을 막지 않는다. 두 곳이 어긋나면 로컬 JSON이 기준이다(클라우드 장애, 무료 플랜 30일 조회 제한).
+  2. **Langfuse 화면에서만 생기는 데이터**(Annotation 점수·코멘트, UI에서 수정한 프롬프트)는 **로컬로 내려받아 JSON/Git에 보관**하는 내보내기 단계를 둔다. 내려받지 않은 데이터는 클라우드에만 남은 것으로 본다.
+  3. **편집 가능한 정의**(프롬프트, 데이터셋 항목)는 편집하는 곳을 하나로 정한다. 양쪽에서 수정하지 않는다.
+  4. 발표·제출에 필요한 Langfuse 화면은 30일 안에 캡처하거나 Trace URL을 정리한다.
+- **결정 3 (프롬프트 원본)**: **Git 파일이 프롬프트의 원본**이다. 스크립트로 Langfuse에 버전을 올려 Trace와 연결하고, 프롬프트는 Langfuse UI에서 수정하지 않는다(수정하면 Git과 어긋남). 공식 비교는 프롬프트를 동결하고 해시·`git_commit`을 기록해야 하며(07번), Langfuse 장애가 서비스에 영향을 주지 않게 한다. Langfuse 연결 제약(폴백 프롬프트는 연결을 만들지 않고 Generation만 연결됨)은 구현 시 고려한다. 07 §7과 04 §8은 STEP 8에서 함께 고친다.
+- **Trace ID 설계(요청 Trace와 실험 Trace의 연결)**: 질문 요청 Trace(STEP 7 이후)에만 해당하는 문제라서, 추출·청킹·색인 같은 실행 단위 Trace(STEP 1~3)와 무관하다. **API(STEP 7)를 만들기 직전에 spike로 검증해 확정**한다.
+- **영향**: 04 §8, 05 §4.2·§11, 07 §7, 09 §4.1·§9·§11
 - **승인**: 사용자 (2026-11-06)
 
 ---

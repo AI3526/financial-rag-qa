@@ -36,6 +36,19 @@ uv run python scripts/check_connections.py all
 uv run pytest
 ```
 
+## PDF 추출 (STEP 1)
+
+```bash
+# documents/*.pdf 전체를 추출해 data/processed/documents.jsonl, pages.jsonl에 저장한다
+# (이미 결과가 있으면 중단한다. 덮어쓰려면 --force)
+uv run python scripts/ingest_pdfs.py
+```
+
+`documents.jsonl`에는 PDF별 페이지 수, sha256, 추출 상태·시간·오류를, `pages.jsonl`에는 페이지별 추출 텍스트(가공하지 않은 원문)를 저장한다. 처리에 실패한 문서나 페이지는 중단하지 않고 상태와 사유를 기록한다.
+
+- 실행 결과는 Langfuse에도 기록된다(Trace `document-ingestion`, PDF마다 Span `extract-pdf FB01.pdf`처럼 파일명 포함, 페이지 텍스트 포함, environment `development`). 오프라인으로 실행하려면 `--no-langfuse`를 붙인다.
+- 결과 파일이 이미 있으면 덮어쓰지 않고 중단한다(`--force`로 재생성).
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

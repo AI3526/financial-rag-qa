@@ -169,6 +169,7 @@ Observation 이름은 역할을 명확하게 알 수 있도록 일관되게 지�
 | question_id | 평가 질문 식별 (평가 JSON의 `id`) | 평가 실행 시 [필수] |
 | experiment_id | 실험 식별 | 실험 실행 시 [필수] |
 | track | 실험 구분: official / extension / development | 실험 실행 시 [필수] |
+| environment | Langfuse 기본 환경 필드. **`track`과 같은 값**(`development` / `official` / `extension`)을 쓴다. 소문자·숫자·하이픈·밑줄만 가능하고 `langfuse`로 시작할 수 없다. 화면 필터로 공식 실행만 골라 보기 위한 용도 | [필수] |
 | run_type | 요청 구분: general_eval / security / mock_error / scoring | [필수] |
 | dataset_id | 데이터셋 식별 | [필수] |
 | dataset_version | 데이터셋 버전 식별 | [필수] |

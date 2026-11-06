@@ -49,6 +49,15 @@ uv run python scripts/ingest_pdfs.py
 - 실행 결과는 Langfuse에도 기록된다(Trace `document-ingestion`, PDF마다 Span `extract-pdf FB01.pdf`처럼 파일명 포함, 페이지 텍스트 포함, environment `development`). 오프라인으로 실행하려면 `--no-langfuse`를 붙인다.
 - 결과 파일이 이미 있으면 덮어쓰지 않고 중단한다(`--force`로 재생성).
 
+## 청킹 (STEP 2)
+
+```bash
+# pages.jsonl을 청킹해 data/processed/chunks.jsonl, chunking_manifest.json에 저장한다
+uv run python scripts/chunk_pages.py
+```
+
+페이지 경계를 넘지 않고, 문단을 450자까지 묶는다(450자 초과 문단은 800자 이내면 통째로 유지). 머리말·문서 제목·소제목은 `metadata`로 옮기고 꼬리말은 버린다. 설정과 이유는 `DECISIONS.md` D-025. Trace `document-chunking`(문서마다 Span `chunk-pdf FB01.pdf`, 청크 텍스트 포함)으로 Langfuse에도 기록되며 `--no-langfuse`로 끌 수 있다. 결과가 있으면 `--force` 없이는 중단한다.
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

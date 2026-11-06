@@ -1,0 +1,43 @@
+{
+  "chunking_method": "paragraph-pack",
+  "chunking_version": "chunk-v1",
+  "params": {
+    "max_chars": 450,
+    "hard_max_chars": 800,
+    "overlap_units": 0,
+    "paragraph_ratio": 0.85,
+    "join_rule": "empty-join; space after sentence punctuation; keep original leading space"
+  },
+  "dataset_id": "basic",
+  "dataset_version": "basic-v1",
+  "input": {
+    "documents": 15,
+    "pages": 360
+  },
+  "stats": {
+    "chunk_count": 1056,
+    "avg_chars": 325.5,
+    "median_chars": 347.0,
+    "min_chars": 54,
+    "max_chars": 659,
+    "chunks_per_book": {
+      "FB01": 72,
+      "FB02": 72,
+      "FB03": 71,
+      "FB04": 74,
+      "FB05": 68,
+      "FB06": 72,
+      "FB07": 71,
+      "FB08": 71,
+      "FB09": 67,
+      "FB10": 70,
+      "FB11": 70,
+      "FB12": 69,
+      "FB13": 71,
+      "FB14": 69,
+      "FB15": 69
+    }
+  },
+  "warnings": [],
+  "created_at": "2026-11-06T06:56:47+00:00"
+}

@@ -120,6 +120,7 @@ def test_environment_is_passed_to_langfuse_and_matches_track(tmp_path, monkeypat
     assert captured["tags"] == ["ingestion"]
     assert captured["metadata"]["track"] == "development"  # environment와 같은 값
     assert captured["metadata"]["step"] == "1"
+    assert "run_id" in captured["metadata"]
 
 
 def test_invalid_environment_is_rejected():

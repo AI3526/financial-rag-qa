@@ -49,6 +49,7 @@
 | `data/processed/documents.jsonl` | PDF별 처리 매니페스트(§6.1) |
 | `data/processed/pages.jsonl` | 페이지별 추출 결과(§6.2) |
 | `data/processed/chunks.jsonl` | 청크(§6.3) |
+| `data/processed/chunking_manifest.json` | 청킹 설정(`params`), 통계(청크 수·평균/최소/최대 글자 수), 경고 |
 | `data/processed/index_manifest.json` | 색인 정보와 처리 통계(§7) |
 | `results/{experiment_id}/manifest.json` | 실행 설정 스냅샷(§12) |
 | `results/{experiment_id}/runs.jsonl` | 요청별 run 레코드(§9) |
@@ -144,13 +145,14 @@ PDF 1개당 1행이다.
 | `chunking_method`, `chunking_version` | string | 필수 | 청킹 방식·설정 버전 |
 | `dataset_id`, `dataset_version` | string | 필수 | 데이터셋 정보 |
 | `token_count` | integer/null | 선택 | 청크 토큰 수 |
-| `metadata` | object | 선택 | 원문에서 확인한 메타데이터만 (기본은 빈 객체) |
+| `metadata` | object | 선택 | 원문에서 확인한 메타데이터만. chunk-v1은 페이지의 `header`(머리말), `doc_title`, `section_title`을 둔다(구조가 다른 페이지는 빈 객체). |
 | `created_at` | datetime | 필수 | 생성 시간 |
 
 규칙:
 - **청크는 페이지 경계를 넘지 않고 단일 `page`를 가진다.** 여러 페이지에 걸친 청크(`page_spans: [{page, char_start, char_end}]`)는 [확장]이다. 합쳐진 내용을 한 페이지인 것처럼 표시하지 않는다.
 - 표의 값은 행·열 제목, 단위, 각주와 함께 보존한다.
 - `metadata`에는 원문에서 확인한 값만 쓴다. 회사·사업부문·제품·지역 등의 보강은 [확장]이다.
+- `chunk_text`는 본문만 담고(머리말·꼬리말 제외), 임베딩·BM25에 넣는 검색용 텍스트는 `metadata`의 머리말·제목·소제목을 접두로 붙여 코드(`retrieval_text`)에서 만든다. 저장하지 않는다.
 - 청킹 설정이 바뀌면 기존 청크를 덮어쓰지 않고 새 `chunking_version`으로 만든다.
 
 ## 7. 색인 매니페스트 (`index_manifest.json`)

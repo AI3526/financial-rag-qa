@@ -1,0 +1,12 @@
+{
+  "experiment_id": "dense-check-001",
+  "track": "development",
+  "step": "4",
+  "retrieval": "dense",
+  "collection": "basic__chunk-v1__e5large-v1",
+  "embedding_model": "intfloat/multilingual-e5-large",
+  "k": 5,
+  "purpose": "동작 확인(성능 지표 아님)",
+  "langfuse_trace_id": "2ecfabf82feab8bb296b83be767d7881",
+  "created_at": "2026-11-06T11:44:21+00:00"
+}

@@ -74,6 +74,22 @@ uv run python scripts/compare_embeddings.py
 - 모델은 처음 실행할 때 내려받아 HF 캐시(`C:\Users\<사용자>\.cache\huggingface\hub`, 저장소 밖)에 저장된다. `.env`의 `HF_HOME`을 비워 두면 기본 위치를 쓴다(빈 값은 설정하지 않은 것으로 처리). GPU는 CUDA 12.8 이상용 PyTorch가 필요하다.
 - Langfuse에는 색인(`document-indexing`)과 비교(`embedding-comparison`)가 기록된다. `--no-langfuse`로 끌 수 있다(색인 스크립트).
 
+## Dense 검색 (STEP 4)
+
+```python
+from src.config import load_env
+load_env()  # 다른 라이브러리보다 먼저
+from src.retrieval.dense import DenseRetriever
+
+result = DenseRetriever().retrieve("루미센서 E는 어떤 제품인가요?", k=5)
+for c in result.chunks:   # rank, score, chunk_id, book_id, file_name, page, text, metadata
+    print(c["rank"], c["score"], c["file_name"], c["page"])
+```
+
+`DenseRetriever(langfuse=get_langfuse())`처럼 Langfuse를 주면 검색마다 Span `dense-retrieve`가 기록된다. 질문 유형별 동작 확인은 `uv run python scripts/check_dense_retrieval.py`로 실행하며 결과는 `results/dense-check-001/`에 저장되고 Langfuse에도 올라간다.
+
+동결된 e5-large와 Qdrant 컬렉션 `basic__chunk-v1__e5large-v1`을 쓴다. 빈 질문은 `InvalidQuery`, 저장소 오류는 `RetrievalError`를 낸다. 유사도 임계값은 두지 않으며(D-028) 검색은 항상 Top-k를 돌려준다.
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

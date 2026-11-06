@@ -274,7 +274,7 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
   5. **`hard_max_chars=800` (승인된 설계에 없던 추가)**: 450자를 넘는 문단(1,929개 중 19개, 최대 659자)은 문장 단위로 쪼개지 않고 통째로 한 청크로 둔다. 쪼개면 development 근거 원문 64개 중 2개가 두 청크로 갈라졌다. 800자를 넘는 문단만 문장 단위로 나눈다(현재 데이터에는 없음).
 - **기각한 대안**: kiwipiepy 띄어쓰기 보정(고유명사가 훼손되어 불채택, 경계에만 쓴 변형은 근거 원문 54/64 일치에 이름 15건 분리).
 - **결과**: 청크 1,056개(평균 325.5자, 중앙 347, 최소 54, 최대 659), 경고 0건. 360쪽 전부 청킹, 페이지별 내용 손실·중복 없음, 근거 원문 64/64가 단일 청크 안에 포함(튜닝에는 쓰지 않은 점검용).
-- **열린 점**: 크기·overlap 튜닝은 STEP 4에서 development로만 한다. 표가 페이지 경계에서 잘리는 문제는 Intermediate로 이월.
+- **열린 점**: 크기·overlap 튜닝은 03 §6에서 **[확장]**이므로 필수 범위에서는 하지 않고 `chunk-v1`을 그대로 쓴다(STEP 4 시작 때 정정). 확장으로 할 경우 새 `chunking_version`과 새 실험 ID로 하고 development에서만 조정한다. 표가 페이지 경계에서 잘리는 문제는 Intermediate로 이월.
 - **승인**: 사용자 (2026-11-06, 설계 제안 승인). `hard_max_chars=800`은 구현 중 추가된 항목으로 보고 후 사용자 승인 (2026-11-06).
 
 ### D-026 STEP 3 임베딩 선정 규칙의 세부 정의 (실행 전 고정)
@@ -318,6 +318,15 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **남은 것**: 청크의 `token_count`는 `chunks.jsonl`을 덮어쓰지 않기 위해 null로 두고, 토큰 통계(평균·최대)는 색인 매니페스트에 기록했다. 청크 크기 튜닝(STEP 4)은 development로만 한다. 모델이 정해졌으므로 크기를 토큰 기준으로 보는 것은 STEP 4에서 검토.
 - **영향**: 06 §11.2, 07, 09 §7
 - **승인**: 사용자 (2026-11-06)
+
+### D-028 Dense 검색 반환 형식과 유사도 임계값 미적용
+- **결정**: `DenseRetriever.retrieve(question, k)`가 `{rank(1부터), score, chunk_id, book_id, file_name, page, text, metadata}` 목록과 `durations_ms`(`embed`, `search`, `total`)를 돌려준다. Hybrid·Rerank·API가 이 형식을 이어받는다. 빈 질문과 k<1은 `InvalidQuery`(API 422 `invalid_request`), 저장소·임베딩 실패는 `RetrievalError`(API 500 `retrieval_error`)로 구분한다.
+- **Langfuse 기록 (08 §5 반영)**: 처음에는 "요청 Trace 설계가 STEP 7 전 spike로 미뤄져 있으니 검색 단계는 기록하지 않는다"고 판단해 건너뛰려 했으나, 08 §5가 Dense Retrieval 단계의 "검색어, 검색 결과, 점수, 검색 시간" 기록을 함께 구현하도록 요구하므로 잘못된 판단이었다(STEP 1에서 지적받은 것과 같은 유형). 사용자 질문으로 바로잡았다. `DenseRetriever(langfuse=...)`가 검색마다 Span `dense-retrieve`(유형 `retriever`)에 질문·k·컬렉션·임베딩 모델·결과(순위, 점수, 청크, 출처)·단계별 시간을 기록한다. Span이라 요청 Trace 안에서 호출되면 자동으로 그 아래에 붙고, Trace ID 설계(STEP 7 전 spike)와 무관하다. Langfuse 실패는 검색을 막지 않는다.
+- **동작 확인 기록**: `scripts/check_dense_retrieval.py`가 질문 유형별 8개를 실행해 `results/dense-check-001/`(`manifest.json`, `retrievals.jsonl`, track=development, 성능 지표 아님)에 저장하고 Langfuse Trace `2ecfabf82feab8bb296b83be767d7881`(루트 1 + 검색 Span 8)에 기록했다. Langfuse에서 읽어 Span 8개가 모두 루트 아래에 붙고 질문·Top-5·시간이 들어 있음을 확인했다.
+- **유사도 임계값은 두지 않는다.** 설계에 없고, 실제 점수로도 구분이 어렵다. 같은 컬렉션에서 관련 질문의 1위 점수가 0.86 전후, 전혀 무관한 질문(저녁 메뉴)의 1위가 0.787이었다. e5 코사인 점수가 좁은 구간에 몰려 있어 임계값으로 "근거 없음"을 가르면 정상 질문이 잘릴 위험이 있다. 근거가 충분한지는 생성 단계(STEP 8~9)가 판단한다.
+- **확인한 동작 (2026-11-06)**: "2026년 상반기 영업이익" 질문에서 1위가 FB01 p.2(영업이익 96억원)였고, 근거가 없는 질문(2027년 1분기 확정 매출)도 Top-5를 돌려준다. 첫 호출은 모델 로드 때문에 약 0.8초, 이후 약 0.16초(임베딩 약 15ms + Qdrant Cloud 검색 약 145ms). 이 시간에는 Cloud 네트워크가 포함된다(STEP 14 보고서에 명시).
+- **발견한 결함**: `k or 기본값`이 k=0을 기본값으로 바꾸는 문제를 단위 테스트가 잡아 고쳤다.
+- **승인**: 사용자 (2026-11-06, STEP 4 진행 승인). 청크 튜닝을 [확장]으로 두는 정정(D-025)도 사용자 승인. 동작 확인 Trace 8개는 삭제하지 않고 유지하기로 함(참조 보존, 증거 용도).
 
 ---
 

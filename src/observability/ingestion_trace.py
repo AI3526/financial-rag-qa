@@ -167,6 +167,13 @@ class ComparisonTracer(_StepTracer):
     TAGS = ["evaluation", "retrieval"]
 
 
+class RetrievalCheckTracer(_RunTracer):
+    """검색 동작 확인 실행의 Trace. 이 안에서 호출한 검색 Span(`dense-retrieve`)이 자동으로 그 아래에 붙는다."""
+
+    TRACE_NAME = "dense-retrieval-check"
+    TAGS = ["retrieval"]
+
+
 class IngestionTracer(_RunTracer):
     """PDF 추출 실행 기록. `with IngestionTracer(langfuse, meta) as tracer:` 안에서 tracer.extract(...)를 호출한다."""
 

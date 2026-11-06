@@ -1,0 +1,19 @@
+[project]
+name = "financial-rag-qa"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-openai>=1.7.4",
+    "langfuse>=5.2.0",
+    "openai>=3.46.0",
+    "python-dotenv>=1.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

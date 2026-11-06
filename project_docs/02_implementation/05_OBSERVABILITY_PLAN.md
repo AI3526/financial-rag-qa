@@ -189,7 +189,7 @@ Request ID와 Trace ID는 목적이 다르다.
 - Request ID: 서비스 요청을 식별하는 프로젝트 내부 식별자
 - Trace ID: Langfuse에서 해당 실행을 추적하는 식별자
 
-하나의 서비스 요청에 하나의 Trace를 연결한다. `request_id`는 서버가 UUID로 생성하고, `trace_id`는 `request_id`에서 결정적으로 만들어 두 값을 모두 결과에 저장한다(구체적인 생성 방식은 STEP 0에서 Langfuse SDK 문서를 확인해 `09_DATA_SCHEMA.md`에 기록한다).
+하나의 서비스 요청에 하나의 Trace를 연결한다. `request_id`는 서버가 UUID로 생성하고, `trace_id`는 `request_id`에서 결정적으로 만들어 두 값을 모두 결과에 저장한다(생성은 `Langfuse.create_trace_id(seed=request_id)`로 확정, STEP 0에서 langfuse 5.2.0으로 확인. `09_DATA_SCHEMA.md` 참조).
 
 평가 실행이나 실험에서 여러 질문을 처리하는 경우에도 질문별 실행을 각각 추적할 수 있어야 한다.
 
@@ -790,7 +790,7 @@ Langfuse와 결과 JSON의 데이터가 불일치할 경우 Request ID와 Trace 
 | Langfuse SDK 버전 | 구현 시 호환성 확인 | 초기 연동 |
 | Trace 및 Observation 세부 구조 | 본 문서의 기본 구조 적용 | 초기 연동 |
 | 실제 기록할 Input / Output 범위 | 개인정보 및 보안 기준에 따라 결정 | 초기 연동 |
-| `request_id` → `trace_id` 결정적 생성 방식 | request_id(UUID)에서 생성, 둘 다 저장 | STEP 0 (SDK 문서 확인) |
+| `request_id` → `trace_id` 결정적 생성 방식 | `create_trace_id(seed=request_id)`, 둘 다 저장 (확정, STEP 0 확인) | 확정 |
 | 평가 결과 저장 위치 | 결과 JSON이 기준 데이터, Langfuse는 추적용 (확정, §11) | 확정 |
 | Trace 보존 기간 | Langfuse Cloud 기본 정책 확인 | 운영 설정 |
 | Token Usage 수집 방법 | 모델 응답에서 제공되는 사용량 우선 | 모델 연동 |

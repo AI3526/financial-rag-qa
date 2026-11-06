@@ -111,6 +111,8 @@ Reranker는 Hybrid Retrieval 결과를 재정렬하는 데 사용하므로, 검�
 
 실제 지원 여부가 확인되지 않은 파라미터는 임의로 사용하지 않는다.
 
+**STEP 0 확인 결과 (`gpt-6-luna`, `DECISIONS.md` §1.2)**: 추론 모델이며 `temperature`는 기본값(1)만, `top_p`는 지원하지 않는다. `max_tokens` 대신 `max_completion_tokens`를 쓰고 출력 토큰에 추론 토큰이 포함된다. `reasoning_effort`(`none`/`low`/`medium`/`high`/`xhigh`), `seed`, `response_format`(`json_schema` strict 포함)은 사용할 수 있다. 따라서 이 모델의 "Temperature" 설정은 고정이며, 세 방식에 동일하게 고정할 값은 `reasoning_effort`, `max_completion_tokens`, (필요하면) `seed`이다. 응답이 실행마다 달라질 수 있는 점은 한계로 기록한다.
+
 세 가지 RAG 방식의 공식 비교에서는 동일한 생성 설정을 사용한다.
 
 ### 3.4 생성 모델 관련 확장 실험 [확장]

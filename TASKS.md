@@ -34,7 +34,7 @@
 
 | 순서 | STEP | 작업 | 구분 | 상태 | 완료 조건 요약 |
 |---|---|---|---|---|---|
-| 1 | 0 | 환경 구성: `git init`, uv venv(Python 3.12), `.gitignore`, `.env.example`, `gpt-6-luna`·Langfuse Cloud 연결, 테스트 Trace | 필수 | TODO | 프로젝트 실행, API·Langfuse 연결 확인, 비밀정보 미노출 |
+| 1 | 0 | 환경 구성: `git init`, uv venv(Python 3.12), `.gitignore`, `.env.example`, `gpt-6-luna`·Langfuse Cloud 연결, 테스트 Trace | 필수 | REVIEW | 프로젝트 실행, API·Langfuse 연결 확인, 비밀정보 미노출 |
 | 2 | 1 | PDF 확인·추출: 15개 전체, 페이지 보존, sha256, 처리 실패 기록, 대표 PDF 원문 대조, 개인정보 유무 기록 | 필수 | TODO | 전체 처리, 실패 확인 가능, 원문 대조 |
 | 3 | 2 | 청킹·메타데이터: 페이지 경계 비넘김, 최소 메타데이터 | 필수 | TODO | 청크가 `book_id`·`page`에 연결, 대표 청크 대조 |
 | 4 | 3 | 임베딩·Qdrant 로컬 색인, e5-large vs BGE-M3 1회 비교, 라이선스·버전 기록 | 필수 | TODO | 색인·조회·원본 페이지 역추적, 승자 동결 |

@@ -21,13 +21,44 @@
 | Docker | 없음 | Qdrant 로컬 모드 사용(D-010) |
 | Node | 없음 | 필요 없음 |
 
+### 1.1 설치·확인된 패키지 (STEP 0, 2026-11-06, `uv.lock`으로 고정)
+
+| 패키지 | 버전 | 비고 |
+|---|---|---|
+| openai | 3.46.0 | |
+| langfuse | 5.2.0 | 환경 변수는 `LANGFUSE_BASE_URL` (코드 확인, `LANGFUSE_HOST`는 하위 호환) |
+| langchain-core / langchain-openai | 1.7.6 / 1.7.4 | |
+| python-dotenv | 1.2.4 | |
+| pydantic (간접 의존) | 2.14.3 | |
+
+Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과 테스트 Trace 도착을 확인했다. `Langfuse.create_trace_id(seed=request_id)`로 `request_id`에서 trace_id를 결정적으로 만들 수 있음을 확인했다(같은 seed → 같은 값). 지정한 trace_id로 기록하려면 `trace_context={"trace_id": ...}`를 쓴다.
+
+### 1.2 `gpt-6-luna` 확인 결과 (STEP 0, 2026-11-06, OpenAI SDK 3.46.0, Chat Completions)
+
+| 항목 | 결과 |
+|---|---|
+| 모델 유형 | 추론(reasoning) 모델. 출력 토큰에 추론 토큰(`reasoning_tokens`)이 포함됨 |
+| `temperature` | 기본값(1)만 허용. `temperature=0`은 400 오류 |
+| `top_p` | 지원하지 않음 (400) |
+| `seed` | 요청은 허용됨. 결정성이 실제로 보장되는지는 미확인 |
+| `max_tokens` | 지원하지 않음. `max_completion_tokens`를 사용 |
+| `reasoning_effort` | `none`, `low`, `medium`, `high`, `xhigh` 지원. `minimal`은 거부 |
+| `response_format` | `json_object`, `json_schema`(strict) 모두 동작 |
+| 스트리밍 | `stream_options={"include_usage": True}`로 사용량 집계 가능, 모델 기준 TTFT 측정 가능 |
+
+영향과 후속 결정(STEP 8에서 실제 프롬프트로 확인해 동결):
+- 같은 질문의 응답이 실행마다 달라질 수 있다(temperature를 낮출 수 없음). 결과의 한계로 기록한다. `seed`의 효과는 STEP 8에서 확인한다.
+- `reasoning_effort`는 명시적으로 고정하고 기록한다(기본값에 의존하지 않음). 값은 STEP 8에서 제안한다.
+- `max_completion_tokens`는 추론 토큰을 포함하므로 너무 작으면 답이 비는 경우(`finish_reason=length`)가 생긴다. 충분히 크게 잡고 잘림은 출력 오류로 처리한다. 값은 STEP 8에서 제안한다.
+- LLM 출력은 `json_schema`(strict)로 형식을 강제할 수 있다. 다만 `source_ids`가 최종 문맥에 있는 ID인지는 코드가 따로 검증해야 한다.
+- 토큰 사용량 기록에 `reasoning_tokens`를 별도 필드로 둔다(`09_DATA_SCHEMA.md`).
+
 ## 2. 확인 대기 항목 (실제 값 확인 후 채움)
 
 | 항목 | 확인 시점 | 상태 |
 |---|---|---|
-| `gpt-6-luna` 호출 가능 여부, 지원 파라미터(temperature, 최대 출력 토큰 등) | STEP 0 | 미확인 (OpenAI API 키 보유는 사용자 확인) |
-| Langfuse SDK 버전, `request_id`→`trace_id` 결정적 생성 방식 | STEP 0 | 미확인 |
-| PyTorch·sentence-transformers·qdrant-client·rank_bm25·kiwipiepy·ragas·langchain 등 패키지 버전 | 설치 시 (`uv.lock`으로 고정) | 미확인 |
+| `reasoning_effort`, `max_completion_tokens`, `seed` 사용 여부의 최종값 | STEP 8 | 제안 대기 |
+| PyTorch·sentence-transformers·qdrant-client·rank_bm25·kiwipiepy·ragas 등 나머지 패키지 버전 | 설치 시 (`uv.lock`으로 고정) | 미확인 |
 | `intfloat/multilingual-e5-large`, `BAAI/bge-m3`, `BAAI/bge-reranker-v2-m3`의 revision과 라이선스 | STEP 3·6 다운로드 시 모델 카드 확인 | 미확인 |
 | 임베딩 소규모 확인 결과(Hit@5, Recall@5, 시간)와 승자 | STEP 3 | 미실행 |
 | timeout, 최대 호출 수, 재시도 횟수의 값 | STEP 7~8에서 제안, 공식 실행 전 확정 | 미정 |

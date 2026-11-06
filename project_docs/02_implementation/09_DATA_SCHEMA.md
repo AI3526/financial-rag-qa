@@ -65,7 +65,7 @@
 | 필드 | 자료형 | 설명 |
 |---|---|---|
 | `request_id` | string | API 요청 1건의 ID. 서버가 UUID로 생성한다. |
-| `trace_id` | string | Langfuse Trace ID. `request_id`에서 결정적으로 만들고 둘 다 저장한다(생성 방식은 STEP 0에서 SDK 문서를 확인해 확정). |
+| `trace_id` | string | Langfuse Trace ID. `request_id`에서 결정적으로 만들고 둘 다 저장한다. 생성은 `Langfuse.create_trace_id(seed=request_id)`이며 같은 seed는 같은 값을 만든다(STEP 0에서 langfuse 5.2.0으로 확인). |
 | `experiment_id` | string | 실험 실행 또는 비교 세트의 ID |
 | `question_id` | string/null | 평가 질문 ID. 평가 실행에서만 값이 있다. |
 | `chunk_id` | string | 청크 고유 ID. 형식 예: `FB01-p1-c1` |
@@ -288,7 +288,7 @@ LLM은 아래 JSON 하나를 반환한다.
 - `context_limit_tokens`, `context_token_count`
 - `chunks`: `[{source_id, chunk_id, book_id, file_name, page, rank, text}]` — 출처 ID(`S1`…)와 문서·페이지의 대응표 역할을 한다. 평가의 `retrieved_contexts`는 이 `text`를 사용한다.
 
-`llm_calls`(재시도·재생성 시도마다 1행): `{call_index, stage, model_id, input_tokens, output_tokens, duration_ms, retry_index, status, usage_status}`. 확인 불가한 값은 `null`이다. 서비스 답변 생성만 기록하며 평가 호출은 §11에 둔다.
+`llm_calls`(재시도·재생성 시도마다 1행): `{call_index, stage, model_id, input_tokens, output_tokens, reasoning_tokens, duration_ms, retry_index, status, finish_reason, usage_status}`. `gpt-6-luna`는 추론 모델이라 `output_tokens`에 추론 토큰이 포함되므로 `reasoning_tokens`를 별도로 기록한다(STEP 0 확인). 확인 불가한 값은 `null`이다. 서비스 답변 생성만 기록하며 평가 호출은 §11에 둔다.
 
 `performance`: `total_duration_ms`(API 수신~최종 응답, 재시도 포함), `retrieval_duration_ms`, `reranking_duration_ms`, `generation_duration_ms`, `retry_count`, `final_status`. 실패 요청도 기록한다.
 

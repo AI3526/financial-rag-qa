@@ -1,0 +1,42 @@
+# 비밀정보 (절대 커밋하지 않는다)
+.env
+.env.*
+!.env.example
+
+# Python 환경·캐시 (uv.lock, pyproject.toml은 커밋한다)
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# 벡터 DB 로컬 저장소 (Qdrant 로컬 모드, 재생성 가능)
+qdrant_storage/
+data/qdrant/
+
+# 모델 가중치·다운로드 캐시 (수 GB, HF_HOME을 저장소 밖으로 두는 것을 권장)
+models/
+hf_cache/
+.cache/
+
+# 로그·임시 파일
+*.log
+tmp/
+
+# 편집기·OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Claude Code 로컬 설정
+.claude/settings.local.json
+
+# 과제 안내 원본 복사본: 공개 여부가 확인되지 않아 저장소에 올리지 않는다 (로컬에는 유지)
+project_docs/00_assignment/
+
+# 이전 버전 설계 문서: 현행 문서와 충돌하므로 저장소에 올리지 않는다 (로컬에는 유지)
+project_docs/10_old/

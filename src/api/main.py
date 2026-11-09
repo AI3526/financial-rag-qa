@@ -10,7 +10,9 @@ import os
 from src.config import ROOT, load_env
 
 
-def build_default_app():
+def build_default_app(prompt_name: str | None = None, use_langfuse: bool = True):
+    """서버 조립. prompt_name으로 `prompts/{prompt_name}.json`을 고른다(기본 answer_v1).
+    use_langfuse=False면 Langfuse에 기록하지 않는다(development 실험은 로컬에만, D-029)."""
     load_env()
     from src.api.app import create_app
     from src.api.pipeline import PipelineSettings, RagPipeline, UnavailableGenerator
@@ -19,7 +21,7 @@ def build_default_app():
     from src.retrieval.dense import DenseRetriever
 
     settings = PipelineSettings()
-    langfuse = get_langfuse()
+    langfuse = get_langfuse() if use_langfuse else None
     if os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_MODEL"):
         from src.generation.generator import LangChainGenerator
 
@@ -29,7 +31,10 @@ def build_default_app():
 
             # 요청마다 새 핸들러. 현재 열린 `rag-query` Span 아래에 모델 호출(Generation)이 붙는다
             factory = lambda: [CallbackHandler()]  # noqa: E731
-        generator = LangChainGenerator(settings, callbacks_factory=factory)
+        from src.generation.prompts import load_prompt
+
+        prompt = load_prompt(prompt_name) if prompt_name else load_prompt()
+        generator = LangChainGenerator(settings, prompt=prompt, callbacks_factory=factory)
     else:
         generator = UnavailableGenerator()
     from src.generation.pricing import load_pricing

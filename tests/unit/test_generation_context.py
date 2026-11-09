@@ -62,7 +62,33 @@ def test_record_is_labeled_as_estimate():
 
 def test_prompt_file_hash_and_version_are_recorded():
     spec = load_prompt()
-    assert spec.version == "answer-v1"
-    assert spec.sha256 == hashlib.sha256((PROMPTS_DIR / "answer_v1.json").read_bytes()).hexdigest()
+    assert spec.version == "answer-v2"  # 현재 기본 프롬프트(STEP 9 조정 결과)
+    assert spec.sha256 == hashlib.sha256((PROMPTS_DIR / "answer_v2.json").read_bytes()).hexdigest()
     assert "{context}" in spec.user and "{question}" in spec.user
     assert "expected_action" not in spec.system + spec.user and "reference_answer" not in spec.system + spec.user
+
+
+def test_every_prompt_file_has_a_unique_version_matching_its_name_and_no_evaluation_terms():
+    import json
+
+    versions = []
+    for path in sorted(PROMPTS_DIR.glob("*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        assert data["version"] == path.stem.replace("_v", "-v")  # answer_v2.json -> answer-v2
+        assert "{context}" in data["user"] and "{question}" in data["user"]
+        text = data["system"] + data["user"]
+        for forbidden in ("reference_answer", "expected_action", "evidence_groups", "required_facts", "forbidden_claims"):
+            assert forbidden not in text
+        versions.append(data["version"])
+    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2"} <= set(versions)
+
+
+def test_v2_differs_from_v1_only_in_rule_4_so_the_change_is_isolated():
+    import json
+
+    v1 = json.loads((PROMPTS_DIR / "answer_v1.json").read_text(encoding="utf-8"))
+    v2 = json.loads((PROMPTS_DIR / "answer_v2.json").read_text(encoding="utf-8"))
+    a, b = v1["system"].split("\n"), v2["system"].split("\n")
+    changed = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+    assert len(a) == len(b) and len(changed) == 1 and b[changed[0]].startswith("4. ")
+    assert v1["user"] == v2["user"]

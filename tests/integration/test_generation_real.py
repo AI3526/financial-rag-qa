@@ -67,7 +67,7 @@ def test_real_generation_returns_valid_status_and_traceable_citations(retriever,
     call = rec["llm_calls"][0]
     assert isinstance(call["input_tokens"], int) and isinstance(call["output_tokens"], int)
     assert call["model_id"] and call["duration_ms"] > 0 and call["status"] == "ok"
-    assert rec["versions"]["prompt_version"] == "answer-v1" and len(rec["versions"]["prompt_sha256"]) == 64
+    assert rec["versions"]["prompt_version"] == "answer-v2" and len(rec["versions"]["prompt_sha256"]) == 64
     assert rec["model_input"][1]["content"].startswith("## 검색 자료") and question in rec["model_input"][1]["content"]
     assert rec["final_context"]["context_limit_tokens"] == 4000 and rec["final_context"]["dropped_chunk_ids"] == []
 

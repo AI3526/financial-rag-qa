@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 PROMPTS_DIR = Path(__file__).resolve().parents[2] / "prompts"
-DEFAULT_PROMPT = "answer_v1"
+DEFAULT_PROMPT = "answer_v2"  # STEP 9 조정 결과(D-034). 공식 실행 전에 동결한다
 
 
 @dataclass(frozen=True)

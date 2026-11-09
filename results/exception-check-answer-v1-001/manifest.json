@@ -1,0 +1,12 @@
+{
+  "experiment_id": "exception-check-answer-v1-001",
+  "track": "development",
+  "step": "9",
+  "purpose": "예외 질문 동작 확인(08 §9.4)",
+  "prompt_version": "answer-v1",
+  "prompt_sha256": "be6d657ebdd75050592cad66abe611ffabb6c2de24e68f7c007382dd4aab5c4a",
+  "langfuse": false,
+  "status_ok": 5,
+  "total": 6,
+  "created_at": "2026-11-09T02:13:01+00:00"
+}

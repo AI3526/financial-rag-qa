@@ -1,0 +1,29 @@
+{
+  "total": 30,
+  "match": 26,
+  "errors": 0,
+  "by_action": {
+    "answer": {
+      "total": 26,
+      "match": 22,
+      "returned": {
+        "abstained": 4,
+        "answered": 22
+      }
+    },
+    "clarify": {
+      "total": 2,
+      "match": 2,
+      "returned": {
+        "needs_clarification": 2
+      }
+    },
+    "abstain": {
+      "total": 2,
+      "match": 2,
+      "returned": {
+        "abstained": 2
+      }
+    }
+  }
+}

@@ -45,8 +45,8 @@ TYPED = [
 
 
 @pytest.fixture(scope="module")
-def sparse():
-    return SparseRetriever()
+def sparse(sparse_retriever):
+    return sparse_retriever
 
 
 @needs_chunks
@@ -72,9 +72,8 @@ def test_bm25_is_fast_and_deterministic(sparse):
 
 @needs_chunks
 @needs_qdrant
-def test_hybrid_returns_final_five_with_candidates_and_traceable_sources(sparse):
-    dense = DenseRetriever()
-    res = HybridRetriever(dense, sparse).retrieve("2026년 상반기 영업이익은 얼마인가요?")
+def test_hybrid_returns_final_five_with_candidates_and_traceable_sources(sparse, dense_retriever):
+    res = HybridRetriever(dense_retriever, sparse).retrieve("2026년 상반기 영업이익은 얼마인가요?")
     assert res.method == "hybrid" and len(res.chunks) == 5 and res.candidate_k == 20
     assert [c["rank"] for c in res.chunks] == [1, 2, 3, 4, 5]
     assert len(res.candidates["dense"]) == 20 and len(res.candidates["fused"]) == 20
@@ -96,8 +95,8 @@ class CitingGenerator:
 
 @needs_chunks
 @needs_qdrant
-def test_api_hybrid_uses_the_same_k_and_records_dense_sparse_and_fused(sparse, tmp_path):
-    dense = DenseRetriever()
+def test_api_hybrid_uses_the_same_k_and_records_dense_sparse_and_fused(sparse, dense_retriever, tmp_path):
+    dense = dense_retriever
     gen = CitingGenerator()
     pipe = RagPipeline(dense, gen, PipelineSettings(), retrievers={"dense": dense, "hybrid": HybridRetriever(dense, sparse)})
     client = TestClient(create_app(pipe, recorder=RunRecorder(tmp_path)))

@@ -97,7 +97,7 @@ uv run uvicorn --factory src.api.main:build_default_app --port 8000
 curl http://127.0.0.1:8000/health
 ```
 
-`POST /rag/query` 본문은 `{"question": "...", "rag_method": "dense", "question_id": "선택"}`이고, 응답은 `{request_id, status, answer, reason, citations}`이다. `rag_method`는 현재 `dense`와 `hybrid`를 지원한다(`hybrid_rerank`는 STEP 6에서 추가, 그 전에는 422). `hybrid`는 Dense 20 + BM25 20 후보를 RRF(k=60)로 결합해 최종 5개를 쓴다(BM25 토크나이저는 공백 분리로 동결, D-035). 검색 방식 비교는 `uv run python scripts/compare_retrieval.py`(결과는 `results/`에 로컬 저장, 폴더가 있으면 중단).
+`POST /rag/query` 본문은 `{"question": "...", "rag_method": "dense", "question_id": "선택"}`이고, 응답은 `{request_id, status, answer, reason, citations}`이다. `rag_method`는 `dense`, `hybrid`, `hybrid_rerank`를 지원한다. `hybrid_rerank`는 `hybrid` 상위 20개 후보를 `BAAI/bge-reranker-v2-m3`(처음 실행할 때 약 2.3GB를 내려받고 GPU가 있으면 사용)로 재정렬해 최종 5개를 쓴다. `hybrid`는 Dense 20 + BM25 20 후보를 RRF(k=60)로 결합해 최종 5개를 쓴다(BM25 토크나이저는 공백 분리로 동결, D-035). 검색 방식 비교는 `uv run python scripts/compare_retrieval.py`(결과는 `results/`에 로컬 저장, 폴더가 있으면 중단).
 
 - 오류는 모두 `status: "error"`와 `request_id`를 가진 같은 형식이다: 422 `invalid_request`, 500 `retrieval_error`·`internal_error`, 502 `model_error`·`output_validation_error`, 504 `model_timeout`.
 - `.env`에 `OPENAI_API_KEY`와 `OPENAI_MODEL`이 있으면 gpt-6-luna 생성기(LangChain)로 답하고, 없으면 생성 모델이 연결되지 않아 정상 질문도 500 `internal_error`를 반환한다(답을 만들어 내지 않는다).

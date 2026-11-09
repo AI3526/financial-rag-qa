@@ -183,6 +183,7 @@ class RagPipeline:
         record["performance"] = {
             "total_duration_ms": round((time.perf_counter() - started) * 1000, 1),
             "retrieval_duration_ms": (record["retrieval"] or {}).get("durations_ms", {}).get("total"),
+            "reranking_duration_ms": (record["retrieval"] or {}).get("durations_ms", {}).get("rerank"),
             "generation_duration_ms": round(sum(c.get("duration_ms") or 0 for c in record["llm_calls"]), 1) or None,
             "retry_count": max(0, len(record["llm_calls"]) - 1),
             "final_status": outcome.response["status"],
@@ -205,7 +206,7 @@ class RagPipeline:
         record["retrieval"] = {
             # 사용하지 않은 방식은 null이다(0이나 빈 배열로 바꾸지 않는다). 점수는 방식마다 의미가 달라 단순 비교하지 않는다.
             "method": rag_method, "dense": cand.get("dense", brief if rag_method == "dense" else None),
-            "sparse": cand.get("sparse"), "fused": cand.get("fused"), "reranked": None,
+            "sparse": cand.get("sparse"), "fused": cand.get("fused"), "reranked": cand.get("reranked"),
             "candidate_k": result.candidate_k or result.k, "final_k": result.k, "durations_ms": result.durations_ms,
             "settings": retriever.describe() if hasattr(retriever, "describe") else None,
         }

@@ -43,8 +43,8 @@ class CitingGenerator:
 
 
 @pytest.fixture(scope="module")
-def retriever():
-    return DenseRetriever()
+def retriever(dense_retriever):
+    return dense_retriever
 
 
 def test_real_retrieval_through_api_maps_citation_to_real_pdf_page(retriever, tmp_path):

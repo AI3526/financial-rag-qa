@@ -33,8 +33,8 @@ pytestmark = pytest.mark.skipif(not _available(), reason="Qdrant 컬렉션에 �
 
 
 @pytest.fixture(scope="module")
-def retriever():
-    return DenseRetriever(CFG)
+def retriever(dense_retriever):
+    return dense_retriever  # 세션에서 한 번만 읽은 모델 공유(conftest.py)
 
 
 @pytest.fixture(scope="module")

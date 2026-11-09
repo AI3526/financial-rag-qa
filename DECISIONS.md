@@ -467,6 +467,33 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **영향**: 08 §9, 06 §5.4, 09 §9 `retrieval`
 - **승인**: 사용자(2026-11-09, STEP 5 진행·토크나이저 동결). 비교는 기록용이며 설정 조정은 하지 않았다.
 
+### D-037 STEP 6 Reranker와 Hybrid + Reranking (development 비교, 승자 선정 아님)
+- **Reranker 확인 (06 §11.1 초기값 `BAAI/bge-reranker-v2-m3`, 후보 간 비교는 [확장]이라 하지 않음)**: Hugging Face 모델 카드 기준 라이선스 **apache-2.0**, revision **`953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`**(로컬 캐시의 스냅샷과 일치), 가중치 2.27GB(safetensors), 다국어 Cross-Encoder(XLM-RoBERTa 계열). sentence-transformers `CrossEncoder`로 읽히고 RTX 5060(`cuda:0`)에서 동작하며 최대 입력 길이 8,192토큰, 활성화 함수는 Sigmoid(점수 0~1)다. 확인 호출: 관련 문장 0.993, 무관한 문장 0.00002. 처음 읽는 데 353초가 걸렸는데 대부분 다운로드 시간이다.
+- **구현 (`src/retrieval/rerank.py`)**: Hybrid의 RRF 상위 20개를 Reranker로 재점수해 최종 5개를 쓴다(06 초기값, 설정 조정은 [확장]). Reranker 입력 텍스트는 임베딩·BM25와 같은 `retrieval_text`(머리말·제목·소제목 + 본문)다. 점수가 같으면 재정렬 전 순위가 앞선 쪽이 먼저다. 후보 밖의 청크는 최종 결과에 들어오지 않는다(테스트로 확인). `rag_method=hybrid_rerank`를 `/rag/query`에 연결했다. 세 방식(Dense, Hybrid, Hybrid+Rerank)이 같은 최종 청크 수 k=5와 같은 문맥 한도를 쓴다(통합 테스트로 확인).
+- **오류 처리**: Reranker 실패는 검색 오류로 보고 **500 `retrieval_error`**이며 **Hybrid 순서로 몰래 대체하지 않는다**(방식 비교가 섞이지 않도록). 서버는 Reranker 모델을 시작할 때 한 번 읽고, 읽지 못하면 시작되지 않는다(조용히 빠지지 않음). 후보가 없으면 모델을 호출하지 않고 빈 결과를 돌려준다.
+- **기록 (09 §9)**: `retrieval.reranked = [{chunk_id, rank_before, rank_after, score}]`(후보 20개 전체), `durations_ms.rerank`, `performance.reranking_duration_ms`, 설정에 `reranker`와 `reranker_revision`을 남긴다. 점수는 모델이 돌려준 값 그대로이며 다른 방식의 점수와 단순 비교하지 않는다.
+- **비교 (development 28문항, 최종 Top-5, `scripts/compare_retrieval.py`, `results/dev-retrieval-compare-002/`, 로컬 전용; 001은 STEP 5의 3방식 결과로 보존)**
+
+  | 방식 | Hit@5 (문서) | Recall@5 (문서) | 페이지 단위 Hit / Recall (참고) | 근거를 하나도 못 찾은 질문 | 30문항 검색 시간 |
+  |---|---|---|---|---|---|
+  | Dense(e5) | 0.8571 | 0.7649 | 0.5714 / 0.4607 | 4개 | 5.5초 |
+  | BM25(whitespace) | 0.8571 | 0.7530 | 0.5000 / 0.3476 | 4개 | 0.06초 |
+  | Hybrid | **0.9286** | 0.7530 | 0.5357 / 0.4071 | **2개** | 5.0초 |
+  | Hybrid + Rerank | 0.8929 | **0.8095** | **0.6429 / 0.5071** | 3개 | 20.4초 |
+
+  - **Hybrid + Rerank는 Recall@5와 페이지 단위 지표가 가장 높다**(Hybrid 대비 문서 단위 Recall이 높은 질문 6개, 낮은 질문 3개, 같은 질문 19개). 반면 Hit@5는 Hybrid(0.9286)보다 낮고 근거를 하나도 못 찾은 질문도 Hybrid(2개)보다 많다(3개: F-DEV-14, 20, 25). Dense와 비교하면 Recall이 높은 질문 4개, 낮은 질문 4개로 같은 수인데 평균은 더 높다(이득이 큰 질문이 있었음).
+  - **STEP 9의 보류 4건**: F-DEV-17은 문서 단위 Recall이 Hybrid 0.50 → Rerank 1.00으로 개선(페이지도 0.50), F-DEV-22는 0.50 그대로, F-DEV-24는 0.50 그대로(Dense는 1.00이었음), F-DEV-25는 0.00 그대로. 즉 일부만 개선됐다.
+  - **비용**: 재정렬이 질문당 약 0.5초를 더한다(30문항 검색 시간 5.0초 → 20.4초로 **추정**, 첫 호출의 GPU 워밍업 포함, 네트워크 영향 있음). 운영 지표의 정식 비교는 STEP 14에서 한다.
+  - **한계**: development 28문항이라 공식 결과가 아니고 차이는 질문 몇 개 단위다. 값은 두 번 실행해 같았다(검색이 결정적). 공식 비교는 STEP 12(additional 포함 60문항)에서 한다. 3방식 어디에서도 근거를 못 찾은 질문(F-DEV-25)이 있다.
+- **구현 중 발견한 결함**: 비교 스크립트의 결과 저장 단계에서 변수 정의가 빠져 오류로 멈췄고(숫자는 화면에 나왔으나 저장 전), 불완전하게 만들어진 `results/dev-retrieval-compare-002/`(manifest 하나뿐)를 지우고 고쳐서 다시 실행했다. 최종 결과는 위 표와 같다.
+- **테스트 시간 문제와 수정**: Reranker 통합 테스트를 추가한 뒤 전체 테스트가 72초에서 609~701초로 느려졌고, 재정렬 테스트 3개가 각각 약 200초(단독 실행은 약 1초)였다. 통합 테스트 파일마다 e5 임베딩 모델(GPU 약 2.2GB)을 따로 읽어 8GB GPU 메모리가 찼기 때문으로 **추정**했고(GPU 메모리를 직접 측정하지는 않음), 모델을 `tests/integration/conftest.py`의 세션 fixture로 한 번만 읽어 공유하게 고치자 전체가 **58초**로 줄었다. 서버는 e5와 Reranker를 각각 한 번만 읽으므로(약 4.5GB) 이 문제의 영향이 없다.
+- **Reranker 선정 방식 (정정 기록)**: Reranker는 실험으로 고른 것이 아니다. 06 §11.1의 초기값(`bge-reranker-v2-m3`)을 설계 검토에서 정했고(Qwen3-Reranker 등 후보 비교는 [확장]), STEP 6에서는 그 모델이 실제 환경에서 동작하는지(라이선스, revision, GPU, 점수 형태)만 확인했다. 비교한 것은 "재정렬을 하는 방식과 하지 않는 방식"(Hybrid 대 Hybrid+Rerank)이지 Reranker 모델끼리가 아니다.
+- **Langfuse 확인 (2026-11-09, 사용자 승인으로 요청 1건)**: 실제 서버의 `hybrid_rerank` 요청을 Langfuse에서 읽었다. 구조는 `rag-query > [rerank-retrieve > hybrid-retrieve > [dense-retrieve, sparse-retrieve], ChatOpenAI(GENERATION)]`이다. `rerank-retrieve`의 metadata에 방식·Reranker 모델·revision·후보 수(20)가, output에 최종 청크 5개, 재정렬 전후 순위·점수 20개(예: 재정렬 전 10위 청크가 2위로), 단계별 시간(dense 860ms, 재정렬 474ms, 합계 1,337ms)이 기록됐다.
+- **세 방식이 모두 약한 부분 (development 분석, 원인은 관찰에 근거한 해석이며 검증하지 않음)**: 세 방식 모두 문서 단위 Recall이 1.0이 아닌 질문은 28문항 중 5개(F-DEV-13, 14, 22, 25, 26), 셋 다 근거 문서를 하나도 못 찾은 질문은 F-DEV-25 하나다. ① **근거가 여러 문서·페이지에 걸친 질문에서 약하다.** 문서 단위 평균 Recall은 근거 문서 1개인 질문(15문항)에서 Dense 0.80, Hybrid 0.93, Hybrid+Rerank 0.93이지만 2개인 질문(11문항)에서는 0.73, 0.55, 0.68이다. 페이지 단위는 근거 1페이지(15문항) 0.60·0.53·0.60, 2페이지(11문항) 0.32·0.27·0.45로 더 낮다. ② **근거 문서는 찾아도 정확한 페이지를 놓치는 경우가 많다**(단일 근거 질문에서도 페이지 단위 Recall이 최고 0.60). ③ F-DEV-25("루미뷰와 리브리턴을 같은 사업처럼 설명해도 되나")는 근거가 두 제품 설명 문서(FB03, FB06)의 1쪽인데 세 방식 모두 비교·사업부문을 설명하는 안내 문서(FB13, FB15, FB09)만 가져왔다(질문의 단어와 겹치는 안내 문서가 제품 문서보다 먼저 선택된 것으로 보이나 확인하지 않음). Hybrid는 다중 근거 질문에서 Dense보다 낮은 값이 많다(2개 문서 0.55 대 0.73).
+- **미검증**: Reranker의 CPU 실행 시 지연, 입력이 길 때(문맥 한도) 동작.
+- **영향**: 08 §10, 06 §6·§11.1, 09 §9
+- **승인**: 사용자(2026-11-09, STEP 6 진행). 설정 조정은 하지 않았다.
+
 ---
 
 ## 4. 변경 이력

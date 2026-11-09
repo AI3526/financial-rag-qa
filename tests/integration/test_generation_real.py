@@ -34,8 +34,8 @@ pytestmark = pytest.mark.skipif(not _available(), reason="OpenAI 키 또는 Qdra
 
 
 @pytest.fixture(scope="module")
-def retriever():
-    return DenseRetriever()
+def retriever(dense_retriever):
+    return dense_retriever
 
 
 def client_for(retriever, tmp_path, settings=None, **gen_kwargs):

@@ -66,7 +66,7 @@
 | 필드 | 자료형 | 설명 |
 |---|---|---|
 | `request_id` | string | API 요청 1건의 ID. 서버가 UUID로 생성한다. |
-| `trace_id` | string | Langfuse Trace ID. `request_id`에서 결정적으로 만들고 둘 다 저장한다. 생성은 `Langfuse.create_trace_id(seed=request_id)`이며 같은 seed는 같은 값을 만든다(STEP 0에서 langfuse 5.2.0으로 확인). |
+| `trace_id` | string | Langfuse Trace ID. `request_id`에서 미리 계산하지 않고, **실제로 기록된 Trace의 ID를 그대로 저장**한다(D-029). 일반 요청은 서비스가 Trace를 만들고, 평가 실행은 실험이 만든 Trace에 서비스가 `trace_id`와 부모 Span ID(`trace_context`)로 이어 붙는다. 둘 다 저장한다. |
 | `experiment_id` | string | 실험 실행 또는 비교 세트의 ID |
 | `question_id` | string/null | 평가 질문 ID. 평가 실행에서만 값이 있다. |
 | `chunk_id` | string | 청크 고유 ID. 형식 예: `FB01-p1-c1` |

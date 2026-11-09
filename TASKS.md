@@ -66,5 +66,6 @@
 - Qdrant Cloud 무료 플랜의 용량·비활성 정지 정책 (미확인, 확인 후 기록)
 - 서비스 응답시간(STEP 14)에는 Cloud 네트워크 시간이 포함됨을 보고서에 명시
 - 표가 페이지 경계에서 잘리는 문제 (STEP 1~2)
-- Langfuse SDK 버전, `request_id`→`trace_id` 생성 방식 (STEP 0)
+- 확인 완료: Langfuse SDK 5.2.0(STEP 0), 요청·실험 Trace 연결과 환경 규칙(D-029, spike). STEP 7에서 HTTP 구간 전달 확인, STEP 10에서 점수 방식(`create_score` 후붙임)과 유닛 실측 확인
+- 사용자가 Langfuse 화면에서 임시 데이터셋 `spike-trace-link` 삭제 (SDK에 삭제 API 없음)
 - 모델·패키지 정확 버전과 라이선스 (STEP 3, `DECISIONS.md`에 기록)

@@ -225,7 +225,7 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 ### D-022 문서 추출 실행의 Langfuse 기록과 개인정보·마스킹 정책
 - **결정 1 (Langfuse 기록)**: 추출 실행 1회를 Trace 1개(`document-ingestion`)로, PDF마다 Span 1개(`extract-pdf`)로 기록한다. Span 출력에 문서 요약(페이지 수, sha256, 상태, 시간, 오류)과 **페이지 텍스트까지 포함**한다. 질문 처리 Trace(`rag-query`)와 구분한다. Langfuse 실패는 추출을 막지 않는다(`--no-langfuse`로 오프라인 실행 가능). 이는 08번 §5의 [필수] 항목이었으나 STEP 1 첫 구현에서 누락되었다가 보완했다.
 - **근거**: Langfuse Cloud 무료(Hobby) 플랜은 월 50,000유닛, 조회 30일, 사용자 2명(2026-11-06 공식 요금 페이지 확인). 유닛은 Trace·Observation·Score의 개수이며 텍스트 길이가 아니다. 페이지마다 Span을 만들지 않고 문서별 Span에 텍스트를 담아 한 번에 16유닛만 쓴다. 실제 실행으로 Trace 1 + Span 15, 페이지 360쪽, 텍스트 368,449자가 기록된 것을 API로 확인했다. 한도 초과 시 Hobby의 동작은 요금 페이지에 명시되어 있지 않아 확인하지 못했다.
-- **결정 1-1 (Span 이름과 환경)**: Span 이름에 원본 PDF 파일명을 넣는다(`extract-pdf FB01.pdf`)와 metadata에 `book_id`를 둔다. Langfuse 기본 필드 `environment`를 도입하고 `track`과 같은 값(`development` / `official` / `extension`)을 쓴다. 이에 따라 `development` 태그는 제거했다(태그는 `ingestion`, `connection_test` 같은 종류 구분에만 사용). 이름이 파일별로 달라져 대시보드의 이름 기준 집계는 쪼개지지만, 운영 지표의 기준 데이터는 결과 JSON이므로(D-012) 영향이 작다고 판단했다.
+- **(D-029 수정: 실험 Trace는 environment가 `sdk-experiment`로 고정되어 `track`은 태그·metadata로 구분)** **결정 1-1 (Span 이름과 환경)**: Span 이름에 원본 PDF 파일명을 넣는다(`extract-pdf FB01.pdf`)와 metadata에 `book_id`를 둔다. Langfuse 기본 필드 `environment`를 도입하고 `track`과 같은 값(`development` / `official` / `extension`)을 쓴다. 이에 따라 `development` 태그는 제거했다(태그는 `ingestion`, `connection_test` 같은 종류 구분에만 사용). 이름이 파일별로 달라져 대시보드의 이름 기준 집계는 쪼개지지만, 운영 지표의 기준 데이터는 결과 JSON이므로(D-012) 영향이 작다고 판단했다.
 - **결정 2 (개인정보)**: 문서 속 이메일 8건(`.example` 도메인 부서 공용 주소, FB11·FB15)은 문서가 부서 공용 연락처이며 실제 연락·인증에 쓸 수 없다고 설명하는 **공개된 가상 연락처**로 보고 개인정보 해당 없음으로 한다. 마스킹하지 않으며 모델 입력·결과 JSON·Langfuse 기록 모두 원문이다.
 - **이유**: 마스킹하면 "공시 문의 주소는?" 같은 질문에 `[EMAIL]`로 답하게 된다(평가 데이터에는 `@`가 없어 점수 영향은 없음).
 - **저장소 공개 범위**: 이번 Basic 데이터는 합성 데이터라 원본(`data/finance_basic/`)과 파생 데이터(`data/processed/`)를 모두 공개 저장소에 포함한다. 원본이 이미 공개되므로 파생 데이터만 제외해도 보호가 되지 않는다.
@@ -241,7 +241,7 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
   4. 공식 실행은 `run_name`에 실험 ID와 방식을 넣어 방식별 실행으로 구분한다.
   5. 서비스 코드 안에서 데이터셋을 읽지 않는다.
 - **이유**: 세 방식을 질문별로 나란히 비교한다는 목적에 실험 비교 화면(기준 실행 지정, 평균 점수·비용·지연, 케이스별 나란히 보기, Trace 열기)이 맞다. 데이터셋 항목·실행은 유닛으로 세지 않지만(Billable Units 페이지) 실험 중 생기는 Trace·Observation·Score는 유닛이다(질문당 지표 7개 × 180건 ≈ 1,260유닛이 공식 실행 한 번에 추가).
-- **열린 점**: 실험이 만드는 Trace와 우리 서비스가 만드는 Trace를 어떻게 이을지(서비스가 현재 Trace 안에 중첩, 또는 trace_id·parent_span_id를 전달해 이어붙임). 현재 설계(서비스가 `request_id`에서 만든 trace_id로 독립 Trace 생성)와 충돌할 수 있어, STEP 11 전에 작은 실험으로 검증하고 04 §8, 05 §4.2, 09 §4.1을 함께 조정한다.
+- **열린 점 (D-029에서 해결: 실험 Trace에 서비스가 `trace_context`로 이어 붙음)**: 실험이 만드는 Trace와 우리 서비스가 만드는 Trace를 어떻게 이을지(서비스가 현재 Trace 안에 중첩, 또는 trace_id·parent_span_id를 전달해 이어붙임). 현재 설계(서비스가 `request_id`에서 만든 trace_id로 독립 Trace 생성)와 충돌할 수 있어, STEP 11 전에 작은 실험으로 검증하고 04 §8, 05 §4.2, 09 §4.1을 함께 조정한다.
 - **승인**: 사용자 (2026-11-06)
 
 ### D-024 Langfuse 기능 도입 범위와 로컬(JSON)-클라우드 기록 규칙
@@ -261,7 +261,7 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
   3. **편집 가능한 정의**(프롬프트, 데이터셋 항목)는 편집하는 곳을 하나로 정한다. 양쪽에서 수정하지 않는다.
   4. 발표·제출에 필요한 Langfuse 화면은 30일 안에 캡처하거나 Trace URL을 정리한다.
 - **결정 3 (프롬프트 원본)**: **Git 파일이 프롬프트의 원본**이다. 스크립트로 Langfuse에 버전을 올려 Trace와 연결하고, 프롬프트는 Langfuse UI에서 수정하지 않는다(수정하면 Git과 어긋남). 공식 비교는 프롬프트를 동결하고 해시·`git_commit`을 기록해야 하며(07번), Langfuse 장애가 서비스에 영향을 주지 않게 한다. Langfuse 연결 제약(폴백 프롬프트는 연결을 만들지 않고 Generation만 연결됨)은 구현 시 고려한다. 07 §7과 04 §8은 STEP 8에서 함께 고친다.
-- **Trace ID 설계(요청 Trace와 실험 Trace의 연결)**: 질문 요청 Trace(STEP 7 이후)에만 해당하는 문제라서, 추출·청킹·색인 같은 실행 단위 Trace(STEP 1~3)와 무관하다. **API(STEP 7)를 만들기 직전에 spike로 검증해 확정**한다.
+- **Trace ID 설계(요청 Trace와 실험 Trace의 연결)**: 질문 요청 Trace(STEP 7 이후)에만 해당하는 문제라서, 추출·청킹·색인 같은 실행 단위 Trace(STEP 1~3)와 무관하다. **→ D-029에서 spike로 확인해 확정했다.**
 - **영향**: 04 §8, 05 §4.2·§11, 07 §7, 09 §4.1·§9·§11
 - **승인**: 사용자 (2026-11-06)
 
@@ -327,6 +327,23 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **확인한 동작 (2026-11-06)**: "2026년 상반기 영업이익" 질문에서 1위가 FB01 p.2(영업이익 96억원)였고, 근거가 없는 질문(2027년 1분기 확정 매출)도 Top-5를 돌려준다. 첫 호출은 모델 로드 때문에 약 0.8초, 이후 약 0.16초(임베딩 약 15ms + Qdrant Cloud 검색 약 145ms). 이 시간에는 Cloud 네트워크가 포함된다(STEP 14 보고서에 명시).
 - **발견한 결함**: `k or 기본값`이 k=0을 기본값으로 바꾸는 문제를 단위 테스트가 잡아 고쳤다.
 - **승인**: 사용자 (2026-11-06, STEP 4 진행 승인). 청크 튜닝을 [확장]으로 두는 정정(D-025)도 사용자 승인. 동작 확인 Trace 8개는 삭제하지 않고 유지하기로 함(참조 보존, 증거 용도).
+
+### D-029 요청 Trace와 실험 Trace의 연결, 환경 규칙, Langfuse 기록 범위 (spike 결과)
+- **배경**: D-023·D-024의 열린 점(실험 Trace와 서비스 Trace 연결)을 STEP 7 전에 spike로 확인했다. 사용자는 비교 화면(Experiments)이 필요하다고 판단했다("다른 구성원에게 설명할 대시보드, Langfuse를 쓰는 김에 활용할 수 있는 것은 활용"). 과제 원본은 Langfuse 사용과 "요청 ID로 Langfuse 실행 기록과 연결"을 요구하며 Datasets/Experiments는 요구하지 않는다(우리가 추가로 도입한 기능).
+- **spike 확인 (2026-11-09, SDK 5.2.0)**
+  - SDK 코드(`client.py` 3017~3129행): `dataset.run_experiment(task=...)`가 항목마다 Trace(`experiment-item-run`)를 만들고, 실험·데이터셋 항목 연결은 별도 호출이 아니라 **Span 속성(propagated attributes)**으로 기록한다. 이미 있는 Trace를 데이터셋 항목에 연결하는 API는 없다.
+  - 실행: 임시 데이터셋(항목 2개)을 `run_experiment` 2회(`spike-run-k5`, `spike-run-k2`) 실행. `task` 안에서 컨텍스트를 물려받지 않는 새 스레드가 `trace_id`와 부모 Span ID만 받아 `start_as_current_observation(trace_context=...)`로 서비스 Span을 만들었다. Langfuse에서 읽은 구조는 `experiment-item-run > experiment-item-task > service-request > dense-retrieve`로 서비스 Span이 같은 Trace 아래에 붙었고, 채점 함수의 `hit_at_k`, `recall_at_k`가 같은 Trace의 Score(출처 API)로 저장됐다. 사용자가 비교 화면을 직접 보고 원하던 화면이 맞다고 확인했다.
+  - 흉내 낸 것: 실제 HTTP 호출이 아니라 새 스레드. HTTP 헤더 또는 요청 필드로 `trace_id`/부모 Span ID를 전달하는 부분은 STEP 7에서 확인한다.
+  - 코드로 데이터셋 실행 목록을 읽는 호출은 찾지 못해(제가 쓴 메서드 이름이 틀렸음) 비교 화면 확인은 사용자의 눈으로 했다.
+- **결정**
+  1. **Trace 연결**: 평가 실행(공식·보안)은 실험이 Trace를 만들고, 서비스는 요청에 담긴 `trace_id`와 부모 Span ID로 그 아래에 이어 붙는다. 일반 요청은 서비스가 Trace를 만든다. `request_id`에서 `trace_id`를 미리 계산하던 설계(`create_trace_id(seed=request_id)`)는 폐기하고 **실제 기록된 `trace_id`를 run 기록에 저장**한다. 09 §4.1, 05 §4.2·§11을 고쳤다. `langfuse_client.py`의 `trace_id_for`, `new_request_ids`는 STEP 7에서 정리한다.
+  2. **환경 규칙(D-022 수정)**: 실험이 만든 Span의 `environment`는 SDK가 `sdk-experiment`로 고정한다(spike에서 확인, 우리가 이어 붙인 Span은 `default`로 기록됨). 따라서 문서 처리·색인·일반 요청 Trace는 `environment = track`을 유지하고, **실험 Trace에서는 `track`을 태그와 metadata로 구분**한다. 05 environment 행에 반영했다.
+  3. **점수 방식**: `run_experiment`의 `evaluators`는 지표마다 `EVALUATOR` Span이 생겨 유닛이 늘어난다. 기본은 실행 후 `create_score(trace_id=...)`로 점수를 붙이는 방식이고, 비교 화면에 똑같이 나오는지 STEP 10에서 확인한 뒤 확정한다. 확인 전까지 `evaluators` 방식을 대비책으로 둔다.
+  4. **Langfuse 기록 범위(유닛 절약)**: 튜닝과 개발 실험은 **로컬 JSON에만 남기고**, **공식 실행(`official`)과 보안 비교만 Langfuse에 올린다.** 단계별 구현 확인(소량의 동작 확인, 08 §5의 계측 구현 검증, STEP 10 대표 요청 추적)은 08 §5에 따라 소량 기록한다. 로컬 JSON이 기준 데이터라는 D-024 규칙과 같은 방향이다.
+- **유닛 추정(실측 아님)**: spike에서 항목 하나당 Trace 1개에 관측 7개(서비스 Span 포함)가 생겼다. 지표 7개를 `evaluators`로 내면 항목당 약 24유닛, 공식 실행 180건 한 번에 약 4,300유닛. 점수를 따로 붙이면 항목당 약 13~15유닛, 한 번에 약 2,300~2,700유닛으로 줄 것으로 추정한다. 무료 플랜 월 5만 유닛(D-024 §1.4 조사값). STEP 10에서 대표 요청 1건을 실제로 재서 180건 분량을 계산한 뒤 공식 실행을 시작한다.
+- **임시 데이터셋**: `spike-trace-link`는 사용자 승인으로 삭제한다. SDK에 데이터셋 삭제 API가 없어(확인함) Langfuse 화면에서 사용자가 삭제한다. spike가 만든 실험 Trace 약 28개 관측은 남는다(30일 조회 제한으로 사라짐).
+- **영향**: D-022(환경 규칙), D-023 열린 점(해결), D-024 Trace ID 설계(해결), 04 §8, 05 §4.2, 09 §4.1
+- **승인**: 사용자 (2026-11-09)
 
 ---
 

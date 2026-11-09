@@ -169,7 +169,7 @@ Observation 이름은 역할을 명확하게 알 수 있도록 일관되게 지�
 | question_id | 평가 질문 식별 (평가 JSON의 `id`) | 평가 실행 시 [필수] |
 | experiment_id | 실험 식별 | 실험 실행 시 [필수] |
 | track | 실험 구분: official / extension / development | 실험 실행 시 [필수] |
-| environment | Langfuse 기본 환경 필드. **`track`과 같은 값**(`development` / `official` / `extension`)을 쓴다. 소문자·숫자·하이픈·밑줄만 가능하고 `langfuse`로 시작할 수 없다. 화면 필터로 공식 실행만 골라 보기 위한 용도 | [필수] |
+| environment | Langfuse 기본 환경 필드. 문서 처리·색인·일반 요청 Trace에서는 **`track`과 같은 값**(`development` / `official` / `extension`)을 쓴다. 소문자·숫자·하이픈·밑줄만 가능하고 `langfuse`로 시작할 수 없다. 화면 필터로 공식 실행만 골라 보기 위한 용도. **실험(`run_experiment`) Trace는 SDK가 `sdk-experiment`로 고정하므로 `track`은 태그·metadata로 구분한다(D-029)** | [필수] |
 | run_type | 요청 구분: general_eval / security / mock_error / scoring | [필수] |
 | dataset_id | 데이터셋 식별 | [필수] |
 | dataset_version | 데이터셋 버전 식별 | [필수] |
@@ -190,7 +190,11 @@ Request ID와 Trace ID는 목적이 다르다.
 - Request ID: 서비스 요청을 식별하는 프로젝트 내부 식별자
 - Trace ID: Langfuse에서 해당 실행을 추적하는 식별자
 
-하나의 서비스 요청에 하나의 Trace를 연결한다. `request_id`는 서버가 UUID로 생성하고, `trace_id`는 `request_id`에서 결정적으로 만들어 두 값을 모두 결과에 저장한다(생성은 `Langfuse.create_trace_id(seed=request_id)`로 확정, STEP 0에서 langfuse 5.2.0으로 확인. `09_DATA_SCHEMA.md` 참조).
+하나의 서비스 요청에 하나의 Trace를 연결한다. `request_id`는 서버가 UUID로 생성하고, `trace_id`는 **실제로 기록된 Trace의 ID**를 받아 두 값을 모두 결과에 저장한다(D-029, `09_DATA_SCHEMA.md` 참조). `request_id`에서 `trace_id`를 미리 계산하는 방식은 쓰지 않는다.
+
+- **일반 요청**: 서비스가 요청마다 Trace를 만든다.
+- **평가 실행(공식·보안)**: Langfuse 실험(`run_experiment`)이 항목마다 Trace를 만들고 데이터셋 항목과 연결한다. 서비스는 요청에 담겨 온 `trace_id`와 부모 Span ID로 그 Trace 아래에 이어 붙는다(SDK `trace_context`). 점수(Score)는 같은 Trace에 붙인다. 이 방식은 STEP 7 전에 spike로 확인했다(서비스 Span이 `experiment-item-task` 아래에 붙고 점수가 같은 Trace에 저장됨, 비교 화면 확인). 실제 HTTP 헤더로 넘기는 부분은 STEP 7에서 확인한다.
+- **환경 필드**: 실험이 만드는 Span의 `environment`는 SDK가 `sdk-experiment`로 고정한다. 따라서 실험 Trace에서는 `track`을 environment가 아니라 태그와 metadata로 구분한다(위 environment 행은 문서 처리·색인·일반 요청 Trace에만 적용).
 
 평가 실행이나 실험에서 여러 질문을 처리하는 경우에도 질문별 실행을 각각 추적할 수 있어야 한다.
 
@@ -791,7 +795,7 @@ Langfuse와 결과 JSON의 데이터가 불일치할 경우 Request ID와 Trace 
 | Langfuse SDK 버전 | 구현 시 호환성 확인 | 초기 연동 |
 | Trace 및 Observation 세부 구조 | 본 문서의 기본 구조 적용 | 초기 연동 |
 | 실제 기록할 Input / Output 범위 | 개인정보 및 보안 기준에 따라 결정 | 초기 연동 |
-| `request_id` → `trace_id` 결정적 생성 방식 | `create_trace_id(seed=request_id)`, 둘 다 저장 (확정, STEP 0 확인) | 확정 |
+| `request_id`와 `trace_id`의 관계 | 미리 계산하지 않고 실제 Trace ID를 저장, 평가 때는 실험 Trace에 `trace_context`로 이어 붙임 (D-029, spike 확인) | 확정 (HTTP 구간은 STEP 7에서 확인) |
 | 평가 결과 저장 위치 | 결과 JSON이 기준 데이터, Langfuse는 추적용 (확정, §11) | 확정 |
 | Trace 보존 기간 | Langfuse Cloud 기본 정책 확인 | 운영 설정 |
 | Token Usage 수집 방법 | 모델 응답에서 제공되는 사용량 우선 | 모델 연동 |

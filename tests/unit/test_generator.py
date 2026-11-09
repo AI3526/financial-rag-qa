@@ -116,7 +116,7 @@ def test_langfuse_callbacks_are_passed_when_a_factory_is_given():
     llm = FakeLLM(ai())
     marker = object()
     LangChainGenerator(llm=llm, callbacks_factory=lambda: [marker]).generate("q", [])
-    assert llm.calls[0][1] == {"callbacks": [marker]}
+    assert llm.calls[0][1] == {"callbacks": [marker], "run_name": "answer-generation"}  # Langfuse 관측 이름(05 §3.4)
 
 
 # --- 오류 매핑과 재시도 ---

@@ -49,5 +49,5 @@ def build_default_app(prompt_name: str | None = None, use_langfuse: bool = True)
     # Reranker는 모델을 한 번 읽어 둔다(BAAI/bge-reranker-v2-m3, D-037). 읽지 못하면 서버가 시작되지 않는다(조용히 빠지지 않음)
     reranked = RerankRetriever(hybrid, CrossEncoderReranker(), langfuse=langfuse)
     pipeline = RagPipeline(dense, generator, settings, pricing=load_pricing(),
-                           retrievers={"dense": dense, "hybrid": hybrid, "hybrid_rerank": reranked})
+                           retrievers={"dense": dense, "hybrid": hybrid, "hybrid_rerank": reranked}, langfuse=langfuse)
     return create_app(pipeline, langfuse=langfuse, recorder=RunRecorder(ROOT / "results"))

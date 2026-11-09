@@ -1,4 +1,4 @@
-"""검색 호출을 Langfuse Span으로 감싸는 공통 도구 (08 §5 계측 원칙).
+"""처리 단계를 Langfuse Span으로 감싸는 공통 도구 (08 §5 계측 원칙). 검색은 유형 `retriever`, 그 밖의 단계는 `span`.
 
 Span이므로 요청 Trace 안에서 호출되면 자동으로 그 아래에 붙고, 혼자 실행하면 자기 Trace를 만든다(D-029).
 Langfuse 오류는 모두 삼키며 검색 결과와 예외는 그대로 전달한다.
@@ -20,14 +20,14 @@ def _safe(fn: Callable[[], Any], what: str) -> None:
 
 
 def traced_retrieval(langfuse, name: str, span_input: dict, metadata: dict, run: Callable[[], Any],
-                     output_of: Callable[[Any], dict]) -> Any:
-    """run()을 실행하고 결과를 Span `name`(유형 retriever)에 기록한다. langfuse가 None이면 그냥 run()."""
+                     output_of: Callable[[Any], dict], as_type: str = "retriever") -> Any:
+    """run()을 실행하고 결과를 Span `name`(유형 as_type, 기본 retriever)에 기록한다. langfuse가 None이면 그냥 run()."""
     if langfuse is None:
         return run()
     stack = ExitStack()
     try:
         span = stack.enter_context(langfuse.start_as_current_observation(
-            name=name, as_type="retriever", input=span_input, metadata=metadata))
+            name=name, as_type=as_type, input=span_input, metadata=metadata))
     except Exception as exc:  # noqa: BLE001
         logger.warning("Langfuse Span 시작 실패: %s", type(exc).__name__)
         stack.close()

@@ -44,7 +44,7 @@
 | 8 | 9 | 되묻기·보류: 프롬프트·출력 스키마 조정, 예외 질문 테스트 (D-034) | 필수 | REVIEW | development 30문항 상태 26/30 일치(불일치 4건은 검색 한계), 예외 질문 6/6, 프롬프트 answer-v2(사용자가 문구 확인·승인). 조정 횟수 제한 없음(문구 변경은 사전 승인). 프롬프트 동결은 공식 실행 전 |
 | 9 | 5 | BM25·Hybrid (RRF) (D-035) | 필수 | REVIEW | BM25(토크나이저 whitespace 동결)·RRF·Hybrid 구현, `rag_method=hybrid` 연결, Dense·BM25·Hybrid 비교 완료(D-036: Hybrid는 Hit@5 0.9286으로 최고지만 Recall@5는 Dense보다 낮음). 실제 Langfuse에서 `hybrid-retrieve` 아래 Dense·BM25 Span 연결 확인 |
 | 10 | 6 | Reranker·Hybrid+Rerank (D-037) | 필수 | REVIEW | bge-reranker-v2-m3(apache-2.0, 확인한 revision 기록) 연결, 재정렬 전후 순위·점수 기록, 4방식 비교 완료(Hybrid+Rerank가 Recall@5 0.8095로 최고, Hit@5는 Hybrid보다 낮음, 질문당 약 0.5초 추가). 실제 Langfuse에서 `rerank-retrieve` 아래 Span 연결 확인 |
-| 11 | 10 | Langfuse 통합 검증 | 필수 | TODO | 대표 요청 1건 추적 |
+| 11 | 10 | Langfuse 통합 검증 (D-038) | 필수 | REVIEW | 대표 요청 6건이 24개 검사 통과(Trace 연결, 식별자, 최종 문맥 구분, 모델 입출력·사용량, 오류 유형·단계·재시도). config_version 정의·공개 키(SDK 기본 동작) 사용자 승인. 남은 것: 평가 LLM 호출 구분은 STEP 11에서 확인 |
 | 12 | 11 | 평가: Hit/Recall, RAGAS Faithfulness, Judge 4항목 | 필수 | TODO | 결과 저장, 대표 사례 원문 대조 |
 | 13 | 12 | 공식 비교: 설정 동결 후 60문항 × 3방식 | 필수 | TODO | 비교표, 최종 선택 근거 |
 | 14 | 13 | 보안 비교: FPAIR01·FPAIR02 × 기본/방어 | 필수 | TODO | 답변 4개와 판정 |
@@ -66,6 +66,6 @@
 - Qdrant Cloud 무료 플랜의 용량·비활성 정지 정책 (미확인, 확인 후 기록)
 - 서비스 응답시간(STEP 14)에는 Cloud 네트워크 시간이 포함됨을 보고서에 명시
 - 표가 페이지 경계에서 잘리는 문제 (STEP 1~2)
-- 확인 완료: Langfuse SDK 5.2.0(STEP 0), 요청·실험 Trace 연결과 환경 규칙(D-029, spike). HTTP 구간 전달은 STEP 7에서 확인함(D-031), STEP 10에서 점수 방식(`create_score` 후붙임)과 유닛 실측 확인
+- 확인 완료: Langfuse SDK 5.2.0(STEP 0), 요청·실험 Trace 연결과 환경 규칙(D-029, spike). HTTP 구간 전달은 STEP 7에서 확인함(D-031). 요청당 관측 수 실측은 STEP 10에서 함(D-038, 공식 실행 약 3,000유닛 추정). 점수 방식(`create_score` 후붙임)과 비교 화면 표시는 점수가 생기는 STEP 11에서 확인
 - 사용자가 Langfuse 화면에서 임시 데이터셋 `spike-trace-link` 삭제 (SDK에 삭제 API 없음)
 - 모델·패키지 정확 버전과 라이선스 (STEP 3, `DECISIONS.md`에 기록)

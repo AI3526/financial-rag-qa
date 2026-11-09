@@ -1,0 +1,756 @@
+{
+  "experiment_id": "langfuse-verify-001",
+  "track": "development",
+  "step": "10",
+  "requests": [
+    {
+      "label": "정상: Dense",
+      "request_id": "332e2793-bb2d-45b5-baf6-8d4a412fb072",
+      "http_status": 200,
+      "status": "needs_clarification",
+      "reason": "질문에 회사가 지정되지 않았고, 자료에 서로 다른 두 회사의 상반기 영업이익이 제시되어 있습니다.",
+      "trace_id": "03dfc0751148540660c59554b02a2a41"
+    },
+    {
+      "label": "정상: Hybrid",
+      "request_id": "63d4d83d-d010-4f26-90dc-012b6509104d",
+      "http_status": 200,
+      "status": "answered",
+      "reason": "자료에서 루미센서 E의 제품군·사업부문상 위치와 일반적인 용도를 확인했습니다.",
+      "trace_id": "3ef7ee956b8b4eb5897b03bf30f82aae"
+    },
+    {
+      "label": "정상: Hybrid+Rerank",
+      "request_id": "d3ddb186-df13-4576-b695-5a5290fe7384",
+      "http_status": 200,
+      "status": "answered",
+      "reason": "자료에서 기본형의 비율은 미공개라고 명시하고, R의 30%와 구분합니다.",
+      "trace_id": "3b014688ea8b4090c47b7071b115ab38"
+    },
+    {
+      "label": "되묻기",
+      "request_id": "7b462d70-daf3-43f2-9274-42afd15d4154",
+      "http_status": 200,
+      "status": "needs_clarification",
+      "reason": "‘이번 분기’의 기준 시점과 대상 회사가 분명하지 않고, 자료에는 분기별 매출이 아니라 해온솔루션의 상반기 매출이 나와 있습니다.",
+      "trace_id": "1a70861fd57aea3e948b5263c4698f0f"
+    },
+    {
+      "label": "오류: 모델 시간 초과(재시도 3회)",
+      "request_id": "a17cc9a9-7b58-4663-973d-35a3f1a2af25",
+      "http_status": 504,
+      "status": "error",
+      "reason": "model_timeout",
+      "trace_id": "7d75398f7daf441a8cb3290b92e00950"
+    },
+    {
+      "label": "오류: 빈 질문(422)",
+      "request_id": "16f740a9-d874-42f5-8ce5-e7c3ad495422",
+      "http_status": 422,
+      "status": "error",
+      "reason": "invalid_request",
+      "trace_id": "9542eac7cf06335c03eaae4f2fd2eb71"
+    },
+    {
+      "label": "오류: 필드 누락(422)",
+      "request_id": "effa4c11-3832-4204-8df4-5e1977788ade",
+      "http_status": 422,
+      "status": "error",
+      "reason": "invalid_request",
+      "trace_id": "160eba9cb3c79096e974aa39d207c9ed"
+    }
+  ],
+  "result": {
+    "332e2793-bb2d-45b5-baf6-8d4a412fb072": {
+      "rag_method": "dense",
+      "http_status": 200,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 5개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=332e2793 로컬=332e2793"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=general_eval track=development rag_method=dense"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-d0e15ebe28"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(dense)",
+          "passed": true,
+          "detail": "dense-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1653 로컬 1653"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "121"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 needs_clarification"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "4109.2ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 10건"
+        }
+      ]
+    },
+    "63d4d83d-d010-4f26-90dc-012b6509104d": {
+      "rag_method": "hybrid",
+      "http_status": 200,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 7개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=63d4d83d 로컬=63d4d83d"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=general_eval track=development rag_method=hybrid"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-fddff24ed2"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid)",
+          "passed": true,
+          "detail": "hybrid-retrieve > dense-retrieve > sparse-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1529 로컬 1529"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "97"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "2748.5ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 14건"
+        }
+      ]
+    },
+    "d3ddb186-df13-4576-b695-5a5290fe7384": {
+      "rag_method": "hybrid_rerank",
+      "http_status": 200,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 8개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=d3ddb186 로컬=d3ddb186"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=general_eval track=development rag_method=hybrid_rerank"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-9a14e9bbf6"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "passed": true,
+          "detail": "rerank-retrieve > hybrid-retrieve > dense-retrieve > sparse-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1921 로컬 1921"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "90"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "3211.3ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 16건"
+        }
+      ]
+    },
+    "7b462d70-daf3-43f2-9274-42afd15d4154": {
+      "rag_method": "dense",
+      "http_status": 200,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 5개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=7b462d70 로컬=7b462d70"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=general_eval track=development rag_method=dense"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-d0e15ebe28"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(dense)",
+          "passed": true,
+          "detail": "dense-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1644 로컬 1644"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "118"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 needs_clarification"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "2411.9ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 10건"
+        }
+      ]
+    },
+    "a17cc9a9-7b58-4663-973d-35a3f1a2af25": {
+      "rag_method": "dense",
+      "http_status": 504,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 6개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=a17cc9a9 로컬=a17cc9a9"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=mock_error track=development rag_method=dense"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-afeafa9e64"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(dense)",
+          "passed": true,
+          "detail": "dense-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 3개, 로컬 3개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "실패한 모델 호출이 ERROR로 표시",
+          "passed": true,
+          "detail": "[<ObservationLevel.ERROR: 'ERROR'>, <ObservationLevel.ERROR: 'ERROR'>, <ObservationLevel.ERROR: 'ERROR'>]"
+        },
+        {
+          "name": "루트가 ERROR로 표시",
+          "passed": true,
+          "detail": "ERROR"
+        },
+        {
+          "name": "오류 유형 기록",
+          "passed": true,
+          "detail": "model_timeout"
+        },
+        {
+          "name": "오류 발생 단계 기록",
+          "passed": true,
+          "detail": "단계 generation / model_timeout (stage=generation)"
+        },
+        {
+          "name": "재시도 정보 기록",
+          "passed": true,
+          "detail": "재시도 2회"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "661.4ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 12건"
+        }
+      ]
+    },
+    "16f740a9-d874-42f5-8ce5-e7c3ad495422": {
+      "rag_method": "dense",
+      "http_status": 422,
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 1개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=16f740a9 로컬=16f740a9"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=mock_error track=development rag_method=dense"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-d0e15ebe28"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "루트가 ERROR로 표시",
+          "passed": true,
+          "detail": "ERROR"
+        },
+        {
+          "name": "오류 유형 기록",
+          "passed": true,
+          "detail": "invalid_request"
+        },
+        {
+          "name": "오류 발생 단계 기록",
+          "passed": true,
+          "detail": "단계 validate / invalid_request (stage=validate)"
+        },
+        {
+          "name": "재시도 정보 기록",
+          "passed": true,
+          "detail": "재시도 0회"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "0.0ms"
+        },
+        {
+          "name": "비밀 값·키 형태가 기록에 없음",
+          "passed": false,
+          "detail": "발견 2건"
+        }
+      ]
+    }
+  },
+  "global": [
+    {
+      "name": "요청마다 서로 다른 Trace ID",
+      "passed": true,
+      "detail": "요청 6건, 고유 Trace 6개"
+    },
+    {
+      "name": "기록 누락 없음(모든 요청의 Trace가 있음)",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "passed": false,
+  "representative_trace_id": "3b014688ea8b4090c47b7071b115ab38",
+  "created_at": "2026-11-09T04:09:29+00:00"
+}

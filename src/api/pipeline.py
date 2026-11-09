@@ -9,14 +9,17 @@
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Any, Callable, Protocol
 
-from src.generation.context import build_final_context
+from src.generation.context import TOKEN_COUNT_METHOD, build_final_context
 from src.generation.pricing import request_cost
 from src.retrieval.dense import InvalidQuery, RetrievalError
+from src.retrieval.trace import traced_retrieval
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +144,8 @@ class Outcome:
 
 class RagPipeline:
     def __init__(self, retriever, generator: Generator | None = None, settings: PipelineSettings | None = None,
-                 *, sleep: Callable[[float], None] = time.sleep, pricing=None, retrievers: dict | None = None):
+                 *, sleep: Callable[[float], None] = time.sleep, pricing=None, retrievers: dict | None = None,
+                 langfuse=None):
         # 방식별 검색기(`rag_method` → 검색기). 주어지지 않으면 Dense 하나다. hybrid_rerank는 STEP 6에서 추가한다.
         self.retrievers = dict(retrievers) if retrievers else {"dense": retriever}
         self.retriever = retriever if retriever is not None else self.retrievers.get("dense")
@@ -149,6 +153,26 @@ class RagPipeline:
         self.settings = settings or PipelineSettings()
         self._sleep = sleep
         self.pricing = pricing  # configs/pricing.json의 단가. 없으면 비용을 계산하지 않는다(null)
+        self.langfuse = langfuse  # 있으면 문맥 구성·출처 변환 단계를 Span으로 기록한다(요청 Trace 안에서 호출될 때 하위에 붙음)
+
+    def version_info(self, rag_method: str | None = None) -> dict:
+        """이 파이프라인의 데이터셋·청킹·임베딩·프롬프트·모델 버전과 `config_version`(실행 설정 스냅샷의 해시).
+
+        config_version = `cfg-` + sha256(데이터셋·청킹·임베딩·프롬프트(sha256)·모델·파이프라인 설정·선택한 검색 방식의 설정)의 앞 10자리.
+        같은 설정이면 같은 값이고 하나라도 바뀌면 달라진다(D-038).
+        """
+        cfg = getattr(self.retriever, "config", None)
+        gen = self.generator
+        info = {"dataset_id": getattr(cfg, "dataset_id", None), "dataset_version": getattr(cfg, "dataset_version", None),
+                "chunking_version": getattr(cfg, "chunking_version", None),
+                "embedding_version": getattr(getattr(cfg, "spec", None), "version_tag", None),
+                "prompt_version": getattr(gen, "prompt_version", None), "prompt_sha256": getattr(gen, "prompt_sha256", None),
+                "model": getattr(getattr(gen, "llm", None), "model_name", None)}
+        retriever = self.retrievers.get(rag_method) if rag_method else None
+        snapshot = {**info, "settings": asdict(self.settings),
+                    "retrieval": retriever.describe() if hasattr(retriever, "describe") else None}
+        digest = hashlib.sha256(json.dumps(snapshot, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+        return {**info, "config_version": f"cfg-{digest[:10]}"}
 
     # 입력 검증은 API 계층에서도 하지만, 파이프라인을 직접 부르는 평가 코드를 위해 여기서도 막는다
     def validate_request(self, question: Any, rag_method: Any) -> str:
@@ -170,8 +194,15 @@ class RagPipeline:
             sources = self._retrieve(question, rag_method, record)
             stage = "generation"
             parsed = self._generate(question, sources, record)
-            response = {"request_id": request_id, "status": parsed["status"], "answer": parsed["answer"],
-                        "reason": parsed["reason"], "citations": citations_for(parsed["source_ids"], sources)}
+            response = traced_retrieval(
+                self.langfuse, "citation-and-status",
+                {"llm_status": parsed["status"], "llm_source_ids": parsed["source_ids"],
+                 "context_source_ids": [x["source_id"] for x in sources]}, {},
+                lambda: {"request_id": request_id, "status": parsed["status"], "answer": parsed["answer"],
+                         "reason": parsed["reason"], "citations": citations_for(parsed["source_ids"], sources)},
+                # 이 단계에 도달했다는 것은 출력 검증(상태 값, 필수 필드, 출처 ID가 문맥에 있음)을 통과했다는 뜻이다
+                lambda r: {"validation": "passed", "status": r["status"], "reason": r["reason"], "citations": r["citations"]},
+                as_type="span")
             record["llm_output_parsed"] = parsed
             outcome = Outcome(200, response, record)
         except PipelineError as exc:
@@ -199,7 +230,21 @@ class RagPipeline:
             raise InvalidRequest(str(exc)) from exc
         except RetrievalError as exc:
             raise RetrievalFailure(str(exc)) from exc
-        context = build_final_context(result.chunks, self.settings.context_limit_tokens)
+        context = traced_retrieval(
+            self.langfuse, "context-construction",
+            {"retrieved": [{"rank": c["rank"], "chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"]}
+                           for c in result.chunks], "context_limit_tokens": self.settings.context_limit_tokens},
+            {"token_count_method": TOKEN_COUNT_METHOD},
+            lambda: build_final_context(result.chunks, self.settings.context_limit_tokens),
+            lambda c: {"retrieved_count": len(result.chunks), "final_count": len(c.sources),
+                       "context_token_count": c.token_count, "context_limit_tokens": c.limit_tokens,
+                       "token_count_method": TOKEN_COUNT_METHOD, "dropped_chunk_ids": c.dropped_chunk_ids,
+                       "over_limit": c.over_limit,
+                       # 모델에 실제 전달한 문맥(검색 결과와 구분). 본문은 Generation 입력에 있다
+                       "final_chunks": [{"source_id": s["source_id"], "chunk_id": s["chunk_id"], "book_id": s["book_id"],
+                                         "file_name": s["file_name"], "page": s["page"], "rank": s["rank"]}
+                                        for s in c.sources]},
+            as_type="span")
         brief = [{"chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"], "rank": c["rank"],
                   "score": c["score"]} for c in result.chunks]
         cand = result.candidates or {}

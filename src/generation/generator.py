@@ -94,7 +94,7 @@ class LangChainGenerator:
 
     def generate(self, question: str, sources: list[dict]) -> GenerationOutput:
         messages = self.template.format_messages(context=format_context(sources), question=question)
-        config = {"callbacks": self.callbacks_factory()} if self.callbacks_factory else None
+        config = {"callbacks": self.callbacks_factory(), "run_name": "answer-generation"} if self.callbacks_factory else None
         try:
             ai = self.llm.invoke(messages, config=config)
         except PipelineError:

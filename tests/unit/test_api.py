@@ -327,7 +327,7 @@ def test_error_response_marks_trace_as_error():
     lf = FakeLangfuse()
     client, _ = make(retriever=FakeRetriever(error=RetrievalError("down")), langfuse=lf)
     post(client)
-    assert lf.spans[0].updates[0]["level"] == "ERROR" and lf.spans[0].updates[0]["status_message"] == "retrieval_error"
+    assert lf.spans[0].updates[0]["level"] == "ERROR" and lf.spans[0].updates[0]["status_message"] == "retrieval_error (stage=retrieval)"
 
 
 def test_langfuse_failure_does_not_change_answer_and_record_is_saved(tmp_path):
@@ -343,3 +343,22 @@ def test_recorder_failure_does_not_break_the_response(tmp_path):
     blocker.write_text("파일이 폴더 자리를 막고 있음", encoding="utf-8")
     client, _ = make(tmp_path=blocker)
     assert post(client).status_code == 200
+
+
+def test_malformed_requests_honor_run_headers_so_mock_errors_stay_out_of_general_metrics(tmp_path):
+    client, _ = make(tmp_path=tmp_path)
+    r = client.post("/rag/query", json={"question": "질문만 있음"},  # rag_method 누락
+                    headers={"X-Experiment-Id": "exp-mock", "X-Track": "development", "X-Run-Type": "mock_error"})
+    assert r.status_code == 422 and r.json()["reason"] == "invalid_request"
+    rec = records(tmp_path, "exp-mock")[0]  # 실험 폴더에 기록된다(service 폴더가 아니다)
+    assert rec["run_type"] == "mock_error" and rec["experiment_id"] == "exp-mock" and rec["track"] == "development"
+    assert not (tmp_path / "service").exists()
+
+
+def test_malformed_request_with_bad_headers_falls_back_to_safe_defaults(tmp_path):
+    client, _ = make(tmp_path=tmp_path)
+    r = client.post("/rag/query", json={"question": "질문만"}, headers={"X-Experiment-Id": "../evil", "X-Run-Type": "weird"})
+    assert r.status_code == 422
+    rec = records(tmp_path)[0]
+    assert rec["run_type"] == "general_eval" and rec["experiment_id"] is None  # 검증되지 않은 값은 쓰지 않는다
+    assert not (tmp_path.parent / "evil").exists()

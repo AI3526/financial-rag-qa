@@ -34,6 +34,37 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
+def run_context(x_experiment_id: str | None, x_track: str | None, x_run_type: str | None,
+                default_track: str) -> tuple[dict, str | None]:
+    """선택 헤더(`X-Experiment-Id`, `X-Track`, `X-Run-Type`)를 해석한다. 반환: (실행 구분, 헤더 오류 문구 또는 None).
+
+    질문 처리 경로와 요청 형식 오류 경로가 같은 규칙을 쓴다. 그래야 형식이 틀린 모의 오류 요청도 `mock_error`로
+    기록되어 일반 평가의 오류율에 섞이지 않는다(STEP 10에서 발견한 결함).
+    """
+    run = {"experiment_id": x_experiment_id, "track": x_track or default_track, "run_type": x_run_type or "general_eval"}
+    error = None
+    if run["track"] not in ALLOWED_TRACKS:
+        error = "올바르지 않은 X-Track"
+    elif run["run_type"] not in ALLOWED_RUN_TYPES:
+        error = "올바르지 않은 X-Run-Type"
+    elif x_experiment_id is not None and not EXPERIMENT_ID_RE.match(x_experiment_id):
+        error = "올바르지 않은 X-Experiment-Id"
+    if error:
+        run["experiment_id"] = None  # 검증되지 않은 값은 저장 경로에 쓰지 않는다
+    return run, error
+
+
+def _trace_output(outcome: Outcome) -> dict:
+    """요청 Trace의 output: 응답 + 실행시간 + 비용 + (오류일 때) 오류 유형·발생 단계·재시도 정보(05 §5.6)."""
+    out = dict(outcome.response)
+    rec = outcome.record
+    out["performance"] = rec.get("performance")
+    out["cost"] = {k: rec.get(k) for k in ("cost", "currency", "cost_status")}
+    if rec.get("error"):
+        out["error"] = rec["error"]
+    return out
+
+
 def _error_response(request_id: str, reason: str) -> dict:
     return {"request_id": request_id, "status": "error", "answer": GENERIC_ERROR_MESSAGE, "reason": reason,
             "citations": []}
@@ -53,15 +84,13 @@ def create_app(pipeline: RagPipeline, *, langfuse=None, recorder: RunRecorder | 
                default_track: str = "development") -> FastAPI:
     app = FastAPI(title="Financial RAG QA")
 
-    def versions(outcome: Outcome) -> dict:
-        cfg = getattr(pipeline.retriever, "config", None)
+    def versions(outcome: Outcome, rag_method: str | None) -> dict:
+        info = pipeline.version_info(rag_method)
         model_id = next((c["model_id"] for c in outcome.record.get("llm_calls", []) if c.get("model_id")), None)
-        return {"dataset_version": getattr(cfg, "dataset_version", None),
-                "chunking_version": getattr(cfg, "chunking_version", None),
-                "embedding_version": getattr(getattr(cfg, "spec", None), "version_tag", None),
-                "model_id": model_id, "config_version": None,
-                "prompt_version": getattr(pipeline.generator, "prompt_version", None),
-                "prompt_sha256": getattr(pipeline.generator, "prompt_sha256", None)}
+        return {"dataset_id": info["dataset_id"], "dataset_version": info["dataset_version"],
+                "chunking_version": info["chunking_version"], "embedding_version": info["embedding_version"],
+                "model_id": model_id or info["model"], "config_version": info["config_version"],
+                "prompt_version": info["prompt_version"], "prompt_sha256": info["prompt_sha256"]}
 
     def finalize(*, request_id: str, outcome: Outcome, received_at: str, trace: RequestTrace, run: dict,
                  question, rag_method, question_id) -> JSONResponse:
@@ -69,7 +98,7 @@ def create_app(pipeline: RagPipeline, *, langfuse=None, recorder: RunRecorder | 
             "request_id": request_id, "trace_id": trace.trace_id, "experiment_id": run["experiment_id"],
             "track": run["track"], "run_type": run["run_type"], "question_id": question_id,
             "evaluation_set_type": None, "rag_method": rag_method, "question": question,
-            "versions": versions(outcome), **outcome.record, "response": outcome.response,
+            "versions": versions(outcome, rag_method), **outcome.record, "response": outcome.response,
             "http_status": outcome.http_status,
             "observability": {"langfuse_recorded": trace.recorded, "langfuse_error": trace.error},
             "received_at": received_at, "completed_at": _now(),
@@ -92,31 +121,28 @@ def create_app(pipeline: RagPipeline, *, langfuse=None, recorder: RunRecorder | 
               x_track: str | None = Header(default=None),
               x_run_type: str | None = Header(default=None)) -> JSONResponse:
         request_id, received_at = str(uuid.uuid4()), _now()
-        run = {"experiment_id": x_experiment_id, "track": x_track or default_track,
-               "run_type": x_run_type or "general_eval"}
-        header_error = None
-        if run["track"] not in ALLOWED_TRACKS:
-            header_error = "올바르지 않은 X-Track"
-        elif run["run_type"] not in ALLOWED_RUN_TYPES:
-            header_error = "올바르지 않은 X-Run-Type"
-        elif x_experiment_id is not None and not EXPERIMENT_ID_RE.match(x_experiment_id):
-            header_error = "올바르지 않은 X-Experiment-Id"
+        run, header_error = run_context(x_experiment_id, x_track, x_run_type, default_track)
         if header_error:
-            run["experiment_id"] = None  # 검증되지 않은 값은 저장 경로에 쓰지 않는다
             return finalize(request_id=request_id, outcome=_invalid_outcome(request_id, header_error),
                             received_at=received_at, trace=RequestTrace(), run=run, question=body.question,
                             rag_method=body.rag_method, question_id=body.question_id)
 
+        info = pipeline.version_info(body.rag_method)
         with request_trace(
-            langfuse, traceparent=traceparent, environment=run["track"], tags=[run["run_type"]],
+            langfuse, traceparent=traceparent, environment=run["track"],
+            tags=[f"run_type:{run['run_type']}", f"track:{run['track']}", f"rag_method:{body.rag_method}"],
             input={"question": body.question, "rag_method": body.rag_method, "question_id": body.question_id},
             metadata={"request_id": request_id, "question_id": body.question_id,
                       "experiment_id": run["experiment_id"], "track": run["track"], "run_type": run["run_type"],
-                      "rag_method": body.rag_method},
+                      "rag_method": body.rag_method, "dataset_id": info["dataset_id"],
+                      "dataset_version": info["dataset_version"], "chunking_version": info["chunking_version"],
+                      "embedding_version": info["embedding_version"], "prompt_version": info["prompt_version"],
+                      "prompt_sha256": info["prompt_sha256"], "config_version": info["config_version"]},
         ) as trace:
             outcome = pipeline.run(request_id, body.question, body.rag_method)
-            trace.finish(output=outcome.response, failed=outcome.response["status"] == "error",
-                         status_message=outcome.response["reason"])
+            err = outcome.record.get("error") or {}
+            trace.finish(output=_trace_output(outcome), failed=outcome.response["status"] == "error",
+                         status_message=f"{outcome.response['reason']} (stage={err.get('error_stage')})" if err else None)
         return finalize(request_id=request_id, outcome=outcome, received_at=received_at, trace=trace, run=run,
                         question=body.question, rag_method=body.rag_method, question_id=body.question_id)
 
@@ -125,9 +151,17 @@ def create_app(pipeline: RagPipeline, *, langfuse=None, recorder: RunRecorder | 
         """필드 누락·자료형 오류도 같은 오류 형식(422 invalid_request)으로 돌려준다."""
         request_id, received_at = str(uuid.uuid4()), _now()
         fields = ", ".join(sorted({str(e["loc"][-1]) for e in exc.errors() if e.get("loc")}))
-        return finalize(request_id=request_id, outcome=_invalid_outcome(request_id, f"요청 형식 오류: {fields}"),
-                        received_at=received_at, trace=RequestTrace(),
-                        run={"experiment_id": None, "track": default_track, "run_type": "general_eval"},
+        h = request.headers
+        run, header_error = run_context(h.get("x-experiment-id"), h.get("x-track"), h.get("x-run-type"), default_track)
+        if header_error:  # 헤더도 틀리면 안전한 기본값으로 기록한다(요청은 어차피 422)
+            run, _ = run_context(None, None, None, default_track)
+        outcome = _invalid_outcome(request_id, f"요청 형식 오류: {fields}")
+        with request_trace(langfuse, traceparent=h.get("traceparent"), environment=run["track"],
+                           tags=[f"run_type:{run['run_type']}", f"track:{run['track']}"], input={"invalid_fields": fields},
+                           metadata={"request_id": request_id, "experiment_id": run["experiment_id"], "track": run["track"],
+                                     "run_type": run["run_type"]}) as trace:
+            trace.finish(output=_trace_output(outcome), failed=True, status_message="invalid_request (stage=validate)")
+        return finalize(request_id=request_id, outcome=outcome, received_at=received_at, trace=trace, run=run,
                         question=None, rag_method=None, question_id=None)
 
     @app.exception_handler(StarletteHTTPException)

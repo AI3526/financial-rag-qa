@@ -136,21 +136,19 @@ Observation 이름은 역할을 명확하게 알 수 있도록 일관되게 지�
 
 예시:
 
-| 이름 | 역할 |
-|---|---|
-| `rag-query` | 전체 요청 |
-| `request-validation` | 요청 검증 |
-| `retrieval` | 검색 전체 |
-| `dense-retrieval` | Dense 검색 |
-| `sparse-retrieval` | Sparse 검색 |
-| `reranking` | 검색 후보 재정렬 |
-| `context-construction` | 최종 문맥 구성 |
-| `answer-generation` | 답변 생성 |
-| `citation-and-status` | 출력 검증, 출처 변환, 상태 처리 |
-| `response` | 최종 응답 |
-| `evaluation` | 평가 실행 |
-| `faithfulness-evaluation` | Faithfulness 평가 |
-| `judge-evaluation` | LLM Judge 평가 |
+| 이름 | 유형 | 역할 |
+|---|---|---|
+| `rag-query` | Span(요청 루트, Trace) | 전체 요청. 입력(질문), 출력(응답·실행시간·비용·오류 유형과 발생 단계), metadata(식별 정보) |
+| `rerank-retrieve` | Retriever | `hybrid_rerank`의 검색 전체. 재정렬 전후 순위·점수 |
+| `hybrid-retrieve` | Retriever | Hybrid 검색(RRF 결합). 후보 목록(dense·sparse·fused), 결합 설정 |
+| `dense-retrieve` | Retriever | Dense 검색 |
+| `sparse-retrieve` | Retriever | BM25 검색 |
+| `context-construction` | Span | 최종 문맥 구성: 검색 결과 대비 최종 청크·출처 ID 대응·제외 청크·추정 토큰 수 |
+| `answer-generation` | Generation | gpt-6-luna 호출(재시도마다 1개): 실제 모델 입력·출력, 모델명, 토큰 사용량 |
+| `citation-and-status` | Span | 출력 검증 통과 후 출처 변환과 응답 상태 |
+| `faithfulness-evaluation`, `judge-evaluation` | Generation | 평가 LLM 호출(STEP 11). 서비스 호출과 구분: `run_type:scoring` 태그, `rag-query` 아래에 두지 않는다 |
+
+검색 Span은 중첩된다: `rerank-retrieve > hybrid-retrieve > [dense-retrieve, sparse-retrieve]`. 요청 검증은 별도 Span 없이 `rag-query`의 출력과 상태 메시지에 단계(`stage=validate`)로 기록한다. 최종 응답은 `rag-query`의 output이다. (처음 예시의 `request-validation`, `retrieval`, `reranking`, `response`는 쓰지 않는다.)
 
 실제 이름은 구현 단계에서 확정하되, 동일한 작업에는 동일한 이름을 사용한다.
 
@@ -174,7 +172,7 @@ Observation 이름은 역할을 명확하게 알 수 있도록 일관되게 지�
 | dataset_id | 데이터셋 식별 | [필수] |
 | dataset_version | 데이터셋 버전 식별 | [필수] |
 | rag_method | RAG 방식 식별 (dense / hybrid / hybrid_rerank) | [필수] |
-| config_version | 실행 설정 버전 | [필수] |
+| config_version | 실행 설정 버전. `cfg-` + 데이터셋·청킹·임베딩·프롬프트(sha256)·모델·파이프라인 설정·선택한 검색 방식 설정을 정렬한 JSON의 sha256 앞 10자리(같은 설정이면 같은 값, D-038) | [필수] |
 | prompt_version | 프롬프트 버전 | [필수] |
 
 위 정보는 Trace의 metadata 또는 tags에 기록한다.

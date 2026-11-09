@@ -10,16 +10,12 @@
 """
 from __future__ import annotations
 
-import logging
 import time
-from contextlib import ExitStack
 from dataclasses import dataclass, field
 
 from src.index import qdrant_store as qs
 from src.index.embedding import CANDIDATES, Embedder, EmbeddingSpec, collection_name
-
-
-logger = logging.getLogger(__name__)
+from src.retrieval.trace import traced_retrieval
 
 
 class InvalidQuery(ValueError):
@@ -55,7 +51,22 @@ class RetrievalResult:
     method: str = "dense"
     k: int = 5
     chunks: list[dict] = field(default_factory=list)  # [{rank, score, chunk_id, book_id, file_name, page, text, metadata}]
-    durations_ms: dict = field(default_factory=dict)  # {"embed", "search", "total"}
+    durations_ms: dict = field(default_factory=dict)  # dense: {"embed", "search", "total"}
+    # Hybrid처럼 여러 단계를 거친 방식의 후보 목록(09 §9 retrieval): {"dense": [...], "sparse": [...], "fused": [...]}.
+    # 각 원소는 {chunk_id, book_id, page, rank, score}. Dense 단독은 None.
+    candidates: dict | None = None
+    candidate_k: int | None = None
+
+
+def result_output(result: "RetrievalResult") -> dict:
+    """Langfuse Span 출력: 최종 청크(출처 포함)와 시간. 후보 목록이 있으면 함께 담는다."""
+    out = {"chunks": [{"rank": c["rank"], "score": round(c["score"], 4), "chunk_id": c["chunk_id"],
+                       "book_id": c["book_id"], "file_name": c["file_name"], "page": c["page"], "text": c["text"]}
+                      for c in result.chunks],
+           "durations_ms": result.durations_ms}
+    if result.candidates is not None:
+        out["candidates"] = result.candidates
+    return out
 
 
 class DenseRetriever:
@@ -69,52 +80,12 @@ class DenseRetriever:
         self.langfuse = langfuse
 
     def retrieve(self, question: str, k: int | None = None) -> RetrievalResult:
-        if self.langfuse is None:
-            return self._retrieve(question, k)
-        return self._retrieve_traced(question, k)
-
-    def _retrieve_traced(self, question: str, k: int | None) -> RetrievalResult:
-        span_stack = ExitStack()
-        span = None
-        try:
-            span = span_stack.enter_context(self.langfuse.start_as_current_observation(
-                name="dense-retrieve", as_type="retriever",
-                input={"question": question, "k": self.config.k if k is None else k},
-                metadata={"method": "dense", "collection": self.config.collection,
-                          "embedding_model": self.config.spec.hf_id, "embedding_version": self.config.spec.version_tag},
-            ))
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Langfuse Span 시작 실패: %s", type(exc).__name__)
-            span_stack.close()
-            return self._retrieve(question, k)
-        try:
-            result = self._retrieve(question, k)
-        except Exception as exc:
-            self._safe_update(span, level="ERROR", status_message=f"{type(exc).__name__}: {str(exc)[:200]}")
-            self._safe_close(span_stack)
-            raise
-        self._safe_update(span, output={
-            "chunks": [{"rank": c["rank"], "score": round(c["score"], 4), "chunk_id": c["chunk_id"],
-                        "book_id": c["book_id"], "file_name": c["file_name"], "page": c["page"], "text": c["text"]}
-                       for c in result.chunks],
-            "durations_ms": result.durations_ms,
-        })
-        self._safe_close(span_stack)
-        return result
-
-    @staticmethod
-    def _safe_update(span, **kwargs) -> None:
-        try:
-            span.update(**kwargs)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Langfuse Span 기록 실패: %s", type(exc).__name__)
-
-    @staticmethod
-    def _safe_close(stack: ExitStack) -> None:
-        try:
-            stack.close()
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Langfuse Span 종료 실패: %s", type(exc).__name__)
+        return traced_retrieval(
+            self.langfuse, "dense-retrieve",
+            {"question": question, "k": self.config.k if k is None else k},
+            {"method": "dense", "collection": self.config.collection,
+             "embedding_model": self.config.spec.hf_id, "embedding_version": self.config.spec.version_tag},
+            lambda: self._retrieve(question, k), result_output)
 
     def _retrieve(self, question: str, k: int | None) -> RetrievalResult:
         if not isinstance(question, str) or not question.strip():

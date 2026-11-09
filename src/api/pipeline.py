@@ -68,7 +68,6 @@ class GenerationUnavailable(PipelineError):
 # --- 설정 (D-030 초기값) -------------------------------------------------------------------------------
 @dataclass(frozen=True)
 class PipelineSettings:
-    supported_methods: tuple[str, ...] = ("dense",)  # hybrid, hybrid_rerank는 STEP 5~6에서 추가
     final_k: int = 5
     model_timeout_seconds: float = 30.0  # 생성기가 호출 때 적용한다
     max_model_calls: int = 3  # 재시도와 재생성의 합
@@ -142,8 +141,10 @@ class Outcome:
 
 class RagPipeline:
     def __init__(self, retriever, generator: Generator | None = None, settings: PipelineSettings | None = None,
-                 *, sleep: Callable[[float], None] = time.sleep, pricing=None):
-        self.retriever = retriever
+                 *, sleep: Callable[[float], None] = time.sleep, pricing=None, retrievers: dict | None = None):
+        # 방식별 검색기(`rag_method` → 검색기). 주어지지 않으면 Dense 하나다. hybrid_rerank는 STEP 6에서 추가한다.
+        self.retrievers = dict(retrievers) if retrievers else {"dense": retriever}
+        self.retriever = retriever if retriever is not None else self.retrievers.get("dense")
         self.generator = generator or UnavailableGenerator()
         self.settings = settings or PipelineSettings()
         self._sleep = sleep
@@ -153,7 +154,7 @@ class RagPipeline:
     def validate_request(self, question: Any, rag_method: Any) -> str:
         if not isinstance(question, str) or not question.strip():
             raise InvalidRequest("질문이 비어 있습니다.")
-        if rag_method not in self.settings.supported_methods:
+        if rag_method not in self.retrievers:
             raise InvalidRequest(f"지원하지 않는 rag_method: {rag_method!r}")
         return question.strip()
 
@@ -166,7 +167,7 @@ class RagPipeline:
         try:
             question = self.validate_request(question, rag_method)
             stage = "retrieval"
-            sources = self._retrieve(question, record)
+            sources = self._retrieve(question, rag_method, record)
             stage = "generation"
             parsed = self._generate(question, sources, record)
             response = {"request_id": request_id, "status": parsed["status"], "answer": parsed["answer"],
@@ -189,19 +190,24 @@ class RagPipeline:
         return outcome
 
     # --- 단계 ---
-    def _retrieve(self, question: str, record: dict) -> list[dict]:
+    def _retrieve(self, question: str, rag_method: str, record: dict) -> list[dict]:
+        retriever = self.retrievers[rag_method]
         try:
-            result = self.retriever.retrieve(question, k=self.settings.final_k)
+            result = retriever.retrieve(question, k=self.settings.final_k)
         except InvalidQuery as exc:
             raise InvalidRequest(str(exc)) from exc
         except RetrievalError as exc:
             raise RetrievalFailure(str(exc)) from exc
         context = build_final_context(result.chunks, self.settings.context_limit_tokens)
+        brief = [{"chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"], "rank": c["rank"],
+                  "score": c["score"]} for c in result.chunks]
+        cand = result.candidates or {}
         record["retrieval"] = {
-            "dense": [{"chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"], "rank": c["rank"],
-                       "score": c["score"]} for c in result.chunks],
-            "sparse": None, "fused": None, "reranked": None,
-            "candidate_k": result.k, "final_k": result.k, "durations_ms": result.durations_ms,
+            # 사용하지 않은 방식은 null이다(0이나 빈 배열로 바꾸지 않는다). 점수는 방식마다 의미가 달라 단순 비교하지 않는다.
+            "method": rag_method, "dense": cand.get("dense", brief if rag_method == "dense" else None),
+            "sparse": cand.get("sparse"), "fused": cand.get("fused"), "reranked": None,
+            "candidate_k": result.candidate_k or result.k, "final_k": result.k, "durations_ms": result.durations_ms,
+            "settings": retriever.describe() if hasattr(retriever, "describe") else None,
         }
         record["final_context"] = context.as_record()  # 1차 검색 결과(retrieval)와 구분: 모델에 실제 전달한 문맥
         return context.sources

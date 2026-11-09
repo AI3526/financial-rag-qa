@@ -1,0 +1,83 @@
+{
+  "methods": {
+    "dense": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.8571428571428571,
+      "recall_at_5": 0.7648809523809524,
+      "page_hit_at_5": 0.5714285714285714,
+      "page_recall_at_5": 0.46071428571428574,
+      "empty_results": 0,
+      "search_seconds_30_questions": 5.26
+    },
+    "bm25": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.8571428571428571,
+      "recall_at_5": 0.7529761904761905,
+      "page_hit_at_5": 0.5,
+      "page_recall_at_5": 0.3476190476190476,
+      "empty_results": 0,
+      "search_seconds_30_questions": 0.06
+    },
+    "hybrid": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.9285714285714286,
+      "recall_at_5": 0.7529761904761905,
+      "page_hit_at_5": 0.5357142857142857,
+      "page_recall_at_5": 0.40714285714285714,
+      "empty_results": 0,
+      "search_seconds_30_questions": 4.96
+    }
+  },
+  "per_question_comparison": {
+    "hybrid_vs_dense": {
+      "better": [
+        "F-DEV-20",
+        "F-DEV-23"
+      ],
+      "worse": [
+        "F-DEV-01",
+        "F-DEV-02",
+        "F-DEV-13",
+        "F-DEV-17",
+        "F-DEV-24"
+      ],
+      "same": 21
+    },
+    "hybrid_vs_bm25": {
+      "better": [
+        "F-DEV-02",
+        "F-DEV-07",
+        "F-DEV-09",
+        "F-DEV-14"
+      ],
+      "worse": [
+        "F-DEV-03",
+        "F-DEV-15",
+        "F-DEV-21",
+        "F-DEV-24"
+      ],
+      "same": 20
+    }
+  },
+  "no_document_found": {
+    "dense": [
+      "F-DEV-03",
+      "F-DEV-20",
+      "F-DEV-23",
+      "F-DEV-25"
+    ],
+    "bm25": [
+      "F-DEV-02",
+      "F-DEV-09",
+      "F-DEV-14",
+      "F-DEV-25"
+    ],
+    "hybrid": [
+      "F-DEV-03",
+      "F-DEV-25"
+    ]
+  }
+}

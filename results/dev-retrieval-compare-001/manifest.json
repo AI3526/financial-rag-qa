@@ -1,0 +1,23 @@
+{
+  "experiment_id": "dev-retrieval-compare-001",
+  "track": "development",
+  "step": "5",
+  "k": 5,
+  "question_set": "development",
+  "questions": 30,
+  "methods": [
+    "dense",
+    "bm25",
+    "hybrid"
+  ],
+  "bm25_tokenizer": "whitespace",
+  "hybrid": {
+    "dense_candidates": 20,
+    "sparse_candidates": 20,
+    "rrf_k": 60,
+    "fused_top": 20,
+    "final_k": 5
+  },
+  "purpose": "비교 기록(승자 선정 아님)",
+  "created_at": "2026-11-09T02:44:37+00:00"
+}

@@ -42,7 +42,7 @@
 | 6 | 7 | FastAPI: `/health`, `/rag/query`, Pydantic, 오류 처리, 필수 안정성 테스트 (D-031) | 필수 | REVIEW | 정상·빈 질문·모의 오류 테스트 실행 완료, `traceparent` HTTP 구간으로 실험 Trace에 이어 붙음 확인 |
 | 7 | 8 | 생성·출처: S-ID 부여, 출력 검증, 출처 변환 (D-032) | 필수 | REVIEW | 실제 gpt-6-luna로 6개 질문 답변과 출처 연결 확인(AI가 2건 원문 비교, **사람 확인은 미완료**). Langfuse Generation이 `rag-query` 아래에 붙음 확인(캐시 토큰 발견 기록). 단가를 `configs/pricing.json`에 기록하고 요청별 비용 계산(D-033). 남은 것: 생성 설정은 STEP 9 확인 후 동결, Langfuse 모델 단가 등록 |
 | 8 | 9 | 되묻기·보류: 프롬프트·출력 스키마 조정, 예외 질문 테스트 (D-034) | 필수 | REVIEW | development 30문항 상태 26/30 일치(불일치 4건은 검색 한계), 예외 질문 6/6, 프롬프트 answer-v2(사용자가 문구 확인·승인). 조정 횟수 제한 없음(문구 변경은 사전 승인). 프롬프트 동결은 공식 실행 전 |
-| 9 | 5 | BM25·Hybrid (RRF) | 필수 | TODO | 세 방식 중 두 번째 연결 |
+| 9 | 5 | BM25·Hybrid (RRF) (D-035) | 필수 | REVIEW | BM25(토크나이저 whitespace 동결)·RRF·Hybrid 구현, `rag_method=hybrid` 연결, Dense·BM25·Hybrid 비교 완료(D-036: Hybrid는 Hit@5 0.9286으로 최고지만 Recall@5는 Dense보다 낮음). 실제 Langfuse에서 `hybrid-retrieve` 아래 Dense·BM25 Span 연결 확인 |
 | 10 | 6 | Reranker·Hybrid+Rerank | 필수 | TODO | 순위 전후 확인 |
 | 11 | 10 | Langfuse 통합 검증 | 필수 | TODO | 대표 요청 1건 추적 |
 | 12 | 11 | 평가: Hit/Recall, RAGAS Faithfulness, Judge 4항목 | 필수 | TODO | 결과 저장, 대표 사례 원문 대조 |

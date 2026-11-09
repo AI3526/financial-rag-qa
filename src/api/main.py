@@ -39,5 +39,12 @@ def build_default_app(prompt_name: str | None = None, use_langfuse: bool = True)
         generator = UnavailableGenerator()
     from src.generation.pricing import load_pricing
 
-    pipeline = RagPipeline(DenseRetriever(langfuse=langfuse), generator, settings, pricing=load_pricing())
+    from src.retrieval.hybrid import HybridRetriever
+    from src.retrieval.sparse import SparseRetriever
+
+    dense = DenseRetriever(langfuse=langfuse)
+    # BM25는 같은 chunks.jsonl을 메모리에서 색인한다(토크나이저 whitespace 동결, D-035). hybrid_rerank는 STEP 6에서 추가한다
+    hybrid = HybridRetriever(dense, SparseRetriever(langfuse=langfuse), langfuse=langfuse)
+    pipeline = RagPipeline(dense, generator, settings, pricing=load_pricing(),
+                           retrievers={"dense": dense, "hybrid": hybrid})
     return create_app(pipeline, langfuse=langfuse, recorder=RunRecorder(ROOT / "results"))

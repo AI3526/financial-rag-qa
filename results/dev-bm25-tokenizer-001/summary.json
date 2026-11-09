@@ -1,0 +1,51 @@
+{
+  "models": {
+    "whitespace": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.8571428571428571,
+      "recall_at_5": 0.7529761904761905,
+      "page_hit_at_5": 0.5,
+      "page_recall_at_5": 0.3476190476190476,
+      "empty_results": 0,
+      "index_seconds": 0.1
+    },
+    "kiwi": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.8214285714285714,
+      "recall_at_5": 0.630952380952381,
+      "page_hit_at_5": 0.5,
+      "page_recall_at_5": 0.3476190476190476,
+      "empty_results": 0,
+      "index_seconds": 3.79
+    },
+    "kiwi_userdict": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.8571428571428571,
+      "recall_at_5": 0.6547619047619048,
+      "page_hit_at_5": 0.5714285714285714,
+      "page_recall_at_5": 0.3833333333333333,
+      "empty_results": 0,
+      "index_seconds": 3.75
+    },
+    "char2gram": {
+      "questions": 30,
+      "evaluated_questions": 28,
+      "hit_at_5": 0.75,
+      "recall_at_5": 0.6369047619047619,
+      "page_hit_at_5": 0.5,
+      "page_recall_at_5": 0.37142857142857144,
+      "empty_results": 0,
+      "index_seconds": 0.06
+    }
+  },
+  "rule_result": {
+    "winner_all_four": "whitespace",
+    "decided_by": "Recall@5",
+    "winner_without_userdict": "whitespace",
+    "decided_by_without_userdict": "Recall@5",
+    "frozen": false
+  }
+}

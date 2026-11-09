@@ -292,13 +292,13 @@ LLM은 아래 JSON 하나를 반환한다.
 - `context_limit_tokens`, `context_token_count`
 - `chunks`: `[{source_id, chunk_id, book_id, file_name, page, rank, text}]` — 출처 ID(`S1`…)와 문서·페이지의 대응표 역할을 한다. 평가의 `retrieved_contexts`는 이 `text`를 사용한다.
 
-`llm_calls`(재시도·재생성 시도마다 1행): `{call_index, stage, model_id, input_tokens, output_tokens, reasoning_tokens, duration_ms, retry_index, status, finish_reason, usage_status}`. `gpt-6-luna`는 추론 모델이라 `output_tokens`에 추론 토큰이 포함되므로 `reasoning_tokens`를 별도로 기록한다(STEP 0 확인). 확인 불가한 값은 `null`이다. 서비스 답변 생성만 기록하며 평가 호출은 §11에 둔다.
+`llm_calls`(재시도·재생성 시도마다 1행): `{call_index, stage, model_id, input_tokens, cached_input_tokens, cache_write_tokens, output_tokens, reasoning_tokens, service_tier, duration_ms, retry_index, status, finish_reason, usage_status}`. `input_tokens`는 캐시 토큰을 포함한 전체 입력이고, `cached_input_tokens`·`cache_write_tokens`는 그 일부(캐시 읽기·쓰기)이며 운영 지표의 입력 토큰은 `input_tokens` 기준이다(D-032, D-033). `gpt-6-luna`는 추론 모델이라 `output_tokens`에 추론 토큰이 포함되므로 `reasoning_tokens`를 별도로 기록한다(STEP 0 확인). 확인 불가한 값은 `null`이다. 서비스 답변 생성만 기록하며 평가 호출은 §11에 둔다.
 
 `performance`: `total_duration_ms`(API 수신~최종 응답, 재시도 포함), `retrieval_duration_ms`, `reranking_duration_ms`, `generation_duration_ms`, `retry_count`, `final_status`. 실패 요청도 기록한다.
 
 `error`(`status = error`일 때): `reason`(§8.5 코드), `error_stage`, `error_message`(비밀 값 제외), `retry_count`, `is_retryable`.
 
-비용은 실제 확인 가능한 단가가 있을 때만 별도 필드(`cost`, `currency`, `price_source`)로 계산하며, 모르면 `null`로 둔다.
+비용은 실제 확인 가능한 단가가 있을 때만 별도 필드(`cost`, `currency`, `price_source`, `cost_status`)로 계산하며, 모르면 `null`로 둔다. 단가 원본은 Git의 `configs/pricing.json`이다(D-033). `cost_status`는 `complete`(모든 호출 계산됨), `partial`(일부 호출의 사용량을 몰라 합계가 하한), `unknown`이다. 응답의 `service_tier`가 단가 파일의 적용 조건(`default`)과 다르거나 사용량을 모르는 호출은 계산하지 않는다.
 
 ## 10. 평가 데이터 (제공 원본)
 

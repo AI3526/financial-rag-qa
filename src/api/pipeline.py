@@ -14,6 +14,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Protocol
 
+from src.generation.context import build_final_context
+from src.generation.pricing import request_cost
 from src.retrieval.dense import InvalidQuery, RetrievalError
 
 logger = logging.getLogger(__name__)
@@ -30,9 +32,11 @@ class PipelineError(Exception):
     http_status = 500
     retryable = False
 
-    def __init__(self, message: str = ""):
+    def __init__(self, message: str = "", *, retryable: bool | None = None):
         super().__init__(message)
         self.message = message
+        if retryable is not None:  # 같은 오류 종류라도 원인에 따라 재시도 가능 여부가 다르다(예: 429 vs 401)
+            self.retryable = retryable
 
 
 class InvalidRequest(PipelineError):
@@ -71,6 +75,11 @@ class PipelineSettings:
     max_transient_retries: int = 2  # 연결 오류·429·5xx·timeout
     retry_delays_seconds: tuple[float, ...] = (1.0, 2.0)
     max_regenerations: int = 1  # 출력 검증 실패 시 다시 생성
+    # 생성 설정 (D-032 제안값, 세 RAG 방식에 동일 적용, 공식 실행 전 development로 확인 후 동결)
+    reasoning_effort: str = "low"
+    max_completion_tokens: int = 1500
+    seed: int = 20261109
+    context_limit_tokens: int = 4000  # 최종 문맥 한도(추정 토큰, context.py)
 
 
 # --- 생성기 인터페이스 ----------------------------------------------------------------------------------
@@ -94,16 +103,7 @@ class UnavailableGenerator:
         raise GenerationUnavailable("생성 모델이 연결되지 않았습니다(STEP 8 전).")
 
 
-# --- 출처 대응표와 출력 검증 ----------------------------------------------------------------------------
-def build_sources(chunks: list[dict]) -> list[dict]:
-    """검색 결과에 이번 요청에서만 쓰는 출처 ID(S1, S2…)를 붙인다. 문서·페이지는 코드가 보관한다."""
-    return [
-        {"source_id": f"S{i}", "chunk_id": c["chunk_id"], "book_id": c["book_id"], "file_name": c["file_name"],
-         "page": c["page"], "rank": c["rank"], "text": c["text"]}
-        for i, c in enumerate(chunks, start=1)
-    ]
-
-
+# --- 출력 검증 (출처 ID 대응표 생성은 src/generation/context.py) -------------------------------------------
 def validate_output(parsed: Any, sources: list[dict]) -> dict:
     """LLM 출력을 검증한다. 통과하면 {status, answer, reason, source_ids}를 돌려주고, 아니면 OutputValidationError."""
     if not isinstance(parsed, dict):
@@ -142,11 +142,12 @@ class Outcome:
 
 class RagPipeline:
     def __init__(self, retriever, generator: Generator | None = None, settings: PipelineSettings | None = None,
-                 *, sleep: Callable[[float], None] = time.sleep):
+                 *, sleep: Callable[[float], None] = time.sleep, pricing=None):
         self.retriever = retriever
         self.generator = generator or UnavailableGenerator()
         self.settings = settings or PipelineSettings()
         self._sleep = sleep
+        self.pricing = pricing  # configs/pricing.json의 단가. 없으면 비용을 계산하지 않는다(null)
 
     # 입력 검증은 API 계층에서도 하지만, 파이프라인을 직접 부르는 평가 코드를 위해 여기서도 막는다
     def validate_request(self, question: Any, rag_method: Any) -> str:
@@ -177,6 +178,7 @@ class RagPipeline:
         except Exception as exc:  # noqa: BLE001 - 예상하지 못한 오류도 형식을 지켜 반환한다
             logger.exception("예상하지 못한 오류")
             outcome = self._error_outcome(request_id, PipelineError(f"{type(exc).__name__}"), stage, record)
+        record.update(request_cost(record["llm_calls"], self.pricing))
         record["performance"] = {
             "total_duration_ms": round((time.perf_counter() - started) * 1000, 1),
             "retrieval_duration_ms": (record["retrieval"] or {}).get("durations_ms", {}).get("total"),
@@ -194,15 +196,15 @@ class RagPipeline:
             raise InvalidRequest(str(exc)) from exc
         except RetrievalError as exc:
             raise RetrievalFailure(str(exc)) from exc
-        sources = build_sources(result.chunks)
+        context = build_final_context(result.chunks, self.settings.context_limit_tokens)
         record["retrieval"] = {
             "dense": [{"chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"], "rank": c["rank"],
                        "score": c["score"]} for c in result.chunks],
             "sparse": None, "fused": None, "reranked": None,
             "candidate_k": result.k, "final_k": result.k, "durations_ms": result.durations_ms,
         }
-        record["final_context"] = {"chunks": sources}  # STEP 8에서 토큰 한도와 함께 확장
-        return sources
+        record["final_context"] = context.as_record()  # 1차 검색 결과(retrieval)와 구분: 모델에 실제 전달한 문맥
+        return context.sources
 
     def _generate(self, question: str, sources: list[dict], record: dict) -> dict:
         s = self.settings
@@ -211,7 +213,8 @@ class RagPipeline:
             index = len(record["llm_calls"])
             started = time.perf_counter()
             call = {"call_index": index, "stage": "generation", "model_id": None, "retry_index": index,
-                    "input_tokens": None, "output_tokens": None, "reasoning_tokens": None, "duration_ms": None,
+                    "input_tokens": None, "output_tokens": None, "reasoning_tokens": None,
+                    "cached_input_tokens": None, "cache_write_tokens": None, "service_tier": None, "duration_ms": None,
                     "status": None, "usage_status": "unknown"}
             record["llm_calls"].append(call)
             try:
@@ -220,7 +223,10 @@ class RagPipeline:
                 call["model_id"] = out.model_id
                 if out.usage:
                     call.update(input_tokens=out.usage.get("input_tokens"), output_tokens=out.usage.get("output_tokens"),
-                                reasoning_tokens=out.usage.get("reasoning_tokens"), usage_status="reported")
+                                reasoning_tokens=out.usage.get("reasoning_tokens"),
+                                cached_input_tokens=out.usage.get("cached_input_tokens"),
+                                cache_write_tokens=out.usage.get("cache_write_tokens"),
+                                service_tier=out.usage.get("service_tier"), usage_status="reported")
                 record["model_input"], record["llm_output_raw"] = out.model_input, out.raw
                 parsed = validate_output(out.parsed, sources)
                 call["status"] = "ok"

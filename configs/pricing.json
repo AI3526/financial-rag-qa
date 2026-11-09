@@ -1,0 +1,14 @@
+{
+  "model": "gpt-6-luna",
+  "currency": "USD",
+  "unit": "per 1M tokens",
+  "tier": "standard",
+  "applies_when_service_tier": "default",
+  "input": 0.10,
+  "cached_input": 0.01,
+  "cache_write": 0.125,
+  "output": 0.50,
+  "notes": "캐시 입력은 일반 입력 단가의 10%, 캐시 쓰기는 일반 입력의 1.25배. 입력이 272K 토큰을 넘으면 전체 요청에 입력·캐시 2배, 출력 1.5배. 지역 처리는 +10%. Batch와 Flex는 Standard의 50%, Fast는 2배(이 파일의 단가는 Standard 기준이며 다른 처리 방식은 계산하지 않는다).",
+  "source": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+  "retrieved_at": "2026-11-09"
+}

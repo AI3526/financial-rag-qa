@@ -363,6 +363,7 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
   - Qdrant 검색 timeout 10초, 최대 3회(간격 1초, 2초). 실측 검색 약 0.15초.
   - Langfuse 기록은 재시도 없이 실패를 무시한다.
   - 세 RAG 방식에 동일하게 적용하고, 재시도한 시도의 시간·토큰도 같은 요청에 합산한다.
+- **STEP 8 실제 프롬프트 재측정 (D-032, 6건)**: 입력 1,396~1,674토큰에서 모델 시간 1.76~2.32초(low). 초기값 30초는 그대로 두고, 꼬리 지연과 `max_completion_tokens` 영향은 STEP 9 이후 더 많은 호출로 다시 본다.
 - **미확정인 이유**: 24회 표본은 꼬리 지연(드물게 느린 호출)을 보기에 작고, `reasoning_effort`·`max_completion_tokens`는 STEP 8에서 정한다. 공식 실행 전에 STEP 8의 실제 프롬프트로 다시 재서 확정하고 이 항목을 갱신한다.
 - **영향**: 04 §13.4, 08 §11·§12
 - **승인**: 사용자가 진행을 위임함(2026-11-09, "알아서 네 말대로 진행해"). 값 자체의 최종 확정은 공식 실행 전.
@@ -380,6 +381,35 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **HTTP 구간 확인 (2026-11-09, D-029의 남은 항목)**: 실제 uvicorn 서버(Langfuse 켬, 검색은 실제, 생성기만 가짜)를 띄우고, `lf.run_experiment`(데이터셋 없이 로컬 데이터 2건)의 `task`가 `traceparent: 00-{trace_id}-{span_id}-01`을 실어 `POST /rag/query`를 HTTP로 호출했다. 결과: ① 서버가 응답 헤더 `X-Trace-Id`로 돌려준 값이 두 건 모두 실험 Trace ID와 일치. ② Langfuse에서 읽은 구조는 `experiment-item-run > experiment-item-task > rag-query > dense-retrieve`로 서버 Span이 실험 Trace 아래에 붙음(`rag-query`의 부모 = `experiment-item-task`). ③ `rag-query`와 하위 `dense-retrieve`의 metadata에 `request_id`, `question_id`, `experiment_id`, `track`, `run_type`, `rag_method`가 기록됨(일반 요청은 값이 없는 `question_id`·`experiment_id`를 생략). ④ 헤더 없이 보낸 일반 요청은 새 Trace가 만들어지고 `environment=development`. ⑤ 서버 run 레코드의 `trace_id`가 Langfuse Trace와 일치하고 `langfuse_recorded=true`. 실험 Span의 `environment`는 SDK 고정값(`sdk-experiment`), 서버 Span은 `default`(D-029 기록 그대로).
 - **확인하지 못한 것**: Langfuse 화면의 태그(`run_type` 태그)가 실제로 붙었는지(관측 조회에 태그 필드가 없어 읽지 못함), 실제 모델 호출 timeout 동작(STEP 8), 실험 비교 화면에서 서버 Span 포함 Trace가 정상 표시되는지(구조는 확인, 화면은 보지 않음).
 - **승인**: 사용자가 계획대로 진행하도록 승인(2026-11-09).
+
+### D-032 STEP 8 gpt-6-luna 생성·출처 구현 결정
+- **호출 방식 (사용자 결정, 2026-11-09)**: LangChain(`ChatPromptTemplate` + `ChatOpenAI`)을 쓰고 먼저 짧게 검증한다. 검증 결과 모두 통과해 OpenAI SDK 직접 호출로 바꿀 필요가 없었다. 재시도는 파이프라인이 담당하므로 `max_retries=0`.
+- **검증한 것 (실제 호출 약 9회, langchain-openai 1.7.4, langchain-core 1.7.6, openai 3.46.0)**
+  - `reasoning_effort`, `max_completion_tokens`, `response_format=json_schema(strict)`, `seed`를 `gpt-6-luna`가 그대로 받는다. `usage_metadata`에서 입력·출력·**추론 토큰**(`output_token_details.reasoning`)과 `response_metadata`에서 `model_name`, `finish_reason`을 읽을 수 있다(medium에서 추론 토큰 32 확인).
+  - 오류는 `openai` 예외의 하위 클래스로 와서 `isinstance`로 구분된다: timeout, 연결 오류, 400(잘못된 파라미터), 401(잘못된 키). 429·5xx는 강제로 만들 수 없어 클래스 계층(`RateLimitError`, `InternalServerError`)으로만 매핑했다(**실제 발생으로는 미검증**).
+  - **예상 밖 동작**: 출력이 `max_completion_tokens`에서 잘리면 `finish_reason=length`가 아니라 **HTTP 400**(`code=None`, 메시지에 "max_tokens or model output limit was reached")으로 온다. 코드가 없어 **메시지 문구로만 구분**할 수 있으므로(문구가 바뀌면 깨질 수 있는 취약한 방식) 일반 400(재시도 불가 `model_error`)과 구분해 `output_validation_error`로 처리하고 재생성한다. `finish_reason=length`가 오는 경우도 같이 처리한다.
+- **오류 매핑과 재시도 가능 여부**: timeout → 504 `model_timeout`(재시도), 연결 오류·429·5xx → 502 `model_error`(재시도), 400·401·403·404 등 → 502 `model_error`(**재시도 안 함**, 호출 1회), 잘림·JSON 아님·없는 출처 ID → 502 `output_validation_error`(재생성 1회). 오류 메시지에는 원본 예외 문구를 넣지 않고 종류와 상태 코드만 남긴다(키 일부가 섞일 수 있음). 이를 위해 `PipelineError`가 `retryable`을 인자로 받도록 바꿨다.
+- **생성 설정 (제안, 세 방식 동일, 아직 동결 아님)**: `reasoning_effort=low`(D-030에서 평균 1.59초로 가장 빨랐음), `max_completion_tokens=1500`(측정한 출력 최대 260토큰의 약 6배), `seed=20261109`(임의 값, 재현성 보조일 뿐 응답이 매번 같지는 않음). **품질은 측정하지 못했다.** STEP 9에서 development 질문으로만 확인한 뒤 공식 실행 전에 동결한다.
+- **최종 문맥(08 §12.2)**: 검색 결과 rank 순으로 출처 ID를 붙이고 토큰 한도 4,000(초기값)을 넘으면 **낮은 순위 청크를 통째로 제외**한다(청크를 자르지 않고, 더 작은 뒤 청크가 앞질러 들어가지 않음). 남은 청크는 S1부터 다시 번호를 매기고 제외 목록을 기록한다. 1위 청크 하나만으로 한도를 넘으면 자료 없음으로 오판하지 않도록 그대로 두고 `over_limit`을 표시한다. `final_context`(모델에 실제 전달)와 `retrieval`(1차 검색 결과)을 구분해 기록한다.
+- **토큰 수는 추정이다**: gpt-6-luna의 공식 토크나이저를 확인하지 못해 `tiktoken o200k_base`(langchain-openai 의존성으로 이미 설치)로 센다. STEP 8 이전에 측정한 실제 `prompt_tokens`와 대조하니 추정이 실제보다 6.0~6.9% 작았다(3건: 1175→1099, 1101→1025, 1270→1194, 응답 형식 지시와 메시지 형식이 추정에 빠지기 때문으로 보이나 원인은 확인하지 못함). **e5 토크나이저로 세면 실제보다 14.9~19.5% 작아(946, 888, 1081) 더 어긋난다.** e5 토크나이저는 임베딩 모델용(STEP 3의 입력 한도 점검에 사용)이며, 한도를 적용할 대상은 생성 모델의 입력이라 쓰지 않는다. gpt-6-luna 토크나이저는 확인하지 못했으므로 추정치임을 기록에 명시하고, 정확한 값은 호출 후 API가 돌려주는 `prompt_tokens`로 `llm_calls`에 기록한다. 실제 최종 문맥은 추정 865~1,138토큰이라 k=5에서는 한도 4,000이 걸리지 않았다(한도는 안전장치로 동작).
+- **프롬프트**: Git의 `prompts/answer_v1.json`이 원본이고 sha256과 `prompt_version`(`answer-v1`)을 run 레코드 `versions`에 기록한다. 잠정 초안이며 STEP 9에서 development 질문으로만 조정하고 바꾸면 새 버전 파일을 추가한다(기존 파일은 덮어쓰지 않음). 평가 정답·근거는 프롬프트에 들어가지 않는다(테스트로 확인). **Langfuse Prompt Management 연결은 STEP 9 이후로 미뤘다(사용자 결정).**
+- **실행 확인 (2026-11-09, 실제 서버 + 실제 gpt-6-luna, Langfuse 끔)**: 대표 6개 질문이 모두 200과 유효한 출처로 응답했다: 영업이익(answered, FB01 p.2의 96억원), 루미센서 E(answered), 리브필름 기본형 재생 원료 비율(answered, 공개되지 않았다고 답함), 2027년 1분기 확정 매출(abstained), 모호한 "리브"(needs_clarification, 기본형/R 확인 요청), 두 회사 매출 비교(answered). 호출당 입력 1,396~1,674토큰, 출력 72~123토큰, 추론 0(low), 모델 시간 1.76~2.32초, 요청 전체 2.0~2.8초(첫 요청은 워밍업 포함). D-030의 timeout 30초는 이 실측의 약 13배 여유다.
+- **원문 대조 (정정 기록)**: 처음에는 이를 "사람이 원문과 대조"했다고 적었으나 **틀린 표현이었다.** 실제로는 AI(Claude)가 답변과 인용 원문을 읽고 비교한 것이며 사람의 확인은 아직 없다. AI가 본 결과: 두 회사 매출 비교(FB14 p.21: 해온솔루션 1,280억원, 해온소재 860억원, 각 법인의 별도 기준)와 기본형 비율(FB05 p.1·p.14: 기본형은 비율을 공개하지 않았고 R의 30%나 0%를 쓰지 않는다)은 답변과 원문이 일치하는 것으로 읽혔다. 과제가 요구하는 "대표 사례를 사람이 원문과 대조"는 **사용자 확인이 필요한 미완료 항목**이며 STEP 11에서 대표 사례를 정해 사용자가 직접 확인한다. 숫자 자동 대조는 "답변의 숫자가 인용 원문에 있는가"만 보는 것이라 의미 정확성은 보장하지 않으며, 근거 부족 답변은 질문에 나온 연도를 되풀이해 "없음"으로 표시된다(정상).
+- **Langfuse Generation 기록 확인 (2026-11-09, 사용자 승인으로 요청 2건)**: `langfuse.langchain.CallbackHandler`를 요청마다 새로 만들어 연결했다(`main.py`, Langfuse가 있을 때만). Langfuse에서 읽은 결과: 일반 요청은 `rag-query > [dense-retrieve, ChatOpenAI(GENERATION)]`, 실험 경유(HTTP, `traceparent`) 요청은 `experiment-item-run > experiment-item-task > rag-query > [dense-retrieve, ChatOpenAI(GENERATION)]`로 Generation이 `rag-query` 아래에 붙었다. Generation에는 모델명 `gpt-6-luna`, 실제 모델 입력(system·user 메시지)과 출력 원문, 사용량이 기록됐다. 실험 경유 요청의 `trace_id`가 응답 헤더와 일치했다.
+- **발견 (캐시 토큰)**: Langfuse의 사용량이 `input 3 / cache_read 1,564 / output 75`로 나뉘어 있었다(로컬 기록 입력 1,567 = 3 + 1,564). 몇 분 전 같은 질문을 보내 OpenAI의 프롬프트 캐시가 적용된 것으로 **추정**한다(API 응답의 캐시 필드를 직접 보지는 않았고 Langfuse의 분할로 짐작함). 영향: ① Langfuse 화면의 `input`은 캐시되지 않은 일부만 보이므로 **운영 지표의 입력 토큰은 로컬 기록의 전체 입력(`input_tokens`)을 기준으로 한다.** ② 같은 질문·같은 문맥을 반복하면 캐시로 시간과 비용이 달라질 수 있어, 세 방식의 응답시간 비교에서 문맥이 같은 요청이 먼저 캐시되면 뒤 요청이 유리해질 수 있다(STEP 14 한계로 기록, 실행 순서와 캐시 영향을 분석할 것). ③ 이를 추적하도록 `llm_calls`에 `cached_input_tokens`를 추가했다(모르면 null). 가격 계산에서도 캐시 입력 단가가 다를 수 있다.
+- **한계와 미검증**: ① 대표 6건뿐이라 정확도에 대한 증거가 아니다(평가는 STEP 11). ② 같은 입력에서 `status`가 달라질 수 있다(D-030 관찰). ③ gpt-6-luna 가격은 사용자가 가져왔고 D-033에 기록했다. ④ 429·5xx 실제 발생 시 동작은 미검증. ⑤ Langfuse 화면(UI)에서 Generation이 어떻게 보이는지는 읽기 확인만 했다.
+- **영향**: 04 §4.6, 08 §12, 07 §7
+- **승인**: 사용자 승인 계획(2026-11-09). 생성 설정 값은 STEP 9 확인 후 동결.
+
+### D-033 gpt-6-luna 단가와 비용 계산
+- **단가 (사용자 제공, 2026-11-09)**: 출처 https://developers.openai.com/api/docs/models/gpt-6-luna. **이 프로젝트에서 그 페이지를 직접 열어 확인하지는 못했고** 사용자가 가져온 값을 그대로 기록했다. 100만 토큰당(USD): 입력 $0.10, 캐시 입력 $0.01(일반 입력의 10%), 캐시 쓰기 $0.125(일반 입력의 1.25배), 출력 $0.50. 입력이 272K 토큰을 넘으면 전체 요청에 입력·캐시 2배, 출력 1.5배. 지역 처리 +10%, Batch·Flex는 Standard의 50%, Fast는 2배.
+- **저장 위치**: Git의 `configs/pricing.json`(원본). `.env`에 두지 않는다 — 비밀이 아니고 비용 계산 결과를 재현하려면 어떤 단가로 계산했는지가 저장소에 남아야 하기 때문. 출처·확인 날짜·적용 조건(`service_tier=default`)도 함께 적었다. Langfuse에 모델 단가를 등록하는 일(D-024의 "비용 추적")은 이 파일을 원본으로 하고 아직 하지 않았다.
+- **계산 (`src/generation/pricing.py`)**: `(일반 입력 × 입력 단가 + 캐시 읽기 × 캐시 단가 + 캐시 쓰기 × 쓰기 단가 + 출력 × 출력 단가) / 1M`, 일반 입력 = 입력 − 캐시 읽기 − 캐시 쓰기. 출력 토큰에 추론 토큰이 이미 포함되어 있어 따로 더하지 않는다. 요청의 비용은 모든 모델 호출(재시도 포함)의 합이다. run 레코드에 `cost`, `currency`, `price_source`, `cost_status`로 기록한다.
+- **계산하지 않는 경우(null)**: 사용량을 모르는 호출(예: timeout), 응답의 `service_tier`가 단가 파일의 조건과 다른 호출, 입력이 272K 초과, 토큰 값이 모순된 호출. 일부만 모르면 `cost_status=partial`로 합계가 하한임을 표시한다. 모르는 값을 0으로 바꾸지 않는다.
+- **확인한 것 (실제 응답, 2026-11-09)**: `service_tier='default'`이고(OpenAI가 Standard 처리에 쓰는 값으로 **이해하나 문서로 확인하지는 못함**), 응답에 `cached_tokens`, `cache_write_tokens` 필드가 있다. 그래서 `llm_calls`에 `cache_write_tokens`와 `service_tier`를 추가했다(`cached_input_tokens`는 D-032에서 추가). 실제 서버 요청 6건의 비용은 직접 계산한 값과 일치했다(예: 입력 1,567 중 1,564 캐시 읽기, 출력 75 → $0.00005344).
+- **해석 주의**: 위 6건은 같은 프롬프트를 몇 분 안에 반복해 입력의 99.8%가 캐시에서 읽혔다. 그래서 **캐시가 없는 첫 호출의 비용(입력 1,567, 출력 75 기준 약 $0.00019)보다 훨씬 낮게 나온다.** 공식 비교의 비용·시간은 캐시 영향(실행 순서, 같은 문맥의 반복)을 함께 분석해야 한다(D-032 발견 참조, STEP 14). 비용 규모는 서비스 답변 기준으로 매우 작다(공식 실행 180건이 캐시 없이도 약 3~4센트로 **추정**). 평가 호출(Judge 등)은 별도다.
+- **영향**: 09 §9, D-024(비용 추적), STEP 14 운영 지표
+- **승인**: 사용자 (2026-11-09, 가격 파일 생성과 같은 커밋 포함 승인)
 
 ---
 

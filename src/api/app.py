@@ -59,7 +59,9 @@ def create_app(pipeline: RagPipeline, *, langfuse=None, recorder: RunRecorder | 
         return {"dataset_version": getattr(cfg, "dataset_version", None),
                 "chunking_version": getattr(cfg, "chunking_version", None),
                 "embedding_version": getattr(getattr(cfg, "spec", None), "version_tag", None),
-                "model_id": model_id, "config_version": None, "prompt_version": None}
+                "model_id": model_id, "config_version": None,
+                "prompt_version": getattr(pipeline.generator, "prompt_version", None),
+                "prompt_sha256": getattr(pipeline.generator, "prompt_sha256", None)}
 
     def finalize(*, request_id: str, outcome: Outcome, received_at: str, trace: RequestTrace, run: dict,
                  question, rag_method, question_id) -> JSONResponse:

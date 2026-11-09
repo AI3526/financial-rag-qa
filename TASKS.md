@@ -40,7 +40,7 @@
 | 4 | 3 | 임베딩·Qdrant(Cloud 우선, D-010) 색인, e5-large vs BGE-M3 1회 비교, 라이선스·버전 기록 (D-026, D-027) | 필수 | REVIEW | 색인·조회·원본 페이지 역추적 확인, 승자 e5 동결(Recall@5 0.7649 vs 0.7619, Hit@5는 BGE-M3 0.9286) |
 | 5 | 4 | Dense 검색 (D-028). 청크 크기·overlap 튜닝은 [확장]이라 제외(03 §6) | 필수 | REVIEW | 질문→관련 청크, 원본 PDF 페이지 연결, 점수·순위 확인, 빈 질문·빈 결과·저장소 오류 처리 |
 | 6 | 7 | FastAPI: `/health`, `/rag/query`, Pydantic, 오류 처리, 필수 안정성 테스트 (D-031) | 필수 | REVIEW | 정상·빈 질문·모의 오류 테스트 실행 완료, `traceparent` HTTP 구간으로 실험 Trace에 이어 붙음 확인 |
-| 7 | 8 | 생성·출처: S-ID 부여, 출력 검증, 출처 변환 | 필수 | TODO | 답변과 출처 연결, 없는 ID 처리 |
+| 7 | 8 | 생성·출처: S-ID 부여, 출력 검증, 출처 변환 (D-032) | 필수 | REVIEW | 실제 gpt-6-luna로 6개 질문 답변과 출처 연결 확인(AI가 2건 원문 비교, **사람 확인은 미완료**). Langfuse Generation이 `rag-query` 아래에 붙음 확인(캐시 토큰 발견 기록). 단가를 `configs/pricing.json`에 기록하고 요청별 비용 계산(D-033). 남은 것: 생성 설정은 STEP 9 확인 후 동결, Langfuse 모델 단가 등록 |
 | 8 | 9 | 되묻기·보류: 프롬프트·출력 스키마 조정, 예외 질문 테스트 | 필수 | TODO | Naive RAG가 질문→답변까지 동작 |
 | 9 | 5 | BM25·Hybrid (RRF) | 필수 | TODO | 세 방식 중 두 번째 연결 |
 | 10 | 6 | Reranker·Hybrid+Rerank | 필수 | TODO | 순위 전후 확인 |

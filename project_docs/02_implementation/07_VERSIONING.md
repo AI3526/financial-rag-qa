@@ -292,6 +292,8 @@ Reranker 모델이나 설정을 변경하면 새로운 설정 버전을 생성�
 
 기존 프롬프트를 덮어쓰지 않는다.
 
+구현: 프롬프트 원본은 Git의 `prompts/*.json`이며(예: `answer_v1.json`) 파일의 sha256과 `prompt_version`을 run 레코드의 `versions`에 기록한다(D-032). Langfuse Prompt Management 연결은 STEP 9 이후다.
+
 ### 7.2 생성 모델 버전 [필수]
 
 생성 모델과 생성 설정을 함께 기록한다.

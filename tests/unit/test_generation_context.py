@@ -74,13 +74,19 @@ def test_every_prompt_file_has_a_unique_version_matching_its_name_and_no_evaluat
     versions = []
     for path in sorted(PROMPTS_DIR.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
-        assert data["version"] == path.stem.replace("_v", "-v")  # answer_v2.json -> answer-v2
-        assert "{context}" in data["user"] and "{question}" in data["user"]
-        text = data["system"] + data["user"]
+        # 파일 이름 `answer_v2.json`, `faithfulness_statement_v1.json` -> 버전 `answer-v2`, `faithfulness-statement-v1`
+        assert data["version"] == path.stem.replace("_", "-")
+        assert data["type"] in ("answer", "evaluation")
+        if data["type"] == "answer":  # 서비스 답변 프롬프트는 검색 자료와 질문 자리가 있는 시스템·사용자 메시지다
+            assert "{context}" in data["user"] and "{question}" in data["user"]
+            text = data["system"] + data["user"]
+        else:  # 평가 프롬프트(ragas 1단계 등)는 지시문과 예시를 가진다
+            text = json.dumps(data, ensure_ascii=False)
+        # 서비스 프롬프트에는 평가용 정보가 들어가면 안 된다(평가 프롬프트의 본문도 정답 필드 이름을 쓰지 않는다)
         for forbidden in ("reference_answer", "expected_action", "evidence_groups", "required_facts", "forbidden_claims"):
             assert forbidden not in text
         versions.append(data["version"])
-    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2"} <= set(versions)
+    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2", "faithfulness-statement-v1"} <= set(versions)
 
 
 def test_v2_differs_from_v1_only_in_rule_4_so_the_change_is_isolated():

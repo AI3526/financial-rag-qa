@@ -1,0 +1,25 @@
+{
+  "by_method": {
+    "dense": {
+      "answers": 30,
+      "scored": 29,
+      "not_applicable": 0,
+      "unevaluable": 1,
+      "mean": 0.9729885057471265,
+      "mean_range_across_passes": 0.0,
+      "max_range_across_passes": 0.0,
+      "answers_with_pass_disagreement": 0
+    }
+  },
+  "skipped": {
+    "service_error": 0,
+    "no_context": 0
+  },
+  "evaluation_usage": {
+    "calls": 60,
+    "input_tokens": 86400,
+    "output_tokens": 20608,
+    "reasoning_tokens": 8087,
+    "cached_input_tokens": 2025
+  }
+}

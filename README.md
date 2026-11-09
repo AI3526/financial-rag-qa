@@ -108,6 +108,18 @@ curl http://127.0.0.1:8000/health
 - 요청마다 run 레코드가 `results/{experiment_id}/runs.jsonl`(헤더가 없으면 `results/service/runs.jsonl`, Git 제외)에 덧붙여 저장된다.
 - Windows 쉘에서 curl로 한글을 보내면 UTF-8이 아닐 수 있다. 파이썬(httpx)이나 UTF-8 파일(`--data-binary @file`)로 보낸다.
 
+## 답변 평가: RAGAS Faithfulness (STEP 11)
+
+```bash
+# ragas는 메인 환경의 openai 버전을 바꾸므로 격리 환경에서만 실행한다(결과 폴더가 있으면 중단)
+uv run --with ragas --with "langchain-community<0.4" python scripts/run_ragas.py \
+    --source <서비스 실험 폴더> --out <새 결과 폴더> [--passes 3] [--langfuse]
+# ragas 환경의 테스트
+uv run --with ragas --with "langchain-community<0.4" pytest tests/ragas
+```
+
+입력은 서비스가 남긴 `results/<source>/runs.jsonl`(질문, 답변, **실제 최종 문맥**)이고 정답 파일은 읽지 않는다. 사실 주장이 없는 답변은 N/A, 평가 호출 실패는 평가 불가로 기록하며 0점으로 바꾸지 않는다. 주장별 판정 이유를 저장한다. development는 1회, 공식 실행은 `--passes 3`(평균과 범위 기록)이다. ragas의 사용 통계 전송은 끈다(`RAGAS_DO_NOT_TRACK=true`). 설정과 한계는 `DECISIONS.md` D-039.
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

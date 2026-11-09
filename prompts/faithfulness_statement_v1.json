@@ -1,0 +1,25 @@
+{
+  "version": "faithfulness-statement-v1",
+  "type": "evaluation",
+  "note": "RAGAS 0.4.3 Faithfulness의 1단계(주장 쪼개기) 프롬프트를 수정한 것이다. 기본 지시문 첫 문단과 아인슈타인 예시는 라이브러리 원문 그대로이고, 지시문의 두 번째 문단과 두 번째 예시를 추가했다(DECISIONS D-039). 2단계(판정) 프롬프트는 라이브러리 기본값을 그대로 쓴다. 사용자가 문구를 확인하고 승인했다(2026-11-09).",
+  "instruction": "Given a question and an answer, analyze the complexity of each sentence in the answer. Break down each sentence into one or more fully understandable statements. Ensure that no pronouns are used in any statement.\n\nOnly create statements that assert a verifiable fact: a number, date, name, condition, or something the source documents say. Do NOT create statements for sentences that (a) ask the user for clarification or additional information, (b) make a request or suggestion about what the user should do or provide, or (c) say that some information is not available or cannot be confirmed from the documents. If the answer contains no such factual sentence, return an empty list of statements.",
+  "examples": [
+    {
+      "source": "ragas 0.4.3 기본 예시(원문 그대로)",
+      "question": "Who was Albert Einstein and what is he best known for?",
+      "answer": "He was a German-born theoretical physicist, widely acknowledged to be one of the greatest and most influential physicists of all time. He was best known for developing the theory of relativity, he also made important contributions to the development of the theory of quantum mechanics.",
+      "statements": [
+        "Albert Einstein was a German-born theoretical physicist.",
+        "Albert Einstein is recognized as one of the greatest and most influential physicists of all time.",
+        "Albert Einstein was best known for developing the theory of relativity.",
+        "Albert Einstein made important contributions to the development of the theory of quantum mechanics."
+      ]
+    },
+    {
+      "source": "추가 예시(사용자 승인)",
+      "question": "해온의 이번 실적이 얼마인가요?",
+      "answer": "어느 회사의 어느 기간 실적을 말씀하시는지 알려 주시겠어요?",
+      "statements": []
+    }
+  ]
+}

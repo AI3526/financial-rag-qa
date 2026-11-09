@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "traces": [
+    {
+      "request_id": "332e2793-bb2d-45b5-baf6-8d4a412fb072",
+      "rag_method": "dense",
+      "service_trace_id": "03dfc0751148540660c59554b02a2a41",
+      "scoring_trace_id": "f864f3a76c82f04db6a7ae4c8439faf2"
+    },
+    {
+      "request_id": "63d4d83d-d010-4f26-90dc-012b6509104d",
+      "rag_method": "hybrid",
+      "service_trace_id": "3ef7ee956b8b4eb5897b03bf30f82aae",
+      "scoring_trace_id": "ee517d2d28fc503b14e3adf253ac4d58"
+    },
+    {
+      "request_id": "d3ddb186-df13-4576-b695-5a5290fe7384",
+      "rag_method": "hybrid_rerank",
+      "service_trace_id": "3b014688ea8b4090c47b7071b115ab38",
+      "scoring_trace_id": "bafe0965c49fc8aea793cdb3e300d11e"
+    }
+  ]
+}

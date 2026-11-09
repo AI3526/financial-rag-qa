@@ -1,0 +1,45 @@
+{
+  "by_method": {
+    "dense": {
+      "answers": 1,
+      "scored": 1,
+      "not_applicable": 0,
+      "unevaluable": 0,
+      "mean": 1.0,
+      "mean_range_across_passes": 0.0,
+      "max_range_across_passes": 0.0,
+      "answers_with_pass_disagreement": 0
+    },
+    "hybrid": {
+      "answers": 1,
+      "scored": 1,
+      "not_applicable": 0,
+      "unevaluable": 0,
+      "mean": 1.0,
+      "mean_range_across_passes": 0.0,
+      "max_range_across_passes": 0.0,
+      "answers_with_pass_disagreement": 0
+    },
+    "hybrid_rerank": {
+      "answers": 1,
+      "scored": 1,
+      "not_applicable": 0,
+      "unevaluable": 0,
+      "mean": 1.0,
+      "mean_range_across_passes": 0.0,
+      "max_range_across_passes": 0.0,
+      "answers_with_pass_disagreement": 0
+    }
+  },
+  "skipped": {
+    "service_error": 2,
+    "no_context": 0
+  },
+  "evaluation_usage": {
+    "calls": 6,
+    "input_tokens": 8558,
+    "output_tokens": 952,
+    "reasoning_tokens": 291,
+    "cached_input_tokens": 0
+  }
+}

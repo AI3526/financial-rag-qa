@@ -90,6 +90,21 @@ for c in result.chunks:   # rank, score, chunk_id, book_id, file_name, page, tex
 
 동결된 e5-large와 Qdrant 컬렉션 `basic__chunk-v1__e5large-v1`을 쓴다. 빈 질문은 `InvalidQuery`, 저장소 오류는 `RetrievalError`를 낸다. 유사도 임계값은 두지 않으며(D-028) 검색은 항상 Top-k를 돌려준다.
 
+## API 서버 (STEP 7)
+
+```bash
+uv run uvicorn --factory src.api.main:build_default_app --port 8000
+curl http://127.0.0.1:8000/health
+```
+
+`POST /rag/query` 본문은 `{"question": "...", "rag_method": "dense", "question_id": "선택"}`이고, 응답은 `{request_id, status, answer, reason, citations}`이다. `rag_method`는 현재 `dense`만 지원한다(`hybrid`, `hybrid_rerank`는 STEP 5~6에서 추가, 그 전에는 422).
+
+- 오류는 모두 `status: "error"`와 `request_id`를 가진 같은 형식이다: 422 `invalid_request`, 500 `retrieval_error`·`internal_error`, 502 `model_error`·`output_validation_error`, 504 `model_timeout`.
+- **STEP 8 전에는 생성 모델이 연결되지 않아** 정상 질문도 500 `internal_error`를 반환한다(답을 만들어 내지 않는다).
+- 선택 헤더: `traceparent`(평가 실험 Trace에 이어 붙기), `X-Experiment-Id`, `X-Track`, `X-Run-Type`. 응답 헤더 `X-Request-Id`, `X-Trace-Id`.
+- 요청마다 run 레코드가 `results/{experiment_id}/runs.jsonl`(헤더가 없으면 `results/service/runs.jsonl`, Git 제외)에 덧붙여 저장된다.
+- Windows 쉘에서 curl로 한글을 보내면 UTF-8이 아닐 수 있다. 파이썬(httpx)이나 UTF-8 파일(`--data-binary @file`)로 보낸다.
+
 ## 사용 자료
 
 `data/finance_basic/`에 제공된 합성 데이터(PDF 15개, 평가 JSON)를 사용한다. 검색 대상은 `documents/*.pdf`뿐이며 `evaluation/`의 정답과 채점 기준은 색인하지 않는다.

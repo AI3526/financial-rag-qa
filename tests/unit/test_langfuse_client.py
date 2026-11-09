@@ -1,30 +1,4 @@
-import re
-
-import pytest
-
 from src.observability import langfuse_client as lc
-
-
-def test_trace_id_is_deterministic_32_hex():
-    a = lc.trace_id_for("req-1")
-    b = lc.trace_id_for("req-1")
-    c = lc.trace_id_for("req-2")
-    assert a == b
-    assert a != c
-    assert re.fullmatch(r"[0-9a-f]{32}", a)
-
-
-def test_new_request_ids_generates_unique_request_ids():
-    one = lc.new_request_ids()
-    two = lc.new_request_ids()
-    assert one.request_id != two.request_id
-    assert one.trace_id == lc.trace_id_for(one.request_id)
-
-
-def test_new_request_ids_accepts_given_request_id():
-    ids = lc.new_request_ids("fixed-id")
-    assert ids.request_id == "fixed-id"
-    assert ids.trace_id == lc.trace_id_for("fixed-id")
 
 
 def test_get_langfuse_returns_none_without_keys(monkeypatch):

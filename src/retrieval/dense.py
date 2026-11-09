@@ -35,6 +35,7 @@ class RetrievalConfig:
     """공식 Dense 검색 설정. 동결 후 변경은 새 실험 ID로 한다."""
 
     dataset_id: str = "basic"
+    dataset_version: str = "basic-v1"
     chunking_version: str = "chunk-v1"
     embedding: str = "e5"  # D-027 동결
     k: int = 5

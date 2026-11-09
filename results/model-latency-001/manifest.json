@@ -1,0 +1,35 @@
+{
+  "purpose": "timeout 초기값의 근거(지연 측정). 최종 프롬프트·설정이 아님",
+  "model": "gpt-6-luna",
+  "track": "development",
+  "calls": 24,
+  "max_completion_tokens": 4000,
+  "retriever": "dense k=5",
+  "summary_seconds": {
+    "none": {
+      "n": 6,
+      "mean": 2.26,
+      "max": 3.85,
+      "errors": 0
+    },
+    "low": {
+      "n": 6,
+      "mean": 1.59,
+      "max": 2.28,
+      "errors": 0
+    },
+    "medium": {
+      "n": 6,
+      "mean": 2.53,
+      "max": 3.31,
+      "errors": 0
+    },
+    "high": {
+      "n": 6,
+      "mean": 3.24,
+      "max": 3.86,
+      "errors": 0
+    }
+  },
+  "created_at": "2026-11-09T01:00:38+00:00"
+}

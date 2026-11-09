@@ -39,7 +39,7 @@
 | 3 | 2 | 청킹·메타데이터: 페이지 경계 비넘김, 최소 메타데이터 (D-025) | 필수 | REVIEW | 청크가 `book_id`·`page`에 연결, 대표 청크 대조 |
 | 4 | 3 | 임베딩·Qdrant(Cloud 우선, D-010) 색인, e5-large vs BGE-M3 1회 비교, 라이선스·버전 기록 (D-026, D-027) | 필수 | REVIEW | 색인·조회·원본 페이지 역추적 확인, 승자 e5 동결(Recall@5 0.7649 vs 0.7619, Hit@5는 BGE-M3 0.9286) |
 | 5 | 4 | Dense 검색 (D-028). 청크 크기·overlap 튜닝은 [확장]이라 제외(03 §6) | 필수 | REVIEW | 질문→관련 청크, 원본 PDF 페이지 연결, 점수·순위 확인, 빈 질문·빈 결과·저장소 오류 처리 |
-| 6 | 7 | FastAPI: `/health`, `/rag/query`, Pydantic, 오류 처리, 필수 안정성 테스트 | 필수 | TODO | 정상·빈 질문·모의 오류 테스트 실행 |
+| 6 | 7 | FastAPI: `/health`, `/rag/query`, Pydantic, 오류 처리, 필수 안정성 테스트 (D-031) | 필수 | REVIEW | 정상·빈 질문·모의 오류 테스트 실행 완료, `traceparent` HTTP 구간으로 실험 Trace에 이어 붙음 확인 |
 | 7 | 8 | 생성·출처: S-ID 부여, 출력 검증, 출처 변환 | 필수 | TODO | 답변과 출처 연결, 없는 ID 처리 |
 | 8 | 9 | 되묻기·보류: 프롬프트·출력 스키마 조정, 예외 질문 테스트 | 필수 | TODO | Naive RAG가 질문→답변까지 동작 |
 | 9 | 5 | BM25·Hybrid (RRF) | 필수 | TODO | 세 방식 중 두 번째 연결 |
@@ -61,11 +61,11 @@
 
 ## 열려 있는 항목 (해당 STEP에서 확정)
 
-- timeout / 최대 호출 수 / 재시도 횟수 값 (STEP 7~8에서 제안)
+- timeout / 최대 호출 수 / 재시도 횟수 값: 초기값 제안됨(D-030, 지연 측정 근거), STEP 8 실제 프롬프트로 재측정 후 공식 실행 전 확정
 - 확인 완료: `gpt-6-luna` 지원 파라미터(STEP 0), 임베딩 승자 e5(STEP 3, D-027)
 - Qdrant Cloud 무료 플랜의 용량·비활성 정지 정책 (미확인, 확인 후 기록)
 - 서비스 응답시간(STEP 14)에는 Cloud 네트워크 시간이 포함됨을 보고서에 명시
 - 표가 페이지 경계에서 잘리는 문제 (STEP 1~2)
-- 확인 완료: Langfuse SDK 5.2.0(STEP 0), 요청·실험 Trace 연결과 환경 규칙(D-029, spike). STEP 7에서 HTTP 구간 전달 확인, STEP 10에서 점수 방식(`create_score` 후붙임)과 유닛 실측 확인
+- 확인 완료: Langfuse SDK 5.2.0(STEP 0), 요청·실험 Trace 연결과 환경 규칙(D-029, spike). HTTP 구간 전달은 STEP 7에서 확인함(D-031), STEP 10에서 점수 방식(`create_score` 후붙임)과 유닛 실측 확인
 - 사용자가 Langfuse 화면에서 임시 데이터셋 `spike-trace-link` 삭제 (SDK에 삭제 API 없음)
 - 모델·패키지 정확 버전과 라이선스 (STEP 3, `DECISIONS.md`에 기록)

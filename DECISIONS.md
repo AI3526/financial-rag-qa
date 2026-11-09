@@ -345,6 +345,42 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **영향**: D-022(환경 규칙), D-023 열린 점(해결), D-024 Trace ID 설계(해결), 04 §8, 05 §4.2, 09 §4.1
 - **승인**: 사용자 (2026-11-09)
 
+### D-030 gpt-6-luna 지연 측정과 timeout·재시도 초기값 (초기값, 미확정)
+- **측정 (2026-11-09, `scripts/measure_model_latency.py`, 결과 `results/model-latency-001/`)**: 실제 Dense Top-5 문맥(입력 약 1,100~1,270토큰)과 잠정 지시문(JSON 스키마 strict), `max_completion_tokens=4000`, `max_retries=0`으로 질문 3개 × `reasoning_effort` 4단계(none, low, medium, high) × 2회 = 24회 호출. 오류 0건. 로컬에만 저장(Langfuse 미기록, D-029).
+
+  | reasoning_effort | 평균(초) | 최대(초) | 추론 토큰 |
+  |---|---|---|---|
+  | none | 2.26 | 3.85 | 0 |
+  | low | 1.59 | 2.28 | 0 |
+  | medium | 2.53 | 3.31 | 43~85 |
+  | high | 3.24 | 3.86 | 0~149 |
+
+  출력 토큰은 48~260. 같은 입력·같은 effort에서도 응답 시간이 최대 2배 차이 났다.
+- **관찰**: 같은 입력을 같은 effort로 두 번 호출해도 `status`가 달랐다. 근거가 있는 질문(8회) 중 6회 `answered`, 2회 `needs_clarification`(low 1회, high 1회). temperature가 1로 고정이라 응답이 매번 달라질 수 있다(06 §의 한계 기록과 일치). 이 프롬프트는 잠정안이라 STEP 8~9에서 개선할 대상이며, 공식 비교의 한계로 기록할 점이다.
+- **초기값 제안 (사용자 위임으로 적용, 확정 아님)**
+  - 생성 모델 호출 timeout **30초**: 관찰 최대 3.9초의 약 8배. 최종 문맥(최대 4,000토큰)은 측정 입력(약 1,200토큰)의 3배 이상이고 꼬리 지연을 24회 표본으로 알 수 없어 여유를 두었다.
+  - 재시도: 연결 오류·429·5xx만 최대 2회(간격 1초, 2초). 출력 검증 실패 재생성 1회. **요청당 모델 최대 호출 3회**(재시도와 재생성 합산).
+  - Qdrant 검색 timeout 10초, 최대 3회(간격 1초, 2초). 실측 검색 약 0.15초.
+  - Langfuse 기록은 재시도 없이 실패를 무시한다.
+  - 세 RAG 방식에 동일하게 적용하고, 재시도한 시도의 시간·토큰도 같은 요청에 합산한다.
+- **미확정인 이유**: 24회 표본은 꼬리 지연(드물게 느린 호출)을 보기에 작고, `reasoning_effort`·`max_completion_tokens`는 STEP 8에서 정한다. 공식 실행 전에 STEP 8의 실제 프롬프트로 다시 재서 확정하고 이 항목을 갱신한다.
+- **영향**: 04 §13.4, 08 §11·§12
+- **승인**: 사용자가 진행을 위임함(2026-11-09, "알아서 네 말대로 진행해"). 값 자체의 최종 확정은 공식 실행 전.
+
+### D-031 STEP 7 FastAPI 구현 결정
+- **구조**: `src/api/` — `pipeline.py`(검증→검색→생성→출력 검증→출처 변환, 오류 구분, 설정), `app.py`(`GET /health`, `POST /rag/query`, 오류 처리), `models.py`(Pydantic), `tracing.py`(요청 Trace), `recording.py`(run 레코드 저장), `main.py`(서버 조립, 팩토리).
+- **생성기는 교체 가능한 인터페이스(`Generator`)**로 두고 STEP 8에서 gpt-6-luna를 연결한다. 연결 전 서버는 정상 질문에도 답을 만들어 내지 않고 `500 internal_error`를 반환하며, 이때 모델을 호출하지 않았으므로 `llm_calls`에 기록하지 않는다. 테스트는 가짜 생성기로 정상·모의 오류·timeout·재시도·출력 검증을 확인한다.
+- **요청 본문 계약(09 §8.2)은 바꾸지 않았다.** 추가된 것은 선택 헤더뿐이다: `traceparent`(평가 실험 Trace에 이어 붙기, D-029), `X-Experiment-Id`(`^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$`, 저장 경로에 쓰이므로 엄격히 제한), `X-Track`(development/official/extension), `X-Run-Type`(general_eval/security/mock_error/scoring). 허용값 밖은 `422 invalid_request`. 응답 헤더 `X-Request-Id`, `X-Trace-Id`. 요청 본문의 평가용 필드(`reference_answer` 등)는 무시하며 검색·생성기에 전달하지 않는다(테스트로 확인).
+- **오류 형식**: 입력 검증 실패(빈 질문, 지원하지 않는 `rag_method`, 필드 누락, 깨진 JSON, UTF-8이 아닌 본문)는 모두 `422 {request_id, status:"error", reason:"invalid_request"}`. 검색 500 `retrieval_error`, 모델 502/504, 출력 검증 502, 내부 500. 존재하지 않는 경로 등(404, 405)은 질문 처리 계약 밖이라 FastAPI 기본 응답을 유지한다. 예상하지 못한 예외는 내용 없이 `internal_error`.
+- **재시도·상한(D-030 초기값)**: 모델 호출 최대 3회(재시도와 재생성 합산), 연결 오류·429·5xx·timeout은 최대 2회 재시도(간격 1초·2초), 출력 검증 실패는 1회 재생성. Qdrant는 timeout 10초·최대 3회(간격 1초·2초)로 줄였다(기존 60초·4회는 최악 4분 이상 걸릴 수 있었음). 모델 호출의 timeout 30초는 생성기가 적용한다(STEP 8).
+- **run 레코드**: 09 §9 필드로 요청 1건당 1행, `results/{experiment_id}/runs.jsonl`(헤더가 없으면 `results/service/runs.jsonl`, Git 제외)에 **덧붙여 저장**한다. 실패·422 요청도 기록한다. 저장 실패와 Langfuse 실패는 응답에 영향이 없다.
+- **정리**: D-029로 폐기된 `trace_id_for`, `new_request_ids`를 `langfuse_client.py`와 테스트에서 제거했다.
+- **발견한 결함과 수정**: 실제 서버 호출에서 UTF-8이 아닌 본문이 FastAPI 기본 `400 {"detail":…}`로 반환되어 오류 공통 형식을 어겼다. 공통 형식(422)으로 처리하도록 고치고 테스트를 추가했다.
+- **검증 (2026-11-09)**: 전체 테스트 113개 통과(API 단위 42, 실제 검색 통합 2 포함). 실제 uvicorn 서버를 띄워 HTTP로 정상 질문(생성기 미연결이라 500), 빈 질문, `hybrid`, 필드 누락, 깨진 JSON, UTF-8 아닌 본문, 잘못된 헤더, 경로 침투 시도(`../evil`), 없는 경로를 호출해 모두 의도한 상태 코드와 공통 형식을 확인했다(Langfuse는 끄고 실행).
+- **HTTP 구간 확인 (2026-11-09, D-029의 남은 항목)**: 실제 uvicorn 서버(Langfuse 켬, 검색은 실제, 생성기만 가짜)를 띄우고, `lf.run_experiment`(데이터셋 없이 로컬 데이터 2건)의 `task`가 `traceparent: 00-{trace_id}-{span_id}-01`을 실어 `POST /rag/query`를 HTTP로 호출했다. 결과: ① 서버가 응답 헤더 `X-Trace-Id`로 돌려준 값이 두 건 모두 실험 Trace ID와 일치. ② Langfuse에서 읽은 구조는 `experiment-item-run > experiment-item-task > rag-query > dense-retrieve`로 서버 Span이 실험 Trace 아래에 붙음(`rag-query`의 부모 = `experiment-item-task`). ③ `rag-query`와 하위 `dense-retrieve`의 metadata에 `request_id`, `question_id`, `experiment_id`, `track`, `run_type`, `rag_method`가 기록됨(일반 요청은 값이 없는 `question_id`·`experiment_id`를 생략). ④ 헤더 없이 보낸 일반 요청은 새 Trace가 만들어지고 `environment=development`. ⑤ 서버 run 레코드의 `trace_id`가 Langfuse Trace와 일치하고 `langfuse_recorded=true`. 실험 Span의 `environment`는 SDK 고정값(`sdk-experiment`), 서버 Span은 `default`(D-029 기록 그대로).
+- **확인하지 못한 것**: Langfuse 화면의 태그(`run_type` 태그)가 실제로 붙었는지(관측 조회에 태그 필드가 없어 읽지 못함), 실제 모델 호출 timeout 동작(STEP 8), 실험 비교 화면에서 서버 Span 포함 Trace가 정상 표시되는지(구조는 확인, 화면은 보지 않음).
+- **승인**: 사용자가 계획대로 진행하도록 승인(2026-11-09).
+
 ---
 
 ## 4. 변경 이력

@@ -1,0 +1,254 @@
+"""질문 하나를 처리하는 파이프라인과 오류 구분 (STEP 7, 08 §11, 09 §8).
+
+검증 → 검색 → 생성(교체 가능한 Generator) → 출력 검증 → 출처 변환 → 응답.
+- 생성기는 이 단계에서 인터페이스만 둔다. 실제 gpt-6-luna 연결은 STEP 8이다. 생성기가 연결되지 않은 서버는
+  답을 만들어 내지 않고 `internal_error`를 돌려준다.
+- 오류 구분: 입력 검증 422, 검색 500, 모델 502/504, 출력 검증 502, 내부 500. LLM은 `error`를 판단하지 않는다.
+- 평가 정답·근거는 이 코드에 전달되지 않는다. 생성기와 검색은 질문 문자열과 청크만 받는다.
+- timeout·재시도 값은 DECISIONS.md D-030의 초기값이다(공식 실행 전 확정).
+"""
+from __future__ import annotations
+
+import logging
+import time
+from dataclasses import dataclass, field
+from typing import Any, Callable, Protocol
+
+from src.retrieval.dense import InvalidQuery, RetrievalError
+
+logger = logging.getLogger(__name__)
+
+ANSWER_STATUSES = ("answered", "needs_clarification", "abstained")
+GENERIC_ERROR_MESSAGE = "요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+
+
+# --- 오류 ---------------------------------------------------------------------------------------------
+class PipelineError(Exception):
+    """API 응답으로 변환되는 오류. reason은 09 §8.5의 코드다."""
+
+    reason = "internal_error"
+    http_status = 500
+    retryable = False
+
+    def __init__(self, message: str = ""):
+        super().__init__(message)
+        self.message = message
+
+
+class InvalidRequest(PipelineError):
+    reason, http_status = "invalid_request", 422
+
+
+class RetrievalFailure(PipelineError):
+    reason, http_status = "retrieval_error", 500
+
+
+class ModelError(PipelineError):
+    reason, http_status, retryable = "model_error", 502, True
+
+
+class ModelTimeout(PipelineError):
+    reason, http_status, retryable = "model_timeout", 504, True
+
+
+class OutputValidationError(PipelineError):
+    reason, http_status = "output_validation_error", 502
+
+
+class GenerationUnavailable(PipelineError):
+    """생성기가 연결되지 않음(STEP 8 전). 재시도해도 해결되지 않는다."""
+
+    reason, http_status = "internal_error", 500
+
+
+# --- 설정 (D-030 초기값) -------------------------------------------------------------------------------
+@dataclass(frozen=True)
+class PipelineSettings:
+    supported_methods: tuple[str, ...] = ("dense",)  # hybrid, hybrid_rerank는 STEP 5~6에서 추가
+    final_k: int = 5
+    model_timeout_seconds: float = 30.0  # 생성기가 호출 때 적용한다
+    max_model_calls: int = 3  # 재시도와 재생성의 합
+    max_transient_retries: int = 2  # 연결 오류·429·5xx·timeout
+    retry_delays_seconds: tuple[float, ...] = (1.0, 2.0)
+    max_regenerations: int = 1  # 출력 검증 실패 시 다시 생성
+
+
+# --- 생성기 인터페이스 ----------------------------------------------------------------------------------
+@dataclass
+class GenerationOutput:
+    parsed: Any  # LLM이 반환한 JSON 객체(검증 전)
+    raw: str | None = None
+    model_input: Any = None
+    model_id: str | None = None
+    usage: dict | None = None  # input_tokens, output_tokens, reasoning_tokens (확인 불가는 None)
+
+
+class Generator(Protocol):
+    def generate(self, question: str, sources: list[dict]) -> GenerationOutput: ...
+
+
+class UnavailableGenerator:
+    """STEP 8 전의 기본 생성기. 답을 만들지 않고 오류를 낸다."""
+
+    def generate(self, question: str, sources: list[dict]) -> GenerationOutput:
+        raise GenerationUnavailable("생성 모델이 연결되지 않았습니다(STEP 8 전).")
+
+
+# --- 출처 대응표와 출력 검증 ----------------------------------------------------------------------------
+def build_sources(chunks: list[dict]) -> list[dict]:
+    """검색 결과에 이번 요청에서만 쓰는 출처 ID(S1, S2…)를 붙인다. 문서·페이지는 코드가 보관한다."""
+    return [
+        {"source_id": f"S{i}", "chunk_id": c["chunk_id"], "book_id": c["book_id"], "file_name": c["file_name"],
+         "page": c["page"], "rank": c["rank"], "text": c["text"]}
+        for i, c in enumerate(chunks, start=1)
+    ]
+
+
+def validate_output(parsed: Any, sources: list[dict]) -> dict:
+    """LLM 출력을 검증한다. 통과하면 {status, answer, reason, source_ids}를 돌려주고, 아니면 OutputValidationError."""
+    if not isinstance(parsed, dict):
+        raise OutputValidationError("출력이 JSON 객체가 아닙니다.")
+    for key in ("status", "answer", "reason", "source_ids"):
+        if key not in parsed:
+            raise OutputValidationError(f"필수 필드 누락: {key}")
+    if parsed["status"] not in ANSWER_STATUSES:  # LLM은 `error`를 반환할 수 없다
+        raise OutputValidationError(f"허용되지 않는 status: {parsed['status']!r}")
+    if not isinstance(parsed["answer"], str) or not isinstance(parsed["reason"], str):
+        raise OutputValidationError("answer와 reason은 문자열이어야 합니다.")
+    ids = parsed["source_ids"]
+    if not isinstance(ids, list) or not all(isinstance(i, str) for i in ids):
+        raise OutputValidationError("source_ids는 문자열 배열이어야 합니다.")
+    known = {s["source_id"] for s in sources}
+    unknown = [i for i in ids if i not in known]
+    if unknown:
+        raise OutputValidationError(f"이번 요청의 문맥에 없는 출처 ID: {unknown}")
+    return {"status": parsed["status"], "answer": parsed["answer"], "reason": parsed["reason"],
+            "source_ids": list(dict.fromkeys(ids))}
+
+
+def citations_for(source_ids: list[str], sources: list[dict]) -> list[dict]:
+    table = {s["source_id"]: s for s in sources}
+    return [{"source_id": i, "book_id": table[i]["book_id"], "file_name": table[i]["file_name"],
+             "page": table[i]["page"]} for i in source_ids]
+
+
+# --- 파이프라인 ----------------------------------------------------------------------------------------
+@dataclass
+class Outcome:
+    http_status: int
+    response: dict
+    record: dict = field(default_factory=dict)  # run 레코드에 들어갈 내용(09 §9)
+
+
+class RagPipeline:
+    def __init__(self, retriever, generator: Generator | None = None, settings: PipelineSettings | None = None,
+                 *, sleep: Callable[[float], None] = time.sleep):
+        self.retriever = retriever
+        self.generator = generator or UnavailableGenerator()
+        self.settings = settings or PipelineSettings()
+        self._sleep = sleep
+
+    # 입력 검증은 API 계층에서도 하지만, 파이프라인을 직접 부르는 평가 코드를 위해 여기서도 막는다
+    def validate_request(self, question: Any, rag_method: Any) -> str:
+        if not isinstance(question, str) or not question.strip():
+            raise InvalidRequest("질문이 비어 있습니다.")
+        if rag_method not in self.settings.supported_methods:
+            raise InvalidRequest(f"지원하지 않는 rag_method: {rag_method!r}")
+        return question.strip()
+
+    def run(self, request_id: str, question: Any, rag_method: Any) -> Outcome:
+        started = time.perf_counter()
+        record: dict = {"retrieval": None, "final_context": None, "llm_calls": [], "model_input": None,
+                        "llm_output_raw": None, "llm_output_parsed": None, "error": None}
+        sources: list[dict] = []
+        stage = "validate"
+        try:
+            question = self.validate_request(question, rag_method)
+            stage = "retrieval"
+            sources = self._retrieve(question, record)
+            stage = "generation"
+            parsed = self._generate(question, sources, record)
+            response = {"request_id": request_id, "status": parsed["status"], "answer": parsed["answer"],
+                        "reason": parsed["reason"], "citations": citations_for(parsed["source_ids"], sources)}
+            record["llm_output_parsed"] = parsed
+            outcome = Outcome(200, response, record)
+        except PipelineError as exc:
+            outcome = self._error_outcome(request_id, exc, stage, record)
+        except Exception as exc:  # noqa: BLE001 - 예상하지 못한 오류도 형식을 지켜 반환한다
+            logger.exception("예상하지 못한 오류")
+            outcome = self._error_outcome(request_id, PipelineError(f"{type(exc).__name__}"), stage, record)
+        record["performance"] = {
+            "total_duration_ms": round((time.perf_counter() - started) * 1000, 1),
+            "retrieval_duration_ms": (record["retrieval"] or {}).get("durations_ms", {}).get("total"),
+            "generation_duration_ms": round(sum(c.get("duration_ms") or 0 for c in record["llm_calls"]), 1) or None,
+            "retry_count": max(0, len(record["llm_calls"]) - 1),
+            "final_status": outcome.response["status"],
+        }
+        return outcome
+
+    # --- 단계 ---
+    def _retrieve(self, question: str, record: dict) -> list[dict]:
+        try:
+            result = self.retriever.retrieve(question, k=self.settings.final_k)
+        except InvalidQuery as exc:
+            raise InvalidRequest(str(exc)) from exc
+        except RetrievalError as exc:
+            raise RetrievalFailure(str(exc)) from exc
+        sources = build_sources(result.chunks)
+        record["retrieval"] = {
+            "dense": [{"chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"], "rank": c["rank"],
+                       "score": c["score"]} for c in result.chunks],
+            "sparse": None, "fused": None, "reranked": None,
+            "candidate_k": result.k, "final_k": result.k, "durations_ms": result.durations_ms,
+        }
+        record["final_context"] = {"chunks": sources}  # STEP 8에서 토큰 한도와 함께 확장
+        return sources
+
+    def _generate(self, question: str, sources: list[dict], record: dict) -> dict:
+        s = self.settings
+        transient = regenerations = 0
+        while True:
+            index = len(record["llm_calls"])
+            started = time.perf_counter()
+            call = {"call_index": index, "stage": "generation", "model_id": None, "retry_index": index,
+                    "input_tokens": None, "output_tokens": None, "reasoning_tokens": None, "duration_ms": None,
+                    "status": None, "usage_status": "unknown"}
+            record["llm_calls"].append(call)
+            try:
+                out = self.generator.generate(question, sources)
+                call["duration_ms"] = round((time.perf_counter() - started) * 1000, 1)
+                call["model_id"] = out.model_id
+                if out.usage:
+                    call.update(input_tokens=out.usage.get("input_tokens"), output_tokens=out.usage.get("output_tokens"),
+                                reasoning_tokens=out.usage.get("reasoning_tokens"), usage_status="reported")
+                record["model_input"], record["llm_output_raw"] = out.model_input, out.raw
+                parsed = validate_output(out.parsed, sources)
+                call["status"] = "ok"
+                return parsed
+            except GenerationUnavailable:
+                record["llm_calls"].pop()  # 모델을 호출하지 않았으므로 호출 기록에 남기지 않는다
+                raise
+            except PipelineError as exc:
+                call["duration_ms"] = call["duration_ms"] or round((time.perf_counter() - started) * 1000, 1)
+                call["status"] = exc.reason
+                exhausted = len(record["llm_calls"]) >= s.max_model_calls
+                if isinstance(exc, OutputValidationError):
+                    if regenerations >= s.max_regenerations or exhausted:
+                        raise
+                    regenerations += 1
+                elif exc.retryable:
+                    if transient >= s.max_transient_retries or exhausted:
+                        raise
+                    delay = s.retry_delays_seconds[min(transient, len(s.retry_delays_seconds) - 1)]
+                    transient += 1
+                    self._sleep(delay)
+                else:
+                    raise
+
+    def _error_outcome(self, request_id: str, exc: PipelineError, stage: str, record: dict) -> Outcome:
+        calls = record["llm_calls"]
+        record["error"] = {"reason": exc.reason, "error_stage": stage, "error_message": exc.message[:300],
+                           "retry_count": max(0, len(calls) - 1), "is_retryable": exc.retryable}
+        response = {"request_id": request_id, "status": "error", "answer": GENERIC_ERROR_MESSAGE,
+                    "reason": exc.reason, "citations": []}
+        return Outcome(exc.http_status, response, record)

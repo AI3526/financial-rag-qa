@@ -27,7 +27,11 @@ def point_id(chunk_id: str) -> str:
     return str(uuid.uuid5(_NAMESPACE, chunk_id))
 
 
-def with_retry(fn: Callable[[], Any], attempts: int = 4, delay: float = 2.0) -> Any:
+REQUEST_TIMEOUT_SECONDS = 10  # D-030 초기값 (실측 검색 약 0.15초)
+
+
+def with_retry(fn: Callable[[], Any], attempts: int = 3, delay: float = 1.0) -> Any:
+    """최대 `attempts`번 호출한다(D-030: 3회, 간격 1초·2초). 마지막 실패 뒤에는 기다리지 않고 예외를 낸다."""
     last: Exception | None = None
     for i in range(attempts):
         try:
@@ -35,7 +39,8 @@ def with_retry(fn: Callable[[], Any], attempts: int = 4, delay: float = 2.0) -> 
         except Exception as exc:  # noqa: BLE001 - 네트워크 계열 오류만 재시도 대상이지만 종류가 다양하다
             last = exc
             logger.warning("Qdrant 호출 실패(%d/%d): %s", i + 1, attempts, type(exc).__name__)
-            time.sleep(delay * (i + 1))
+            if i + 1 < attempts:
+                time.sleep(delay * (i + 1))
     raise last  # type: ignore[misc]
 
 
@@ -53,7 +58,8 @@ def get_client():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         if url:
-            return QdrantClient(url=url, api_key=os.environ.get("QDRANT_API_KEY", "").strip() or None, timeout=60)
+            return QdrantClient(url=url, api_key=os.environ.get("QDRANT_API_KEY", "").strip() or None,
+                                timeout=REQUEST_TIMEOUT_SECONDS)
         path = os.environ.get("QDRANT_PATH", "").strip() or str(_ROOT / "data" / "qdrant")
         return QdrantClient(path=path)
 

@@ -1,7 +1,7 @@
 """STEP 11: 저장된 서비스 응답을 LLM-as-a-Judge 4항목(사실, 조건, 근거, 판단)으로 채점한다 (D-040).
 
 실행:
-    uv run python scripts/run_judge.py --source dev-prompt-answer-v2-001 --out judge-dev-001 [--limit N] [--langfuse]
+    uv run python scripts/run_judge.py --source dev-prompt-answer-v2-001 --out judge-v2-dev-001 [--prompt judge_v1|judge_v2] [--limit N] [--langfuse]
 
 - 입력: `results/{source}/runs.jsonl`(질문, 답변과 상태, 인용, **실제 최종 문맥**)과 평가 파일의 참고 정답·필수 사실·금지 주장·
   기대 동작·채점 설명. 이 정보는 이 평가 단계에서만 쓰며 서비스 입력에는 들어가지 않는다. evidence_groups는 입력하지 않는다.
@@ -28,8 +28,8 @@ from src.config import load_env  # noqa: E402
 
 load_env()
 
-from src.evaluation.judge import (ITEMS, aggregate, build_judge_llm, judge_one, load_judge_prompt,  # noqa: E402
-                                  load_references)
+from src.evaluation.judge import (DEFAULT_PROMPT, ITEMS, aggregate, build_judge_llm, judge_one,  # noqa: E402
+                                  load_judge_prompt, load_references, response_format_for)
 from src.evaluation.scoring_trace import record_scoring  # noqa: E402
 
 
@@ -54,6 +54,7 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--langfuse", action="store_true")
     ap.add_argument("--max-output-tokens", type=int, default=4096)
+    ap.add_argument("--prompt", default=DEFAULT_PROMPT, help="prompts/{이름}.json (judge_v1 또는 judge_v2, 기본은 최신 승인 문안)")
     args = ap.parse_args()
 
     source, out = ROOT / "results" / args.source, ROOT / "results" / args.out
@@ -65,9 +66,10 @@ def main() -> int:
         return 1
     refs = load_references()
     targets, skipped = load_targets(source, refs, args.limit)
-    spec = load_judge_prompt()
+    spec = load_judge_prompt(args.prompt)
     model = os.environ["OPENAI_MODEL"]
-    llm = build_judge_llm(model, max_completion_tokens=args.max_output_tokens)
+    llm = build_judge_llm(model, max_completion_tokens=args.max_output_tokens, response_format=response_format_for(spec))
+    print(f"프롬프트 {spec['version']} (sha256 {spec['sha256'][:12]}…), 진단 항목: {spec.get('diagnostic') or '없음'}")
     lf = None
     if args.langfuse:
         from src.observability.langfuse_client import get_langfuse
@@ -85,11 +87,15 @@ def main() -> int:
                     lf, name="judge-evaluation", model=model, track=rec.get("track") or "development", rag_method=row["rag_method"],
                     evaluated=rec, input={"question": rec["question"], "answer": rec["response"].get("answer"),
                                           "service_status": row["service_status"], "reference_data": "평가 단계 입력(Langfuse에는 보내지 않음)"},
-                    output={"items": {k: {f: v[f] for f in ("status", "score", "reason")} for k, v in row["items"].items()}},
+                    output={"items": {k: {f: v[f] for f in ("status", "score", "reason")} for k, v in row["items"].items()},
+                            "context_check": ({"status": row["context_check"]["status"], "coverage": row["context_check"]["coverage"],
+                                               "facts": [{"index": f["index"], "in_context": f["in_context"]} for f in row["context_check"]["facts"]]}
+                                              if row.get("context_check") else None)},
                     usage=row["usage"], metadata={"evaluator": "llm-judge", "prompt_version": spec["version"], "status_match": row["status_match"]})
             rows.append(row)
             s = {k: (row["items"][k]["score"] if row["items"][k]["status"] == "scored" else row["items"][k]["status"][:3]) for k in ITEMS}
-            print(f"  [{n}/{len(targets)}] {str(row['question_id']):9} {row['rag_method']:13} {row['service_status']:19} {s} ({row['seconds']}초)")
+            cov = (row.get("context_check") or {}).get("coverage") or (row.get("context_check") or {}).get("status", "-")
+            print(f"  [{n}/{len(targets)}] {str(row['question_id']):9} {row['rag_method']:13} {row['service_status']:19} {s} 문맥={cov} ({row['seconds']}초)")
     if lf is not None:
         lf.flush()
     rows.sort(key=lambda r: (str(r["question_id"]), r["rag_method"]))
@@ -105,7 +111,8 @@ def main() -> int:
                                                  ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "manifest.json").write_text(json.dumps({
         "out": args.out, "source": args.source, "metric": "llm-judge-4items", "model": model,
-        "prompt": {"version": spec["version"], "sha256": spec["sha256"]}, "max_output_tokens": args.max_output_tokens,
+        "prompt": {"version": spec["version"], "sha256": spec["sha256"], "diagnostic": spec.get("diagnostic")},
+        "max_output_tokens": args.max_output_tokens,
         "reasoning_effort": "low", "concurrency": args.concurrency, "passes": 1, "answers": len(targets), "langfuse": bool(args.langfuse),
         "reference_data": "development/additional/expansion_validation 평가 파일(evidence_groups 제외)",
         "note": "평가 호출 사용량은 서비스 답변 생성 사용량과 분리해 기록한다. 해당 없음과 평가 불가는 평균에서 빼고 개수로 센다. "

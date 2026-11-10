@@ -11,7 +11,7 @@ from src.config import ROOT, load_env
 
 
 def build_default_app(prompt_name: str | None = None, use_langfuse: bool = True):
-    """서버 조립. prompt_name으로 `prompts/{prompt_name}.json`을 고른다(기본 answer_v1).
+    """서버 조립. prompt_name으로 `prompts/{prompt_name}.json`을 고른다(기본 answer_v2).
     use_langfuse=False면 Langfuse에 기록하지 않는다(development 실험은 로컬에만, D-029)."""
     load_env()
     from src.api.app import create_app

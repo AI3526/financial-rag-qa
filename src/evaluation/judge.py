@@ -22,7 +22,10 @@ from typing import Any
 from src.generation.context import format_context
 
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_PATH = ROOT / "prompts" / "judge_v1.json"
+PROMPTS_DIR = ROOT / "prompts"
+DEFAULT_PROMPT = "judge_v2"  # 사용자가 승인한 최신 문안(D-044). judge_v1로 만든 결과는 그대로 보존한다
+PROMPT_PATH = PROMPTS_DIR / f"{DEFAULT_PROMPT}.json"
+DIAGNOSTIC_KEY = "required_facts_in_context"  # judge-v2의 진단 항목(점수에 영향 없음)
 EVALUATION_DIR = ROOT / "data" / "finance_basic" / "evaluation"
 REFERENCE_FILES = ("development.json", "additional.json", "expansion_validation.json")
 
@@ -35,14 +38,30 @@ _ITEM_SCHEMA = {
     "properties": {"score": {"type": ["integer", "null"], "enum": [1, 0, None]},
                    "status": {"type": "string", "enum": ["scored", "not_applicable"]},
                    "reason": {"type": "string"}}}
-RESPONSE_FORMAT = {"type": "json_schema", "json_schema": {"name": "judge_result", "strict": True, "schema": {
+RESPONSE_FORMAT = {"type": "json_schema", "json_schema": {"name": "judge_result", "strict": True, "schema": {  # judge-v1
     "type": "object", "additionalProperties": False, "required": list(ITEMS), "properties": {k: _ITEM_SCHEMA for k in ITEMS}}}}
+_CONTEXT_CHECK_SCHEMA = {
+    "type": "array", "items": {
+        "type": "object", "additionalProperties": False, "required": ["index", "in_context", "reason"],
+        "properties": {"index": {"type": "integer"}, "in_context": {"type": "string", "enum": ["yes", "partial", "no"]},
+                       "reason": {"type": "string"}}}}
+RESPONSE_FORMAT_V2 = {"type": "json_schema", "json_schema": {"name": "judge_result_v2", "strict": True, "schema": {  # judge-v2
+    "type": "object", "additionalProperties": False, "required": [*ITEMS, DIAGNOSTIC_KEY],
+    "properties": {**{k: _ITEM_SCHEMA for k in ITEMS}, DIAGNOSTIC_KEY: _CONTEXT_CHECK_SCHEMA}}}}
 
 
-def load_judge_prompt(path: Path = PROMPT_PATH) -> dict:
+def response_format_for(spec: dict) -> dict:
+    """프롬프트 파일에 진단 항목이 선언되어 있으면 v2 출력 형식, 아니면 v1 출력 형식."""
+    return RESPONSE_FORMAT_V2 if spec.get("diagnostic") == DIAGNOSTIC_KEY else RESPONSE_FORMAT
+
+
+def load_judge_prompt(name_or_path: str | Path = DEFAULT_PROMPT) -> dict:
+    """프롬프트 이름(`judge_v2`)이나 파일 경로로 읽는다. 파일의 sha256과 버전, 진단 항목 선언 여부를 함께 돌려준다."""
+    path = name_or_path if isinstance(name_or_path, Path) else PROMPTS_DIR / f"{name_or_path}.json"
     raw = path.read_bytes()
     data = json.loads(raw.decode("utf-8"))
-    return {"version": data["version"], "sha256": hashlib.sha256(raw).hexdigest(), "system": data["system"], "user": data["user"]}
+    return {"version": data["version"], "sha256": hashlib.sha256(raw).hexdigest(), "system": data["system"], "user": data["user"],
+            "diagnostic": data.get("diagnostic")}
 
 
 def load_references(directory: Path = EVALUATION_DIR, files: tuple[str, ...] = REFERENCE_FILES) -> dict[str, dict]:
@@ -70,22 +89,40 @@ def _lines(values: list[str] | None) -> str:
     return "\n".join(f"- {v}" for v in values) if values else "(없음)"
 
 
+def _numbered(values: list[str] | None) -> str:
+    return "\n".join(f"{i}. {v}" for i, v in enumerate(values, start=1)) if values else "(없음)"
+
+
 def format_citations(citations: list[dict] | None) -> str:
     if not citations:
         return "(없음)"
     return "\n".join(f"- {c['source_id']}: {c['file_name']} {c['page']}쪽" for c in citations)
 
 
+def format_source_table(chunks: list[dict]) -> str:
+    """최종 문맥의 **모든** 청크의 S번호별 문서와 쪽(judge-v2의 출처 표). Judge가 인용한 쪽을 검증할 수 있게 한다."""
+    if not chunks:
+        return "(없음)"
+    return "\n".join(f"- {c['source_id']}: {c['file_name']} {c['page']}쪽" for c in chunks)
+
+
 def build_user_message(template: str, record: dict, ref: dict) -> str:
-    """Judge 사용자 메시지. 최종 문맥은 서비스 모델이 실제로 받은 형식([S1] 본문) 그대로 넣는다."""
+    """Judge 사용자 메시지. 최종 문맥 본문은 서비스 모델이 실제로 받은 형식([S1] 본문) 그대로 넣는다.
+
+    템플릿에 `{source_table}`이 있으면(judge-v2) 출처 표를 넣고 필수 사실에 번호를 붙인다(진단 항목이 번호로 답한다).
+    없으면(judge-v1) 이전과 똑같이 `- 사실` 목록이다.
+    """
     resp = record["response"]
+    chunks = (record.get("final_context") or {}).get("chunks", [])
+    v2 = "{source_table}" in template
     return template.format(
         question=record["question"], status=resp.get("status"), answer=resp.get("answer") or "", reason=resp.get("reason") or "",
-        citations=format_citations(resp.get("citations")),
-        final_context=format_context((record.get("final_context") or {}).get("chunks", [])),
+        citations=format_citations(resp.get("citations")), final_context=format_context(chunks),
+        source_table=format_source_table(chunks) if v2 else "",  # v1 입력에는 출처 표가 없다(쪽 정보가 없는 기록도 v1으로는 채점 가능)
         expected_action=f"{ref['expected_action']} ({expected_status(ref['expected_action'])})",
         status_match=status_match(ref["expected_action"], resp.get("status")),
-        reference_answer=ref.get("reference_answer") or "(없음)", required_facts=_lines(ref.get("required_facts")),
+        reference_answer=ref.get("reference_answer") or "(없음)",
+        required_facts=(_numbered if v2 else _lines)(ref.get("required_facts")),
         forbidden_claims=_lines(ref.get("forbidden_claims")), grading_notes=ref.get("grading_notes") or "(없음)")
 
 
@@ -106,6 +143,42 @@ def parse_judgement(parsed: Any) -> dict[str, dict]:
         out[key] = ({"status": status, "score": score, "reason": reason.strip(), "decided_by": "model"} if ok
                     else _unevaluable(f"출력 형식 오류: {key} 항목을 해석하지 못함"))
     return out
+
+
+CONTEXT_STATES = ("yes", "partial", "no")
+
+
+def _context_check_unevaluable(reason: str) -> dict:
+    return {"status": "unevaluable", "reason": reason, "facts": [], "coverage": None}
+
+
+def parse_context_check(parsed: Any, required_facts: list[str] | None) -> dict:
+    """진단 항목(필수 사실이 최종 문맥에 있었는가)을 해석한다. **점수가 아니라 진단**이며 네 항목 점수에 영향을 주지 않는다.
+
+    - 필수 사실이 없으면 해당 없음. 번호가 필수 사실과 정확히 일치하지 않거나 값이 형식에 맞지 않으면 평가 불가(추측으로 채우지 않는다).
+    - coverage: 모두 yes면 `all`, 모두 no면 `none`, 그 밖은 `some`.
+    """
+    facts = list(required_facts or [])
+    if not facts:
+        return {"status": "not_applicable", "reason": "필수 사실이 없음", "facts": [], "coverage": None}
+    raw = parsed.get(DIAGNOSTIC_KEY) if isinstance(parsed, dict) else None
+    if not isinstance(raw, list):
+        return _context_check_unevaluable("출력 형식 오류: 진단 항목이 없음")
+    by_index: dict[int, dict] = {}
+    for it in raw:
+        idx = it.get("index") if isinstance(it, dict) else None
+        state = it.get("in_context") if isinstance(it, dict) else None
+        reason = it.get("reason") if isinstance(it, dict) else None
+        if (isinstance(idx, bool) or not isinstance(idx, int) or state not in CONTEXT_STATES or not isinstance(reason, str)
+                or not reason.strip() or idx in by_index):
+            return _context_check_unevaluable("출력 형식 오류: 진단 항목을 해석하지 못함")
+        by_index[idx] = {"index": idx, "in_context": state, "reason": reason.strip()}
+    if set(by_index) != set(range(1, len(facts) + 1)):
+        return _context_check_unevaluable("출력 형식 오류: 필수 사실 번호가 맞지 않음")
+    out = [{**by_index[i], "fact": facts[i - 1]} for i in range(1, len(facts) + 1)]
+    states = [f["in_context"] for f in out]
+    coverage = "all" if all(s == "yes" for s in states) else ("none" if all(s == "no" for s in states) else "some")
+    return {"status": "scored", "reason": None, "facts": out, "coverage": coverage}
 
 
 def finalize(expected_action: str, service_status: str, judged: dict[str, dict] | None, failure: str | None = None) -> dict[str, dict]:
@@ -134,11 +207,13 @@ def failed_reason(exc: BaseException) -> str:
     return f"채점 호출 실패: {type(exc).__name__}: {str(exc)[:160]}"
 
 
-def build_judge_llm(model: str | None = None, *, timeout: float = 120, max_completion_tokens: int = 4096, reasoning_effort: str = "low"):
+def build_judge_llm(model: str | None = None, *, timeout: float = 120, max_completion_tokens: int = 4096, reasoning_effort: str = "low",
+                    response_format: dict | None = None):
+    """response_format은 프롬프트 버전에 맞는 출력 형식(`response_format_for(spec)`). 없으면 judge-v1 형식."""
     from langchain_openai import ChatOpenAI
 
     return ChatOpenAI(model=model or os.environ["OPENAI_MODEL"], max_retries=2, timeout=timeout, reasoning_effort=reasoning_effort,
-                      max_completion_tokens=max_completion_tokens, model_kwargs={"response_format": RESPONSE_FORMAT})
+                      max_completion_tokens=max_completion_tokens, model_kwargs={"response_format": response_format or RESPONSE_FORMAT})
 
 
 def judge_one(llm, spec: dict, record: dict, ref: dict) -> dict:
@@ -152,7 +227,8 @@ def judge_one(llm, spec: dict, record: dict, ref: dict) -> dict:
         "expected_action": ref["expected_action"], "service_status": resp.get("status"),
         "status_match": status_match(ref["expected_action"], resp.get("status")), "prompt_version": spec["version"],
         "usage": None, "model_output_raw": None}
-    judged, failure, started = None, None, time.perf_counter()
+    diag = spec.get("diagnostic") == DIAGNOSTIC_KEY
+    judged, failure, started, context_check = None, None, time.perf_counter(), None
     if resp.get("status") != "error":
         try:
             from langchain_core.messages import HumanMessage, SystemMessage
@@ -164,13 +240,21 @@ def judge_one(llm, spec: dict, record: dict, ref: dict) -> dict:
             else:
                 row["model_output_raw"] = _text(ai.content)
                 try:
-                    judged = parse_judgement(json.loads(row["model_output_raw"]))
+                    parsed_json = json.loads(row["model_output_raw"])
+                    judged = parse_judgement(parsed_json)
+                    if diag:
+                        context_check = parse_context_check(parsed_json, ref.get("required_facts"))
                 except json.JSONDecodeError:
                     failure = "출력 형식 오류: JSON이 아님"
         except Exception as exc:  # noqa: BLE001 - 호출 실패는 평가 불가로 기록한다
             failure = failed_reason(exc)
     row["seconds"] = round(time.perf_counter() - started, 2)
     row["items"] = finalize(ref["expected_action"], resp.get("status"), judged, failure)
+    if diag:  # 진단은 점수가 아니므로 호출이 실패하거나 서비스 오류면 평가 불가로만 남긴다(네 항목 점수에는 영향 없음)
+        row["context_check"] = context_check or _context_check_unevaluable(
+            SERVICE_ERROR_REASON if resp.get("status") == "error" else (failure or "진단 항목을 얻지 못함"))
+    else:
+        row["context_check"] = None
     return row
 
 
@@ -188,5 +272,33 @@ def aggregate(rows: list[dict]) -> dict:
                         "not_applicable": sum(1 for s in sts if s["status"] == "not_applicable"),
                         "unevaluable": sum(1 for s in sts if s["status"] == "unevaluable")}
         out[method] = {"answers": len(mine), "service_errors": sum(1 for r in mine if r["service_status"] == "error"),
-                       "status_mismatch": sum(1 for r in mine if r["status_match"] == "불일치"), "items": per}
+                       "status_mismatch": sum(1 for r in mine if r["status_match"] == "불일치"), "items": per,
+                       "context_check": _aggregate_context(mine)}
     return out
+
+
+def _aggregate_context(mine: list[dict]) -> dict | None:
+    """진단 항목 집계. judge-v1 행에는 진단이 없으므로 None. 사실=0인 답변을 문맥 포함 정도로 나눠 센다.
+
+    - `facts_zero.context_all`: 사실=0인데 필수 사실이 **모두 문맥에 있었음**(모델이 놓친 쪽이 유력)
+    - `facts_zero.context_some`/`context_none`: 일부/전부 **문맥에 없었음**(검색·문맥 구성 쪽이 유력). 유력일 뿐 확정은 아니다.
+    """
+    rows = [r for r in mine if r.get("context_check")]
+    if not rows:
+        return None
+    cc = [r["context_check"] for r in rows]
+    scored = [c for c in cc if c["status"] == "scored"]
+    facts = [f for c in scored for f in c["facts"]]
+    n = len(facts)
+    counts = {s: sum(1 for f in facts if f["in_context"] == s) for s in CONTEXT_STATES}
+    zero = [r for r in rows if r["context_check"]["status"] == "scored" and r["items"]["facts"]["status"] == "scored"
+            and r["items"]["facts"]["score"] == 0]
+    return {"scored": len(scored), "not_applicable": sum(1 for c in cc if c["status"] == "not_applicable"),
+            "unevaluable": sum(1 for c in cc if c["status"] == "unevaluable"),
+            "facts_total": n, "facts_yes": counts["yes"], "facts_partial": counts["partial"], "facts_no": counts["no"],
+            "fact_yes_rate": (counts["yes"] / n) if n else None,
+            "answers_all": sum(1 for c in scored if c["coverage"] == "all"), "answers_some": sum(1 for c in scored if c["coverage"] == "some"),
+            "answers_none": sum(1 for c in scored if c["coverage"] == "none"),
+            "facts_zero": {"answers": len(zero), "context_all": sum(1 for r in zero if r["context_check"]["coverage"] == "all"),
+                           "context_some": sum(1 for r in zero if r["context_check"]["coverage"] == "some"),
+                           "context_none": sum(1 for r in zero if r["context_check"]["coverage"] == "none")}}

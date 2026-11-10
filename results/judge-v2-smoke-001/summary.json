@@ -1,0 +1,69 @@
+{
+  "by_method": {
+    "dense": {
+      "answers": 3,
+      "service_errors": 0,
+      "status_mismatch": 0,
+      "items": {
+        "facts": {
+          "scored": 3,
+          "ones": 2,
+          "rate": 0.6666666666666666,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "conditions": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "evidence": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "decision": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        }
+      },
+      "context_check": {
+        "scored": 3,
+        "not_applicable": 0,
+        "unevaluable": 0,
+        "facts_total": 6,
+        "facts_yes": 6,
+        "facts_partial": 0,
+        "facts_no": 0,
+        "fact_yes_rate": 1.0,
+        "answers_all": 3,
+        "answers_some": 0,
+        "answers_none": 0,
+        "facts_zero": {
+          "answers": 1,
+          "context_all": 1,
+          "context_some": 0,
+          "context_none": 0
+        }
+      }
+    }
+  },
+  "skipped": {
+    "not_general_eval": 0,
+    "no_reference": 0
+  },
+  "evaluation_usage": {
+    "calls": 3,
+    "input_tokens": 9213,
+    "output_tokens": 1461,
+    "reasoning_tokens": 209,
+    "cached_input_tokens": 3046
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "by_method": {
+    "hybrid_rerank": {
+      "answers": 30,
+      "service_errors": 0,
+      "status_mismatch": 3,
+      "items": {
+        "facts": {
+          "scored": 30,
+          "ones": 19,
+          "rate": 0.6333333333333333,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "conditions": {
+          "scored": 30,
+          "ones": 29,
+          "rate": 0.9666666666666667,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "evidence": {
+          "scored": 30,
+          "ones": 29,
+          "rate": 0.9666666666666667,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "decision": {
+          "scored": 30,
+          "ones": 27,
+          "rate": 0.9,
+          "not_applicable": 0,
+          "unevaluable": 0
+        }
+      },
+      "context_check": {
+        "scored": 30,
+        "not_applicable": 0,
+        "unevaluable": 0,
+        "facts_total": 63,
+        "facts_yes": 52,
+        "facts_partial": 9,
+        "facts_no": 2,
+        "fact_yes_rate": 0.8253968253968254,
+        "answers_all": 21,
+        "answers_some": 9,
+        "answers_none": 0,
+        "facts_zero": {
+          "answers": 11,
+          "context_all": 3,
+          "context_some": 8,
+          "context_none": 0
+        }
+      }
+    }
+  },
+  "skipped": {
+    "not_general_eval": 0,
+    "no_reference": 0
+  },
+  "evaluation_usage": {
+    "calls": 30,
+    "input_tokens": 94295,
+    "output_tokens": 15557,
+    "reasoning_tokens": 3245,
+    "cached_input_tokens": 45690
+  }
+}

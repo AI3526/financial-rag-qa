@@ -90,7 +90,7 @@ def test_every_prompt_file_has_a_unique_version_matching_its_name_and_no_evaluat
             if not allowed:
                 assert forbidden not in text
         versions.append(data["version"])
-    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2", "faithfulness-statement-v1", "judge-v1"} <= set(versions)
+    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2", "faithfulness-statement-v1", "judge-v1", "judge-v2"} <= set(versions)
 
 
 def test_v2_differs_from_v1_only_in_rule_4_so_the_change_is_isolated():

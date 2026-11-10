@@ -172,9 +172,20 @@ def main() -> int:
         except Exception:  # noqa: BLE001 - 없으면 만든다
             lf.create_dataset(name=args.dataset, description="공식 비교 질문(질문 번호와 질문만, 정답 없음)",
                               metadata={"source": "data/finance_basic/evaluation/*_questions.json", "freeze_sha256": sha256_file(FREEZE_PATH)})
+        def with_retry(fn, attempts=4, delay=3.0):  # 같은 id로 다시 보내면 갱신되는 호출이라 일시적 네트워크 오류는 재시도해도 안전하다
+            for i in range(attempts):
+                try:
+                    return fn()
+                except Exception as exc:  # noqa: BLE001
+                    if i == attempts - 1:
+                        raise
+                    print(f"  Langfuse 데이터셋 호출 재시도 {i + 1}/{attempts - 1} ({type(exc).__name__})")
+                    time.sleep(delay * (i + 1))
+
         for q in questions:  # id를 `{데이터셋}:{질문 번호}`로 고정해 다시 실행해도 같은 항목으로 갱신된다(항목 id는 프로젝트 전체에서 유일해 데이터셋 이름을 붙임)
-            lf.create_dataset_item(dataset_name=args.dataset, id=f"{args.dataset}:{q['question_id']}", input={"question": q["question"], "question_id": q["question_id"]},
-                                   metadata={"evaluation_set_type": q["evaluation_set_type"]})
+            with_retry(lambda q=q: lf.create_dataset_item(dataset_name=args.dataset, id=f"{args.dataset}:{q['question_id']}",
+                                                          input={"question": q["question"], "question_id": q["question_id"]},
+                                                          metadata={"evaluation_set_type": q["evaluation_set_type"]}))
         wanted = {q["question_id"] for q in questions}
         for method in args.methods:
             dataset = lf.get_dataset(args.dataset)

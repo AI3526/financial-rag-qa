@@ -95,7 +95,7 @@
     ]
   },
   "docs": {
-    "12_ACCEPTANCE_CRITERIA.md": "bf94ce5ea31dd1d81c9d0752b6a0b1064052091bdc5042371f876a7b043e4e21"
+    "12_ACCEPTANCE_CRITERIA.md": "21432ee692646d57cda25732d64c81c76a177405d82ab2a9fc27dc6b023afb97"
   },
   "evaluation": {
     "faithfulness_max_output_tokens": 4096,

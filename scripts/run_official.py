@@ -172,8 +172,8 @@ def main() -> int:
         except Exception:  # noqa: BLE001 - 없으면 만든다
             lf.create_dataset(name=args.dataset, description="공식 비교 질문(질문 번호와 질문만, 정답 없음)",
                               metadata={"source": "data/finance_basic/evaluation/*_questions.json", "freeze_sha256": sha256_file(FREEZE_PATH)})
-        for q in questions:  # id를 질문 번호로 고정해 다시 실행해도 같은 항목으로 갱신된다
-            lf.create_dataset_item(dataset_name=args.dataset, id=q["question_id"], input={"question": q["question"], "question_id": q["question_id"]},
+        for q in questions:  # id를 `{데이터셋}:{질문 번호}`로 고정해 다시 실행해도 같은 항목으로 갱신된다(항목 id는 프로젝트 전체에서 유일해 데이터셋 이름을 붙임)
+            lf.create_dataset_item(dataset_name=args.dataset, id=f"{args.dataset}:{q['question_id']}", input={"question": q["question"], "question_id": q["question_id"]},
                                    metadata={"evaluation_set_type": q["evaluation_set_type"]})
         wanted = {q["question_id"] for q in questions}
         for method in args.methods:

@@ -302,3 +302,95 @@ def _aggregate_context(mine: list[dict]) -> dict | None:
             "facts_zero": {"answers": len(zero), "context_all": sum(1 for r in zero if r["context_check"]["coverage"] == "all"),
                            "context_some": sum(1 for r in zero if r["context_check"]["coverage"] == "some"),
                            "context_none": sum(1 for r in zero if r["context_check"]["coverage"] == "none")}}
+
+
+# ---------------------------------------------------------------- 여러 회차 채점의 다수결 (D-044, D-045)
+STATUSES = ("scored", "not_applicable", "unevaluable")
+
+
+def majority_item(items: list[dict]) -> dict:
+    """같은 답변·같은 항목의 회차별 결과를 다수결로 합친다. 0이나 1로 억지로 정하지 않는다.
+
+    - 상태(점수 있음 / 해당 없음 / 평가 불가) 중 **절반을 넘는** 것이 그 상태가 된다. 없으면 평가 불가(회차가 갈림).
+    - 점수 있음이 절반을 넘어도 **1과 0이 같은 수**(예: 2회만 점수가 있고 1과 0)이면 **동점이라 평가 불가**로 두고 이유가 `동점`으로 시작한다.
+    - `votes`에 회차별 값(1, 0, "not_applicable", "unevaluable")을 남겨 회차 사이의 불일치를 볼 수 있게 한다.
+    """
+    n = len(items)
+    votes = [i["score"] if i["status"] == "scored" else i["status"] for i in items]
+    base = {"votes": votes, "decided_by": "majority"}
+    top = next((s for s in STATUSES if sum(1 for i in items if i["status"] == s) * 2 > n), None)
+    if top is None:
+        return {**base, "status": "unevaluable", "score": None, "reason": f"회차 결과가 갈려 다수가 없음 {votes}"}
+    if top != "scored":
+        src = next(i for i in items if i["status"] == top)
+        return {**base, "status": top, "score": None, "reason": src["reason"]}
+    ones = sum(1 for i in items if i["status"] == "scored" and i["score"] == 1)
+    zeros = sum(1 for i in items if i["status"] == "scored" and i["score"] == 0)
+    if ones == zeros:
+        return {**base, "status": "unevaluable", "score": None, "reason": f"동점: 점수가 있는 회차가 1과 0으로 갈림 {votes}"}
+    score = 1 if ones > zeros else 0
+    src = next(i for i in items if i["status"] == "scored" and i["score"] == score)
+    return {**base, "status": "scored", "score": score, "reason": f"{src['reason']} [다수결 {max(ones, zeros)}/{n}회]"}
+
+
+def majority_context(checks: list[dict | None]) -> dict | None:
+    """회차별 필수 사실 진단을 합친다. 사실마다 yes/partial/no 다수결이고 동수면 `partial`이다.
+
+    진단을 얻은 회차가 절반을 넘지 못하면 해당 없음(필수 사실 없음)이거나 평가 불가다.
+    """
+    cs = [c for c in checks if c]
+    if not cs:
+        return None
+    n = len(cs)
+    scored = [c for c in cs if c["status"] == "scored"]
+    if len(scored) * 2 <= n:
+        if sum(1 for c in cs if c["status"] == "not_applicable") * 2 > n:
+            return next(c for c in cs if c["status"] == "not_applicable")
+        return _context_check_unevaluable("회차 중 절반 이상에서 진단을 얻지 못함")
+    facts = []
+    for idx in range(len(scored[0]["facts"])):
+        states = [c["facts"][idx]["in_context"] for c in scored]
+        counts = {s: states.count(s) for s in CONTEXT_STATES}
+        winners = [s for s in CONTEXT_STATES if counts[s] == max(counts.values())]
+        state = winners[0] if len(winners) == 1 else "partial"
+        src = next((c["facts"][idx] for c in scored if c["facts"][idx]["in_context"] == state), scored[0]["facts"][idx])
+        facts.append({"index": src["index"], "fact": src["fact"], "in_context": state, "reason": src["reason"], "votes": states})
+    sts = [f["in_context"] for f in facts]
+    coverage = "all" if all(s == "yes" for s in sts) else ("none" if all(s == "no" for s in sts) else "some")
+    return {"status": "scored", "reason": None, "facts": facts, "coverage": coverage}
+
+
+_BASE_KEYS = ("request_id", "trace_id", "question_id", "rag_method", "evaluation_set_type", "expected_action", "service_status",
+              "status_match", "prompt_version")
+
+
+def combine_passes(rows: list[dict]) -> list[dict]:
+    """(요청, 회차) 행들을 요청별 다수결 행으로 합친다. 각 행에는 `pass`(1부터)가 있어야 한다."""
+    by_req: dict[str, list[dict]] = {}
+    for r in rows:
+        by_req.setdefault(r["request_id"], []).append(r)
+    out = []
+    for rs in by_req.values():
+        rs = sorted(rs, key=lambda r: r["pass"])
+        out.append({**{k: rs[0].get(k) for k in _BASE_KEYS}, "passes": len(rs),
+                    "items": {k: majority_item([r["items"][k] for r in rs]) for k in ITEMS},
+                    "context_check": majority_context([r.get("context_check") for r in rs])})
+    return sorted(out, key=lambda r: (str(r["question_id"]), r["rag_method"]))
+
+
+def aggregate_passes(pass_rows: list[dict], majority_rows: list[dict]) -> dict:
+    """다수결 집계(선택·충족률에 쓰는 값)와 회차별 충족률, 회차 사이의 범위, 판정이 갈린 답변 수, 동점 수를 함께 낸다."""
+    passes = sorted({r["pass"] for r in pass_rows})
+    out: dict[str, Any] = {"passes": passes, "majority": aggregate(majority_rows),
+                           "per_pass": {k: aggregate([r for r in pass_rows if r["pass"] == k]) for k in passes},
+                           "range": {}, "disagreement": {}, "ties": {}}
+    for m in sorted({r["rag_method"] for r in majority_rows}):
+        mine = [r for r in majority_rows if r["rag_method"] == m]
+        out["range"][m], out["disagreement"][m], out["ties"][m] = {}, {}, {}
+        for key in ITEMS:
+            rates = [out["per_pass"][k][m]["items"][key]["rate"] for k in passes if m in out["per_pass"][k]]
+            rates = [x for x in rates if x is not None]
+            out["range"][m][key] = (max(rates) - min(rates)) if rates else None
+            out["disagreement"][m][key] = sum(1 for r in mine if len({str(v) for v in r["items"][key]["votes"]}) > 1)
+            out["ties"][m][key] = sum(1 for r in mine if r["items"][key]["reason"].startswith("동점"))
+    return out

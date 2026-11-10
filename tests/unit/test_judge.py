@@ -299,3 +299,85 @@ def test_aggregate_context_splits_zero_fact_answers_by_whether_the_context_had_t
     # v1 행(진단 없음)은 None
     v1 = [{"rag_method": "dense", "service_status": "answered", "status_match": "일치", "context_check": None, "items": j.parse_judgement(good())}]
     assert j.aggregate(v1)["dense"]["context_check"] is None
+
+
+# ---------------------------------------------------------------- 여러 회차 다수결 (D-044, D-045)
+def it(score=None, status="scored", reason="r"):
+    return {"status": status, "score": score, "reason": reason, "decided_by": "model"}
+
+
+def cc(states, facts=("A", "B")):
+    return j.parse_context_check(diag(states), list(facts))
+
+
+def test_majority_item_takes_the_majority_and_keeps_the_votes():
+    r = j.majority_item([it(1), it(1), it(0)])
+    assert r["status"] == "scored" and r["score"] == 1 and r["votes"] == [1, 1, 0] and "다수결 2/3" in r["reason"]
+    assert j.majority_item([it(0), it(0), it(1)])["score"] == 0
+    assert j.majority_item([it(1), it(1), it(1)])["score"] == 1
+    one = j.majority_item([it(0)])  # 회차가 1이면 그 결과와 같다
+    assert one["status"] == "scored" and one["score"] == 0 and one["votes"] == [0]
+
+
+def test_majority_item_tie_is_unevaluable_never_forced_to_zero_or_one():
+    r = j.majority_item([it(1), it(0), it(status="unevaluable")])
+    assert r["status"] == "unevaluable" and r["score"] is None and r["reason"].startswith("동점")
+    assert j.majority_item([it(1), it(1), it(status="unevaluable")])["score"] == 1  # 점수가 있는 두 회차가 같으면 정해진다
+
+
+def test_majority_item_not_applicable_and_no_majority():
+    na = j.majority_item([it(status="not_applicable"), it(status="not_applicable"), it(1)])
+    assert na["status"] == "not_applicable" and na["score"] is None
+    split = j.majority_item([it(1), it(status="not_applicable"), it(status="unevaluable")])
+    assert split["status"] == "unevaluable" and "다수가 없음" in split["reason"]
+    assert j.majority_item([it(status="unevaluable")] * 3)["status"] == "unevaluable"
+
+
+def test_majority_context_votes_per_fact_and_ties_become_partial():
+    m = j.majority_context([cc(("yes", "no")), cc(("yes", "yes")), cc(("partial", "no"))])
+    assert m["status"] == "scored" and [f["in_context"] for f in m["facts"]] == ["yes", "no"]
+    assert m["coverage"] == "some" and m["facts"][0]["votes"] == ["yes", "yes", "partial"]
+    tie = j.majority_context([cc(("yes", "yes")), cc(("no", "yes")), cc(("partial", "yes"))])  # 첫 사실이 yes, no, partial 1표씩
+    assert tie["facts"][0]["in_context"] == "partial"
+    assert j.majority_context([None, None]) is None
+    assert j.majority_context([cc(("yes", "yes")), j._context_check_unevaluable("x"), j._context_check_unevaluable("y")])["status"] == "unevaluable"
+    assert j.majority_context([j.parse_context_check(diag(()), [])] * 3)["status"] == "not_applicable"
+
+
+def prow(req, qid, k, facts_item, states=("yes", "yes")):
+    items = j.parse_judgement(good())
+    items["facts"] = facts_item
+    return {"request_id": req, "trace_id": None, "question_id": qid, "rag_method": "dense", "evaluation_set_type": "development",
+            "expected_action": "answer", "service_status": "answered", "status_match": "일치", "prompt_version": "judge-v2", "pass": k,
+            "items": items, "context_check": cc(states)}
+
+
+def test_combine_passes_and_aggregate_passes_report_majority_per_pass_range_disagreement_and_ties():
+    s = lambda v: {"status": "scored", "score": v, "reason": "r", "decided_by": "model"}  # noqa: E731
+    un = {"status": "unevaluable", "score": None, "reason": "x", "decided_by": "code"}
+    rows = [prow("r1", "Q1", k, s(v)) for k, v in enumerate((1, 1, 0), 1)]        # 갈림, 다수결 1
+    rows += [prow("r2", "Q2", k, s(0)) for k in (1, 2, 3)]                         # 모두 0
+    rows += [prow("r3", "Q3", k, s(v)) for k, v in enumerate((1, 0, 0), 1)]        # 갈림, 다수결 0
+    rows += [prow("r4", "Q4", 1, s(1)), prow("r4", "Q4", 2, s(0)), prow("r4", "Q4", 3, un)]  # 동점
+    maj = j.combine_passes(rows)
+    assert [r["request_id"] for r in maj] == ["r1", "r2", "r3", "r4"] and all(r["passes"] == 3 for r in maj)
+    assert [r["items"]["facts"]["score"] for r in maj] == [1, 0, 0, None]
+    assert maj[3]["items"]["facts"]["status"] == "unevaluable" and maj[3]["items"]["facts"]["reason"].startswith("동점")
+    assert maj[0]["items"]["facts"]["votes"] == [1, 1, 0] and maj[0]["context_check"]["status"] == "scored"
+
+    st = j.aggregate_passes(rows, maj)
+    facts = st["majority"]["dense"]["items"]["facts"]
+    assert (facts["scored"], facts["ones"], facts["unevaluable"]) == (3, 1, 1) and abs(facts["rate"] - 1 / 3) < 1e-9
+    per = {k: st["per_pass"][k]["dense"]["items"]["facts"] for k in (1, 2, 3)}
+    assert abs(per[1]["rate"] - 3 / 4) < 1e-9 and abs(per[2]["rate"] - 1 / 4) < 1e-9 and per[3]["rate"] == 0.0 and per[3]["unevaluable"] == 1
+    assert abs(st["range"]["dense"]["facts"] - 0.75) < 1e-9
+    assert st["disagreement"]["dense"]["facts"] == 3 and st["ties"]["dense"]["facts"] == 1
+    assert st["disagreement"]["dense"]["conditions"] == 0 and st["ties"]["dense"]["conditions"] == 0
+    assert st["passes"] == [1, 2, 3]
+
+
+def test_single_pass_majority_equals_the_pass():
+    s = {"status": "scored", "score": 1, "reason": "r", "decided_by": "model"}
+    rows = [prow("r1", "Q1", 1, s)]
+    maj = j.combine_passes(rows)
+    assert maj[0]["items"]["facts"]["score"] == 1 and j.aggregate_passes(rows, maj)["disagreement"]["dense"]["facts"] == 0

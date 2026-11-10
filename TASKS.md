@@ -46,7 +46,7 @@
 | 10 | 6 | Reranker·Hybrid+Rerank (D-037) | 필수 | REVIEW | bge-reranker-v2-m3(apache-2.0, 확인한 revision 기록) 연결, 재정렬 전후 순위·점수 기록, 4방식 비교 완료(Hybrid+Rerank가 Recall@5 0.8095로 최고, Hit@5는 Hybrid보다 낮음, 질문당 약 0.5초 추가). 실제 Langfuse에서 `rerank-retrieve` 아래 Span 연결 확인 |
 | 11 | 10 | Langfuse 통합 검증 (D-038) | 필수 | REVIEW | 대표 요청 6건이 24개 검사 통과(Trace 연결, 식별자, 최종 문맥 구분, 모델 입출력·사용량, 오류 유형·단계·재시도). config_version 정의·공개 키(SDK 기본 동작) 사용자 승인. 평가 LLM 호출과 서비스 기록의 구분은 Faithfulness로 확인함(D-039), Judge 호출은 Judge 구현 후 확인 |
 | 12 | 11 | 평가: Hit/Recall, RAGAS Faithfulness, Judge 4항목 (D-039, D-040) | 필수 | REVIEW | Faithfulness 완료(격리 환경, 승인된 1단계 프롬프트, development 30개 채점·판정 이유 저장). 평가 호출의 Langfuse 구분 확인 완료(3건). Judge 4항목 완료(승인된 `judge-v1`, development 30개 로컬 채점, D-040). 세 방식 development 점검 완료(D-041, 공식 결과 아님). Judge 호출의 Langfuse 기록 확인 완료(3건), 검색 평가(Hit@k·Recall@k) 공식 형식 통합 완료(D-042). 사람 대조: Judge 필수 5사례 완료(판정 19/20 동의, D-043), Faithfulness는 사용자가 채팅으로 판단을 알림(사례 4는 (1)(2)번 문장 모두 주장으로 세므로 N/A에 불일치, 사례 6은 0이 아니라 1로 봄, 7과 나머지는 문제 없음; 사람도 4·6·7은 판단이 어려웠음), 평가 기준 확정. `judge-v2` 승인·구현·development 재채점 완료(D-044, 사람 기준 20/20, 근거 충족률 변화, 진단 추가), Faithfulness v1 유지 확정(한계 기록). 남은 것: **사용자 확인, 커밋, STEP 12 시작 전 Judge 채점 회차 수 결정과 설정 동결** |
-| 13 | 12 | 공식 비교: 설정 동결 후 60문항 × 3방식 | 필수 | TODO | 비교표, 최종 선택 근거 |
+| 13 | 12 | 공식 비교: 설정 동결 후 60문항 × 3방식 | 필수 | IN_PROGRESS | 비교표, 최종 선택 근거 |
 | 14 | 13 | 보안 비교: FPAIR01·FPAIR02 × 기본/방어 | 필수 | TODO | 답변 4개와 판정 |
 | 15 | 14 | 운영 지표 정리 | 필수 | TODO | 응답시간·오류율·토큰 |
 | 16 | 15 | README, 최종 결과, 발표자료 | 필수 | TODO | 재실행 가능한 문서화 |

@@ -1,0 +1,195 @@
+{
+  "answer_prompt": {
+    "name": "answer_v2",
+    "sha256": "2ad4bbaa1bcfbc44b32bf8a94650e579e7093e66ef96ec72ef3b361e3185b53f",
+    "version": "answer-v2"
+  },
+  "data": {
+    "chunks_sha256": "c2ce3e4b3749d2b5afed9efe6403baf587f42a5cea7e5646c3055bdc4ac4a1dc",
+    "documents_sha256": "484afb529336b817f6c5cdc67cc5f4181ca0ffe960605630cf12198383f0e372",
+    "evaluation_files": {
+      "additional.json": "db894b732b42aaf61e197c3a492194478ce0c288e3cb7bf9158e47e65b69ce45",
+      "additional_questions.json": "01eec0b10205474649cac74df73339eaec5001bb8565a11e45afa6a456145c46",
+      "development.json": "90266a83adb484be9e885eb41bb0b02e5113ed42910d33d4c314e02f4da97fcb",
+      "development_questions.json": "2671b66aca8bc00f4ef1977149e8fd93a4d1823a8a9e71f9847c65bc454d7174"
+    },
+    "pages_sha256": "19308b13c8aeb7de5a935543355efaf9bd037a685d97e2a8f0c133eaa2b65005",
+    "pdfs": {
+      "FB01.pdf": "14dc999a06f852876c2f2eec5a30f5231295acaac76f728964ad8f0ed42da90a",
+      "FB02.pdf": "78bbdc1384984cda078ecadfdf7e9ffbaae1f2a4c51f129096db28d2fce8c50a",
+      "FB03.pdf": "f7c927e7cce945fa1fa894129407c3a702293d83548b33e32af049e8c7dc65da",
+      "FB04.pdf": "2dd6a98bb31b8334907ff25844f38db3c4f27f47a0e4b73b35095857c6f47f62",
+      "FB05.pdf": "f3ffb5a00424bb33ebfdc9c4405655e8f62243decc7a4760e29d3e76e02f7422",
+      "FB06.pdf": "783e71153b054f64afbb3216217854b57dcfa334ab4d61fefca4fa4f6cd2bbec",
+      "FB07.pdf": "fbc7199898869ceb891911e1dec90163065fc0660c50184922d91a94ae2801b9",
+      "FB08.pdf": "fdacf9215e0c075bdbbd7e1be4dda9ce5aaa282dd444503e344e4771950c3230",
+      "FB09.pdf": "8b9b2e45a02fa65f90577698a1896ad0564abf026ae045741cd13dfa989a3d6a",
+      "FB10.pdf": "03f2373aa7c5a02333168074c981c4bf4c07e4fe35e2ba3188248f8a4f05549f",
+      "FB11.pdf": "9c1f59d837be8c3e892d77bee49b4459fd61cc8d4eff75ced36cbbf6e388fdf7",
+      "FB12.pdf": "4dc5aa24ee0a150a3ba89133cc5c2f32ce8155d847009a2c5c110902d814b366",
+      "FB13.pdf": "ca8959922c9fed1ceba14b8b41ccffd012cf7f336318cca403294a6064952037",
+      "FB14.pdf": "91cbadd7e7733352493b1500ffdbeb387df77d4c652ea710976f9750606a6fb8",
+      "FB15.pdf": "23e2f7bc65d19e8fa0154a835acc776be43902006b0528afd373fc3d92dc2433"
+    },
+    "question_ids": [
+      "F-DEV-01",
+      "F-DEV-02",
+      "F-DEV-03",
+      "F-DEV-04",
+      "F-DEV-05",
+      "F-DEV-06",
+      "F-DEV-07",
+      "F-DEV-08",
+      "F-DEV-09",
+      "F-DEV-10",
+      "F-DEV-11",
+      "F-DEV-12",
+      "F-DEV-13",
+      "F-DEV-14",
+      "F-DEV-15",
+      "F-DEV-16",
+      "F-DEV-17",
+      "F-DEV-18",
+      "F-DEV-19",
+      "F-DEV-20",
+      "F-DEV-21",
+      "F-DEV-22",
+      "F-DEV-23",
+      "F-DEV-24",
+      "F-DEV-25",
+      "F-DEV-26",
+      "F-DEV-27",
+      "F-DEV-28",
+      "F-DEV-29",
+      "F-DEV-30",
+      "F-FINAL-01",
+      "F-FINAL-02",
+      "F-FINAL-03",
+      "F-FINAL-04",
+      "F-FINAL-05",
+      "F-FINAL-06",
+      "F-FINAL-07",
+      "F-FINAL-08",
+      "F-FINAL-09",
+      "F-FINAL-10",
+      "F-FINAL-11",
+      "F-FINAL-12",
+      "F-FINAL-13",
+      "F-FINAL-14",
+      "F-FINAL-15",
+      "F-FINAL-16",
+      "F-FINAL-17",
+      "F-FINAL-18",
+      "F-FINAL-19",
+      "F-FINAL-20",
+      "F-FINAL-21",
+      "F-FINAL-22",
+      "F-FINAL-23",
+      "F-FINAL-24",
+      "F-FINAL-25",
+      "F-FINAL-26",
+      "F-FINAL-27",
+      "F-FINAL-28",
+      "F-FINAL-29",
+      "F-FINAL-30"
+    ]
+  },
+  "docs": {
+    "12_ACCEPTANCE_CRITERIA.md": "bf94ce5ea31dd1d81c9d0752b6a0b1064052091bdc5042371f876a7b043e4e21"
+  },
+  "evaluation": {
+    "faithfulness_max_output_tokens": 4096,
+    "faithfulness_passes": 3,
+    "faithfulness_prompt": "faithfulness_statement_v1",
+    "judge_aggregation": "majority",
+    "judge_max_output_tokens": 4096,
+    "judge_passes": 3,
+    "judge_prompt": "judge_v2",
+    "judge_reasoning_effort": "low",
+    "ragas_version": "0.4.3",
+    "retrieval_k": 5,
+    "similar_threshold": 0.05
+  },
+  "faithfulness_prompt": {
+    "name": "faithfulness_statement_v1",
+    "sha256": "6893940177e2a04e583a65db854bd416b63264347c6e6ab7396bba84de33e321",
+    "version": "faithfulness-statement-v1"
+  },
+  "judge_prompt": {
+    "name": "judge_v2",
+    "sha256": "181ca989a6242dc2ffba50b0740432118058d186417860fca92263053b692347",
+    "version": "judge-v2"
+  },
+  "models": {
+    "embedding": {
+      "hf_id": "intfloat/multilingual-e5-large",
+      "revision": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3"
+    },
+    "generation": "gpt-6-luna",
+    "reranker": {
+      "id": "BAAI/bge-reranker-v2-m3",
+      "revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
+    }
+  },
+  "packages": {
+    "fastapi": "0.162.2",
+    "httpx": "0.28.1",
+    "langchain-core": "1.7.6",
+    "langchain-openai": "1.7.4",
+    "langfuse": "5.2.0",
+    "numpy": "2.5.4",
+    "openai": "3.46.0",
+    "pydantic": "2.14.3",
+    "qdrant-client": "1.20.0",
+    "rank-bm25": "0.2.2",
+    "sentence-transformers": "6.2.0",
+    "tiktoken": "0.14.0",
+    "torch": "2.11.0+cu128",
+    "uvicorn": "0.54.0"
+  },
+  "pipeline_settings": {
+    "context_limit_tokens": 4000,
+    "final_k": 5,
+    "max_completion_tokens": 1500,
+    "max_model_calls": 3,
+    "max_regenerations": 1,
+    "max_transient_retries": 2,
+    "model_timeout_seconds": 30.0,
+    "reasoning_effort": "low",
+    "retry_delays_seconds": [
+      1.0,
+      2.0
+    ],
+    "seed": 20261109
+  },
+  "python": "3.12.13",
+  "retrieval": {
+    "bm25": {
+      "b": 0.75,
+      "epsilon": 0.25,
+      "k1": 1.5,
+      "tokenizer": "whitespace"
+    },
+    "dense": {
+      "chunking_version": "chunk-v1",
+      "collection": "basic__chunk-v1__e5large-v1",
+      "dataset_id": "basic",
+      "dataset_version": "basic-v1",
+      "embedding": "e5",
+      "embedding_version": "e5large-v1",
+      "k": 5
+    },
+    "hybrid": {
+      "dense_candidates": 20,
+      "final_k": 5,
+      "fused_top": 20,
+      "rrf_k": 60,
+      "sparse_candidates": 20
+    },
+    "rerank": {
+      "candidates": 20,
+      "final_k": 5
+    }
+  },
+  "schema": 1
+}

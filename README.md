@@ -124,10 +124,10 @@ uv run --with ragas --with "langchain-community<0.4" pytest tests/ragas
 
 ```bash
 # 사실·조건·근거·판단 4항목 채점 (결과 폴더가 있으면 중단)
-uv run python scripts/run_judge.py --source <서비스 실험 폴더> --out <새 결과 폴더> [--prompt judge_v1|judge_v2] [--langfuse]
+uv run python scripts/run_judge.py --source <서비스 실험 폴더> --out <새 결과 폴더> [--prompt judge_v1|judge_v2] [--passes N] [--langfuse]
 ```
 
-입력은 서비스가 남긴 `results/<source>/runs.jsonl`과 평가 파일의 참고 정답·필수 사실·금지 주장·기대 동작·채점 설명이다(`evidence_groups`는 넣지 않음). 항목마다 1 / 0 / 해당 없음 / 평가 불가와 짧은 이유를 남기고 평가 불가는 코드가 정한다. 서비스 상태가 기대 동작과 다르면 판단은 코드가 0으로 기록하며, 서비스 오류 응답은 모델을 부르지 않고 판단 0·나머지 평가 불가로 기록한다. 프롬프트는 `prompts/judge_v2.json`(기본, 사용자 승인 문안: 근거 항목의 부정 진술 규칙, 쪽 번호 출처 표, 필수 사실이 최종 문맥에 있었는지의 진단 추가)이며 `--prompt judge_v1`로 이전 문안을 쓸 수 있다. 설정과 한계는 `DECISIONS.md` D-040, D-043, D-044.
+입력은 서비스가 남긴 `results/<source>/runs.jsonl`과 평가 파일의 참고 정답·필수 사실·금지 주장·기대 동작·채점 설명이다(`evidence_groups`는 넣지 않음). 항목마다 1 / 0 / 해당 없음 / 평가 불가와 짧은 이유를 남기고 평가 불가는 코드가 정한다. 서비스 상태가 기대 동작과 다르면 판단은 코드가 0으로 기록하며, 서비스 오류 응답은 모델을 부르지 않고 판단 0·나머지 평가 불가로 기록한다. 프롬프트는 `prompts/judge_v2.json`(기본, 사용자 승인 문안: 근거 항목의 부정 진술 규칙, 쪽 번호 출처 표, 필수 사실이 최종 문맥에 있었는지의 진단 추가)이며 `--prompt judge_v1`로 이전 문안을 쓸 수 있다. `--passes 3`은 같은 답변을 3회 독립 채점해 요청별 다수결(`judge_majority.jsonl`)과 회차별 충족률·범위·판정이 갈린 답변 수를 `summary.json`에 함께 남긴다(공식 실행용, 개발은 기본 1회). 설정과 한계는 `DECISIONS.md` D-040, D-043, D-044, D-045.
 
 ## 검색 평가: Hit@k·Recall@k (STEP 11)
 

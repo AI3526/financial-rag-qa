@@ -82,11 +82,15 @@ def test_every_prompt_file_has_a_unique_version_matching_its_name_and_no_evaluat
             text = data["system"] + data["user"]
         else:  # 평가 프롬프트(ragas 1단계 등)는 지시문과 예시를 가진다
             text = json.dumps(data, ensure_ascii=False)
-        # 서비스 프롬프트에는 평가용 정보가 들어가면 안 된다(평가 프롬프트의 본문도 정답 필드 이름을 쓰지 않는다)
+        # 서비스 프롬프트에는 평가용 정보가 들어가면 안 된다. 평가 프롬프트도 기본은 정답 필드 이름을 쓰지 않으며,
+        # 참고 정답을 입력받는 Judge만 `may_use_reference_data: true`로 명시해 예외로 둔다(그 외 모든 프롬프트는 계속 검사한다)
+        allowed = data.get("may_use_reference_data", False)
+        assert not allowed or data["type"] == "evaluation"
         for forbidden in ("reference_answer", "expected_action", "evidence_groups", "required_facts", "forbidden_claims"):
-            assert forbidden not in text
+            if not allowed:
+                assert forbidden not in text
         versions.append(data["version"])
-    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2", "faithfulness-statement-v1"} <= set(versions)
+    assert len(versions) == len(set(versions)) and {"answer-v1", "answer-v2", "faithfulness-statement-v1", "judge-v1"} <= set(versions)
 
 
 def test_v2_differs_from_v1_only_in_rule_4_so_the_change_is_isolated():

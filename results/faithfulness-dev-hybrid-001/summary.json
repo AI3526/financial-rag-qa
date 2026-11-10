@@ -1,0 +1,25 @@
+{
+  "by_method": {
+    "hybrid": {
+      "answers": 30,
+      "scored": 29,
+      "not_applicable": 1,
+      "unevaluable": 0,
+      "mean": 0.9950738916256158,
+      "mean_range_across_passes": 0.0,
+      "max_range_across_passes": 0.0,
+      "answers_with_pass_disagreement": 0
+    }
+  },
+  "skipped": {
+    "service_error": 0,
+    "no_context": 0
+  },
+  "evaluation_usage": {
+    "calls": 59,
+    "input_tokens": 84909,
+    "output_tokens": 19498,
+    "reasoning_tokens": 7426,
+    "cached_input_tokens": 0
+  }
+}

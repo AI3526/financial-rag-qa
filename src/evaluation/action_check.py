@@ -9,9 +9,9 @@ from __future__ import annotations
 EXPECTED_STATUS = {"answer": "answered", "clarify": "needs_clarification", "abstain": "abstained"}
 
 
-def request_body(question: dict) -> dict:
+def request_body(question: dict, rag_method: str = "dense") -> dict:
     """서비스로 보내는 본문. 질문 ID와 질문 문자열만 담는다(정답·근거·기대 행동 제외)."""
-    return {"question": question["question"], "rag_method": "dense", "question_id": question["id"]}
+    return {"question": question["question"], "rag_method": rag_method, "question_id": question["id"]}
 
 
 def compare(question_id: str, expected_action: str, response: dict, http_status: int) -> dict:

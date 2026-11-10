@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "note": "서비스 실행은 로컬(Langfuse 미사용)이라 서비스 Trace가 Langfuse에 없다. 분리 확인은 평가 Trace가 별도 Trace이고 metadata로만 연결됨을 확인한 것.",
+  "traces": [
+    {
+      "question_id": "F-DEV-01",
+      "request_id": "9e2092fc-46eb-4bc3-862f-49d8e4579af7",
+      "scoring_trace_id": "be32dd977a92f9ef777b8b8f55ee3892"
+    },
+    {
+      "question_id": "F-DEV-17",
+      "request_id": "99e8fe8f-3dfc-4011-ad73-9739409705c4",
+      "scoring_trace_id": "022971bd63af4fe781ea2f278f8e9120"
+    },
+    {
+      "question_id": "F-DEV-19",
+      "request_id": "d9b0a359-1b4b-4d94-a1a4-7fd563a95188",
+      "scoring_trace_id": "8e977ff48b35dd95c9c87861f9bfe4d9"
+    }
+  ]
+}

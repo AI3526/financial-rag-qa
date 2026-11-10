@@ -34,6 +34,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--prompt", required=True, help="prompts/{이름}.json (예: answer_v1)")
     parser.add_argument("--experiment-id", required=True)
+    parser.add_argument("--rag-method", default="dense", choices=["dense", "hybrid", "hybrid_rerank"])
     args = parser.parse_args()
     out = ROOT / "results" / args.experiment_id
     if out.exists():
@@ -46,7 +47,7 @@ def main() -> int:
     headers = {"X-Experiment-Id": args.experiment_id, "X-Track": "development", "X-Run-Type": "general_eval"}
     responses = {}
     for q in questions:
-        r = client.post("/rag/query", json=request_body(q), headers=headers)
+        r = client.post("/rag/query", json=request_body(q, args.rag_method), headers=headers)
         responses[q["id"]] = (r.status_code, r.json())
         print(f"{q['id']}: HTTP {r.status_code} {r.json()['status']}")
 
@@ -67,7 +68,7 @@ def main() -> int:
     (out / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "manifest.json").write_text(json.dumps({
         "experiment_id": args.experiment_id, "track": "development", "step": "9", "question_set": "development",
-        "questions": len(questions), "rag_method": "dense", "prompt_version": prompt.version,
+        "questions": len(questions), "rag_method": args.rag_method, "prompt_version": prompt.version,
         "prompt_sha256": prompt.sha256, "langfuse": False,
         "note": "프롬프트 조정용 개발 점검. 답변 내용 정확성은 STEP 11에서 평가한다.",
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

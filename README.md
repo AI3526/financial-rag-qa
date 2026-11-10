@@ -102,7 +102,7 @@ curl http://127.0.0.1:8000/health
 - 오류는 모두 `status: "error"`와 `request_id`를 가진 같은 형식이다: 422 `invalid_request`, 500 `retrieval_error`·`internal_error`, 502 `model_error`·`output_validation_error`, 504 `model_timeout`.
 - `.env`에 `OPENAI_API_KEY`와 `OPENAI_MODEL`이 있으면 gpt-6-luna 생성기(LangChain)로 답하고, 없으면 생성 모델이 연결되지 않아 정상 질문도 500 `internal_error`를 반환한다(답을 만들어 내지 않는다).
 - 프롬프트는 `prompts/answer_v2.json`(기본, Git 원본, sha256과 버전을 run 레코드에 기록. 바꿀 때는 새 버전 파일을 추가하고 기존 파일은 덮어쓰지 않는다)이고, 최종 문맥은 토큰 한도(추정 4,000) 안에서 낮은 순위 청크를 통째로 제외한다. 생성 설정(`reasoning_effort=low` 등)은 제안값이며 아직 동결 전이다(D-032).
-- 프롬프트 점검(로컬 전용): `uv run python scripts/run_dev_questions.py --prompt answer_v2 --experiment-id <새 ID>`(development 30문항의 기대 행동 비교), `scripts/run_exception_questions.py`(예외 질문 6종). 결과 폴더가 있으면 덮어쓰지 않고 중단한다.
+- 프롬프트 점검(로컬 전용): `uv run python scripts/run_dev_questions.py --prompt answer_v2 --experiment-id <새 ID> [--rag-method dense|hybrid|hybrid_rerank]`(development 30문항의 기대 행동 비교), `scripts/run_exception_questions.py`(예외 질문 6종). 결과 폴더가 있으면 덮어쓰지 않고 중단한다.
 - 모델 단가는 `configs/pricing.json`(출처와 확인 날짜 포함)이고, run 레코드에 요청별 `cost`가 기록된다. 캐시 입력 토큰은 단가가 달라 `llm_calls`에 따로 기록한다(D-033).
 - 선택 헤더: `traceparent`(평가 실험 Trace에 이어 붙기), `X-Experiment-Id`, `X-Track`, `X-Run-Type`. 응답 헤더 `X-Request-Id`, `X-Trace-Id`.
 - 요청마다 run 레코드가 `results/{experiment_id}/runs.jsonl`(헤더가 없으면 `results/service/runs.jsonl`, Git 제외)에 덧붙여 저장된다.
@@ -119,6 +119,24 @@ uv run --with ragas --with "langchain-community<0.4" pytest tests/ragas
 ```
 
 입력은 서비스가 남긴 `results/<source>/runs.jsonl`(질문, 답변, **실제 최종 문맥**)이고 정답 파일은 읽지 않는다. 사실 주장이 없는 답변은 N/A, 평가 호출 실패는 평가 불가로 기록하며 0점으로 바꾸지 않는다. 주장별 판정 이유를 저장한다. development는 1회, 공식 실행은 `--passes 3`(평균과 범위 기록)이다. ragas의 사용 통계 전송은 끈다(`RAGAS_DO_NOT_TRACK=true`). 설정과 한계는 `DECISIONS.md` D-039.
+
+## 답변 평가: LLM-as-a-Judge (STEP 11)
+
+```bash
+# 사실·조건·근거·판단 4항목 채점 (결과 폴더가 있으면 중단)
+uv run python scripts/run_judge.py --source <서비스 실험 폴더> --out <새 결과 폴더> [--langfuse]
+```
+
+입력은 서비스가 남긴 `results/<source>/runs.jsonl`과 평가 파일의 참고 정답·필수 사실·금지 주장·기대 동작·채점 설명이다(`evidence_groups`는 넣지 않음). 항목마다 1 / 0 / 해당 없음 / 평가 불가와 짧은 이유를 남기고 평가 불가는 코드가 정한다. 서비스 상태가 기대 동작과 다르면 판단은 코드가 0으로 기록하며, 서비스 오류 응답은 모델을 부르지 않고 판단 0·나머지 평가 불가로 기록한다. 프롬프트는 `prompts/judge_v1.json`(사용자 승인 문안). 설정과 한계는 `DECISIONS.md` D-040.
+
+## 검색 평가: Hit@k·Recall@k (STEP 11)
+
+```bash
+# 서비스 실행 기록(runs.jsonl)의 검색 결과로 계산한다. 모델 호출 없음, 결과 폴더가 있으면 중단
+uv run python scripts/evaluate_retrieval.py --source <실험 폴더> [<실험 폴더> ...] --out <새 결과 폴더>
+```
+
+k는 답변 생성 직전에 선택한 상위 청크 수이며 문서(`book_id`) 단위로 센다. 참고 근거가 비면 해당 없음, 서비스 오류로 검색 기록이 없으면 평가 불가, 검색 결과가 비어도 참고 문서가 있으면 0으로 계산한다. 문맥 토큰 한도 이후의 최종 문맥 기준 지표와 (문서, 쪽) 단위 참고 지표도 함께 낸다. 사람이 대표 사례를 원문과 대조하는 작업지는 `results/human-check-001/worksheet.md`다. 설정과 결과는 `DECISIONS.md` D-042.
 
 ## 사용 자료
 

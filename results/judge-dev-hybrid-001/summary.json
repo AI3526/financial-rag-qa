@@ -1,0 +1,50 @@
+{
+  "by_method": {
+    "hybrid": {
+      "answers": 30,
+      "service_errors": 0,
+      "status_mismatch": 4,
+      "items": {
+        "facts": {
+          "scored": 30,
+          "ones": 20,
+          "rate": 0.6666666666666666,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "conditions": {
+          "scored": 30,
+          "ones": 28,
+          "rate": 0.9333333333333333,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "evidence": {
+          "scored": 30,
+          "ones": 25,
+          "rate": 0.8333333333333334,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "decision": {
+          "scored": 30,
+          "ones": 26,
+          "rate": 0.8666666666666667,
+          "not_applicable": 0,
+          "unevaluable": 0
+        }
+      }
+    }
+  },
+  "skipped": {
+    "not_general_eval": 0,
+    "no_reference": 0
+  },
+  "evaluation_usage": {
+    "calls": 30,
+    "input_tokens": 75379,
+    "output_tokens": 12757,
+    "reasoning_tokens": 4716,
+    "cached_input_tokens": 0
+  }
+}

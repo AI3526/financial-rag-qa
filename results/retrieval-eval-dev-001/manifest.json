@@ -1,0 +1,17 @@
+{
+  "out": "retrieval-eval-dev-001",
+  "sources": [
+    "dev-prompt-answer-v2-001",
+    "dev-hybrid-answer-v2-001",
+    "dev-hybrid-rerank-answer-v2-001"
+  ],
+  "metric": "hit@k, recall@k (book_id 단위, 공식) + (book_id, page) 단위 참고",
+  "rows": 90,
+  "k_values": [
+    5
+  ],
+  "llm_calls": 0,
+  "langfuse": false,
+  "note": "참고 근거 목록은 평가 파일의 evidence_groups이며 방식마다 바꾸지 않는다. 최종 문맥 기준 지표는 토큰 한도로 제외된 청크를 반영한다.",
+  "created_at": "2026-11-09T07:57:45+00:00"
+}

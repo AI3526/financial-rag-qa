@@ -1,0 +1,13 @@
+{
+  "experiment_id": "dev-hybrid-rerank-answer-v2-001",
+  "track": "development",
+  "step": "9",
+  "question_set": "development",
+  "questions": 30,
+  "rag_method": "hybrid_rerank",
+  "prompt_version": "answer-v2",
+  "prompt_sha256": "2ad4bbaa1bcfbc44b32bf8a94650e579e7093e66ef96ec72ef3b361e3185b53f",
+  "langfuse": false,
+  "note": "프롬프트 조정용 개발 점검. 답변 내용 정확성은 STEP 11에서 평가한다.",
+  "created_at": "2026-11-09T07:21:55+00:00"
+}

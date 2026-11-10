@@ -1,0 +1,50 @@
+{
+  "by_method": {
+    "dense": {
+      "answers": 3,
+      "service_errors": 0,
+      "status_mismatch": 0,
+      "items": {
+        "facts": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "conditions": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "evidence": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "decision": {
+          "scored": 3,
+          "ones": 3,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 0
+        }
+      }
+    }
+  },
+  "skipped": {
+    "not_general_eval": 0,
+    "no_reference": 0
+  },
+  "evaluation_usage": {
+    "calls": 3,
+    "input_tokens": 7425,
+    "output_tokens": 1019,
+    "reasoning_tokens": 215,
+    "cached_input_tokens": 0
+  }
+}

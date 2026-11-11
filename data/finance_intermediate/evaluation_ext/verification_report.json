@@ -1,0 +1,266 @@
+{
+  "dataset": "intermediate",
+  "questions": 18,
+  "passed": 18,
+  "by_action": {
+    "abstain": 10,
+    "clarify": 8
+  },
+  "by_split": {
+    "dev": 9,
+    "hold": 9
+  },
+  "results": [
+    {
+      "id": "IFX-ABS-01",
+      "expected_action": "abstain",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "1/1",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV01",
+        "jaccard": 0.39
+      }
+    },
+    {
+      "id": "IFX-ABS-02",
+      "expected_action": "abstain",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "1/1",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV08",
+        "jaccard": 0.312
+      }
+    },
+    {
+      "id": "IFX-ABS-03",
+      "expected_action": "abstain",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "1/1",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-ADD16",
+        "jaccard": 0.319
+      }
+    },
+    {
+      "id": "IFX-ABS-04",
+      "expected_action": "abstain",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "국가별": 0,
+        "개국": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-DEV01",
+        "jaccard": 0.333
+      }
+    },
+    {
+      "id": "IFX-ABS-05",
+      "expected_action": "abstain",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "1/1",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.314
+      }
+    },
+    {
+      "id": "IFX-ABS-06",
+      "expected_action": "abstain",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "배당": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.297
+      }
+    },
+    {
+      "id": "IFX-ABS-07",
+      "expected_action": "abstain",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "임직원": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.294
+      }
+    },
+    {
+      "id": "IFX-ABS-08",
+      "expected_action": "abstain",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "점유율": 0,
+        "경쟁": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-DEV06",
+        "jaccard": 0.169
+      }
+    },
+    {
+      "id": "IFX-ABS-09",
+      "expected_action": "abstain",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "법인세": 0,
+        "세율": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.316
+      }
+    },
+    {
+      "id": "IFX-ABS-10",
+      "expected_action": "abstain",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "0/0",
+      "absent_term_hits": {
+        "신용": 0,
+        "자본금": 0
+      },
+      "max_similarity_to_provided": {
+        "id": "IF-ADD28",
+        "jaccard": 0.278
+      }
+    },
+    {
+      "id": "IFX-CLR-01",
+      "expected_action": "clarify",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "1/1",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-ADD07",
+        "jaccard": 0.191
+      }
+    },
+    {
+      "id": "IFX-CLR-02",
+      "expected_action": "clarify",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "4/4",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.226
+      }
+    },
+    {
+      "id": "IFX-CLR-03",
+      "expected_action": "clarify",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "3/3",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-ADD16",
+        "jaccard": 0.188
+      }
+    },
+    {
+      "id": "IFX-CLR-04",
+      "expected_action": "clarify",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "2/2",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.414
+      }
+    },
+    {
+      "id": "IFX-CLR-05",
+      "expected_action": "clarify",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "2/2",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV14",
+        "jaccard": 0.296
+      }
+    },
+    {
+      "id": "IFX-CLR-06",
+      "expected_action": "clarify",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "2/2",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV04",
+        "jaccard": 0.226
+      }
+    },
+    {
+      "id": "IFX-CLR-07",
+      "expected_action": "clarify",
+      "split": "dev",
+      "ok": true,
+      "problems": [],
+      "quotes": "2/2",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV12",
+        "jaccard": 0.31
+      }
+    },
+    {
+      "id": "IFX-CLR-08",
+      "expected_action": "clarify",
+      "split": "hold",
+      "ok": true,
+      "problems": [],
+      "quotes": "2/2",
+      "absent_term_hits": {},
+      "max_similarity_to_provided": {
+        "id": "IF-DEV27",
+        "jaccard": 0.229
+      }
+    }
+  ],
+  "note": "자동 검증이며 사람 검증이 아니다(verified_by_human=false)."
+}

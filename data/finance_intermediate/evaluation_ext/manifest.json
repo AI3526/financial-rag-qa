@@ -1,0 +1,22 @@
+{
+  "frozen": true,
+  "frozen_at": "2026-11-11T02:29:23+00:00",
+  "files": {
+    "ext_full.json": "5559ad29642d31db9499323e870554db302ccc51c7518a75bcc40026bb95159b",
+    "ext_questions.json": "5263be329656604b601d354a9318bf27e617b57936eed9b8b4176283ed0012f7",
+    "verification_report.json": "07bd31ec87e0abd9d31015af1955d76f3c720dd4a026ad1131aa9816551aae8a"
+  },
+  "counts": {
+    "abstain": 10,
+    "clarify": 8,
+    "dev": 9,
+    "hold": 9
+  },
+  "rules": {
+    "dev": "튜닝·선택에 사용(제공 development 30문항과 함께)",
+    "hold": "최종 후보 확인에만 사용, 튜닝 중에는 결과를 보지 않음(제공 additional 30문항과 함께)",
+    "official_score": "공식 점수에 합산하지 않고 별도 보고(02_EVALUATION_PLAN §4.3)"
+  },
+  "verification": "자동 검증(scripts/verify_ext_questions.py), 사람 검증 없음(verified_by_human=false)",
+  "note": "동결 후 질문을 수정하면 새 버전(ext-v2)으로 따로 저장한다."
+}

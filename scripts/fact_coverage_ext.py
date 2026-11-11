@@ -3,6 +3,8 @@
 사용:
     uv run python scripts/fact_coverage_ext.py --base ext-int-r-base-d20s20f20r20 --runs ext-int-r-v2b-d20s20f20r20 ext-int-s5-v2b-d20s20f20r20 ...
 
+(2026-11-11 수정: 숫자 사이 쉼표를 무시하고 한 자리 정수를 제외한다. 이전 판은 표의 `22000`과 사실의 `22,000`을 다른 숫자로 세어 포함률을 낮게 쟀다.)
+
 배경: 이 코퍼스는 같은 사실을 한 문서의 여러 쪽에 되풀이한다. 그래서 평가 파일이 정답으로 지정한 특정 쪽을 못 찾아도 같은 사실이 든 다른 쪽을 찾았을 수 있고,
 쪽 단위 지표(Recall 등)는 그런 경우를 '못 찾음'으로 센다. 이 지표는 쪽 번호와 무관하게 내용으로 센다.
 - 문항의 `required_facts`마다 그 사실 문장에 든 숫자(단위 포함)가 **모두** 최종 5개 청크 본문의 합집합에 있으면 그 사실은 포함된 것이다(공백 제외).
@@ -33,12 +35,24 @@ def norm(s: str) -> str:
     return re.sub(r"\s+", "", s)
 
 
+def canon(s: str) -> str:
+    """공백과 숫자 사이 쉼표를 없앤다. 표의 숫자는 `22000`, 사실 문장은 `22,000`처럼 적혀 있어도 같은 숫자로 센다."""
+    return re.sub(r"(?<=\d),(?=\d)", "", norm(s))
+
+
 def fact_numbers(fact: str) -> list[str]:
-    return [norm(x) for x in NUM.findall(fact) if re.search(r"\d", x)]
+    """사실 문장 안의 숫자(단위 포함). 한 자리 정수(`1`, `2` 등 분기 번호 같은 값)는 변별력이 없어 제외한다."""
+    out = []
+    for x in NUM.findall(fact):
+        c = canon(x).rstrip(",.")  # 문장부호로 끝난 숫자(`22,000,`)의 뒤 부호는 숫자가 아니다
+        if re.search(r"\d", c) and not re.fullmatch(r"\d", c):
+            out.append(c)
+    return out
 
 
 def coverage(text: str, facts: list[str]) -> float | None:
-    """숫자가 있는 사실 중 숫자가 모두 text(공백 제거)에 든 비율. 숫자가 있는 사실이 없으면 None."""
+    """숫자가 있는 사실 중 숫자가 모두 text에 든 비율(쉼표·공백 무시). 숫자가 있는 사실이 없으면 None."""
+    text = canon(text)
     nums = [n for n in (fact_numbers(f) for f in facts) if n]
     if not nums:
         return None

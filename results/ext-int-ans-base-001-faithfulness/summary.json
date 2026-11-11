@@ -1,0 +1,25 @@
+{
+  "by_method": {
+    "hybrid_rerank": {
+      "answers": 78,
+      "scored": 65,
+      "not_applicable": 13,
+      "unevaluable": 0,
+      "mean": 0.9724297924297924,
+      "mean_range_across_passes": 0.044468864468864465,
+      "max_range_across_passes": 0.5,
+      "answers_with_pass_disagreement": 11
+    }
+  },
+  "skipped": {
+    "service_error": 0,
+    "no_context": 0
+  },
+  "evaluation_usage": {
+    "calls": 424,
+    "input_tokens": 605553,
+    "output_tokens": 143954,
+    "reasoning_tokens": 47603,
+    "cached_input_tokens": 59172
+  }
+}

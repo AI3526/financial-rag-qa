@@ -1,0 +1,822 @@
+{
+  "tune_questions_with_evidence": 31,
+  "reference_pages_total": {
+    "dense": 62,
+    "hybrid": 62,
+    "hybrid_rerank": 62
+  },
+  "buckets": {
+    "dense": {
+      "1~5위(최종에 포함)": 27,
+      "후보 풀 밖": 19,
+      "11~20위": 8,
+      "6~10위": 8
+    },
+    "hybrid": {
+      "1~5위(최종에 포함)": 31,
+      "후보 풀 밖": 17,
+      "6~10위": 10,
+      "11~20위": 4
+    },
+    "hybrid_rerank": {
+      "1~5위(최종에 포함)": 40,
+      "후보 풀 밖": 17,
+      "6~10위": 3,
+      "11~20위": 2
+    }
+  },
+  "missed_pages": [
+    {
+      "question_id": "IF-DEV02",
+      "method": "dense",
+      "page": [
+        "IF08",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV02",
+      "method": "hybrid",
+      "page": [
+        "IF08",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV02",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF08",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "dense",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": 17
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "dense",
+      "page": [
+        "IF03",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "hybrid",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "hybrid",
+      "page": [
+        "IF03",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV03",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF03",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV04",
+      "method": "dense",
+      "page": [
+        "IF09",
+        9
+      ],
+      "rank": 14
+    },
+    {
+      "question_id": "IF-DEV05",
+      "method": "dense",
+      "page": [
+        "IF01",
+        1
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV06",
+      "method": "hybrid",
+      "page": [
+        "IF06",
+        9
+      ],
+      "rank": 7
+    },
+    {
+      "question_id": "IF-DEV07",
+      "method": "dense",
+      "page": [
+        "IF04",
+        1
+      ],
+      "rank": 14
+    },
+    {
+      "question_id": "IF-DEV07",
+      "method": "hybrid",
+      "page": [
+        "IF04",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV07",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF04",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV08",
+      "method": "dense",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV08",
+      "method": "hybrid",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV09",
+      "method": "hybrid",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV10",
+      "method": "dense",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV10",
+      "method": "hybrid",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV10",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF11",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV11",
+      "method": "dense",
+      "page": [
+        "IF04",
+        21
+      ],
+      "rank": 15
+    },
+    {
+      "question_id": "IF-DEV11",
+      "method": "hybrid",
+      "page": [
+        "IF04",
+        21
+      ],
+      "rank": 7
+    },
+    {
+      "question_id": "IF-DEV12",
+      "method": "dense",
+      "page": [
+        "IF50",
+        31
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV14",
+      "method": "dense",
+      "page": [
+        "IF30",
+        11
+      ],
+      "rank": 20
+    },
+    {
+      "question_id": "IF-DEV15",
+      "method": "dense",
+      "page": [
+        "IF21",
+        17
+      ],
+      "rank": 10
+    },
+    {
+      "question_id": "IF-DEV15",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF21",
+        17
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV16",
+      "method": "hybrid",
+      "page": [
+        "IF17",
+        9
+      ],
+      "rank": 7
+    },
+    {
+      "question_id": "IF-DEV16",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF17",
+        9
+      ],
+      "rank": 12
+    },
+    {
+      "question_id": "IF-DEV17",
+      "method": "hybrid",
+      "page": [
+        "IF18",
+        9
+      ],
+      "rank": 7
+    },
+    {
+      "question_id": "IF-DEV18",
+      "method": "dense",
+      "page": [
+        "IF24",
+        35
+      ],
+      "rank": 11
+    },
+    {
+      "question_id": "IF-DEV18",
+      "method": "dense",
+      "page": [
+        "IF24",
+        19
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV18",
+      "method": "hybrid",
+      "page": [
+        "IF24",
+        35
+      ],
+      "rank": 20
+    },
+    {
+      "question_id": "IF-DEV18",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF24",
+        35
+      ],
+      "rank": 9
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "dense",
+      "page": [
+        "IF17",
+        21
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "dense",
+      "page": [
+        "IF17",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "hybrid",
+      "page": [
+        "IF17",
+        21
+      ],
+      "rank": 14
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "hybrid",
+      "page": [
+        "IF02",
+        21
+      ],
+      "rank": 7
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "hybrid",
+      "page": [
+        "IF17",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF17",
+        21
+      ],
+      "rank": 9
+    },
+    {
+      "question_id": "IF-DEV19",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF17",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV20",
+      "method": "hybrid",
+      "page": [
+        "IF20",
+        9
+      ],
+      "rank": 9
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "dense",
+      "page": [
+        "IF24",
+        36
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "dense",
+      "page": [
+        "IF24",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "hybrid",
+      "page": [
+        "IF24",
+        36
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "hybrid",
+      "page": [
+        "IF24",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF24",
+        36
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV21",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF24",
+        19
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV22",
+      "method": "dense",
+      "page": [
+        "IF25",
+        19
+      ],
+      "rank": 8
+    },
+    {
+      "question_id": "IF-DEV22",
+      "method": "hybrid",
+      "page": [
+        "IF25",
+        19
+      ],
+      "rank": 14
+    },
+    {
+      "question_id": "IF-DEV24",
+      "method": "dense",
+      "page": [
+        "IF34",
+        9
+      ],
+      "rank": 13
+    },
+    {
+      "question_id": "IF-DEV24",
+      "method": "hybrid",
+      "page": [
+        "IF34",
+        9
+      ],
+      "rank": 15
+    },
+    {
+      "question_id": "IF-DEV24",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF34",
+        9
+      ],
+      "rank": 13
+    },
+    {
+      "question_id": "IF-DEV25",
+      "method": "dense",
+      "page": [
+        "IF39",
+        65
+      ],
+      "rank": 8
+    },
+    {
+      "question_id": "IF-DEV25",
+      "method": "dense",
+      "page": [
+        "IF38",
+        19
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV27",
+      "method": "dense",
+      "page": [
+        "IF50",
+        7
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV27",
+      "method": "hybrid",
+      "page": [
+        "IF50",
+        7
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV27",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF50",
+        7
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV29",
+      "method": "dense",
+      "page": [
+        "IF36",
+        1
+      ],
+      "rank": 8
+    },
+    {
+      "question_id": "IF-DEV29",
+      "method": "dense",
+      "page": [
+        "IF37",
+        1
+      ],
+      "rank": 6
+    },
+    {
+      "question_id": "IF-DEV30",
+      "method": "dense",
+      "page": [
+        "IF45",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV30",
+      "method": "dense",
+      "page": [
+        "IF42",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV30",
+      "method": "hybrid",
+      "page": [
+        "IF45",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IF-DEV30",
+      "method": "hybrid",
+      "page": [
+        "IF42",
+        9
+      ],
+      "rank": 9
+    },
+    {
+      "question_id": "IF-DEV30",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF45",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-01",
+      "method": "dense",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-01",
+      "method": "hybrid",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-01",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF02",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-03",
+      "method": "dense",
+      "page": [
+        "IF15",
+        69
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-03",
+      "method": "hybrid",
+      "page": [
+        "IF15",
+        69
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-03",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF15",
+        69
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-05",
+      "method": "dense",
+      "page": [
+        "IF05",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-05",
+      "method": "hybrid",
+      "page": [
+        "IF05",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-ABS-05",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF05",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-03",
+      "method": "dense",
+      "page": [
+        "IF41",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-03",
+      "method": "dense",
+      "page": [
+        "IF15",
+        3
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-03",
+      "method": "hybrid",
+      "page": [
+        "IF41",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-03",
+      "method": "hybrid",
+      "page": [
+        "IF15",
+        3
+      ],
+      "rank": 9
+    },
+    {
+      "question_id": "IFX-CLR-03",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF41",
+        9
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "dense",
+      "page": [
+        "IF29",
+        1
+      ],
+      "rank": 13
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "dense",
+      "page": [
+        "IF30",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "hybrid",
+      "page": [
+        "IF29",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "hybrid",
+      "page": [
+        "IF30",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF29",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-05",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF30",
+        1
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-07",
+      "method": "dense",
+      "page": [
+        "IF08",
+        4
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-07",
+      "method": "hybrid",
+      "page": [
+        "IF08",
+        4
+      ],
+      "rank": null
+    },
+    {
+      "question_id": "IFX-CLR-07",
+      "method": "hybrid_rerank",
+      "page": [
+        "IF08",
+        4
+      ],
+      "rank": null
+    }
+  ]
+}

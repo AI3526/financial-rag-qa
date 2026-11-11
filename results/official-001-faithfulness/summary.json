@@ -1,0 +1,45 @@
+{
+  "by_method": {
+    "dense": {
+      "answers": 60,
+      "scored": 55,
+      "not_applicable": 5,
+      "unevaluable": 0,
+      "mean": 0.9770707070707071,
+      "mean_range_across_passes": 0.023333333333333334,
+      "max_range_across_passes": 0.33333333333333337,
+      "answers_with_pass_disagreement": 6
+    },
+    "hybrid": {
+      "answers": 60,
+      "scored": 57,
+      "not_applicable": 3,
+      "unevaluable": 0,
+      "mean": 0.9660261765524923,
+      "mean_range_across_passes": 0.03525480367585631,
+      "max_range_across_passes": 1.0,
+      "answers_with_pass_disagreement": 6
+    },
+    "hybrid_rerank": {
+      "answers": 60,
+      "scored": 58,
+      "not_applicable": 2,
+      "unevaluable": 0,
+      "mean": 0.9599069512862616,
+      "mean_range_across_passes": 0.017816091954022985,
+      "max_range_across_passes": 0.5,
+      "answers_with_pass_disagreement": 4
+    }
+  },
+  "skipped": {
+    "service_error": 0,
+    "no_context": 0
+  },
+  "evaluation_usage": {
+    "calls": 1047,
+    "input_tokens": 1497144,
+    "output_tokens": 347347,
+    "reasoning_tokens": 136140,
+    "cached_input_tokens": 138727
+  }
+}

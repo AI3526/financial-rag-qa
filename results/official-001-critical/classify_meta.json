@@ -1,0 +1,13 @@
+{
+  "requests": 180,
+  "to_classify": 64,
+  "skipped": {
+    "service_error": 0,
+    "no_zero": 116
+  },
+  "by_method": {
+    "dense": 24,
+    "hybrid": 21,
+    "hybrid_rerank": 19
+  }
+}

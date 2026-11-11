@@ -1,0 +1,89 @@
+{
+  "experiment_id": "official-001",
+  "track": "official",
+  "started_at": "2026-11-10T08:34:24+00:00",
+  "finished_at": "2026-11-10T08:43:00+00:00",
+  "git_commit": "658715ecc7db7f7cf3002095274c6ff47ac93db3",
+  "dataset": "basic-60q-v1",
+  "runs": {
+    "dense": {
+      "langfuse": true,
+      "run_name": "official-001-dense",
+      "dataset_run_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/experiments/results?baseline=b814523ab1ac6168",
+      "dataset_run_id": "b814523ab1ac6168"
+    },
+    "hybrid": {
+      "langfuse": true,
+      "run_name": "official-001-hybrid",
+      "dataset_run_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/experiments/results?baseline=576152807afa93a7",
+      "dataset_run_id": "576152807afa93a7"
+    },
+    "hybrid_rerank": {
+      "langfuse": true,
+      "run_name": "official-001-hybrid_rerank",
+      "dataset_run_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/experiments/results?baseline=cc9c38322bd40f73",
+      "dataset_run_id": "cc9c38322bd40f73"
+    }
+  },
+  "expected": 180,
+  "found": 180,
+  "missing": [],
+  "duplicated": [],
+  "unexpected": [],
+  "client_errors": [],
+  "version_problems": [],
+  "operational": {
+    "dense": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2625.758333333333,
+      "mean_retrieval_ms": 276.88,
+      "mean_generation_ms": 2346.766666666667,
+      "input_tokens": 99240,
+      "output_tokens": 10925,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.0176823,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    },
+    "hybrid": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2539.608333333333,
+      "mean_retrieval_ms": 256.61833333333334,
+      "mean_generation_ms": 2281.5299999999997,
+      "input_tokens": 100070,
+      "output_tokens": 10510,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.0175738,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    },
+    "hybrid_rerank": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2974.1549999999997,
+      "mean_retrieval_ms": 692.7133333333334,
+      "mean_generation_ms": 2279.548333333333,
+      "input_tokens": 101598,
+      "output_tokens": 10049,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.01753925,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    }
+  },
+  "aborted": false
+}

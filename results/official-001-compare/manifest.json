@@ -1,0 +1,21 @@
+{
+  "out": "official-001-compare",
+  "sources": [
+    "official-001"
+  ],
+  "retrieval": [
+    "official-001-retrieval"
+  ],
+  "faithfulness": [
+    "official-001-faithfulness"
+  ],
+  "judge": [
+    "official-001-judge"
+  ],
+  "similar_threshold": 0.05,
+  "bootstrap": {
+    "n_boot": 10000,
+    "seed": 20261110
+  },
+  "created_at": "2026-11-11T00:19:09+00:00"
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "pair": "dense->hybrid",
+    "direction": "improved",
+    "question_id": "F-DEV-24",
+    "score_change": 3.111
+  },
+  {
+    "pair": "dense->hybrid",
+    "direction": "improved",
+    "question_id": "F-DEV-09",
+    "score_change": 3.0
+  },
+  {
+    "pair": "dense->hybrid",
+    "direction": "improved",
+    "question_id": "F-FINAL-04",
+    "score_change": 3.0
+  },
+  {
+    "pair": "dense->hybrid",
+    "direction": "worsened",
+    "question_id": "F-FINAL-05",
+    "score_change": -3.0
+  },
+  {
+    "pair": "dense->hybrid",
+    "direction": "worsened",
+    "question_id": "F-FINAL-01",
+    "score_change": -2.722
+  },
+  {
+    "pair": "dense->hybrid",
+    "direction": "worsened",
+    "question_id": "F-DEV-21",
+    "score_change": -2.0
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-FINAL-05",
+    "score_change": 3.0
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-FINAL-25",
+    "score_change": 2.0
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-DEV-14",
+    "score_change": 1.0
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-FINAL-10",
+    "score_change": -3.0
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-DEV-09",
+    "score_change": -2.103
+  },
+  {
+    "pair": "hybrid->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-DEV-21",
+    "score_change": -2.0
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-DEV-24",
+    "score_change": 3.111
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-FINAL-04",
+    "score_change": 3.0
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "improved",
+    "question_id": "F-FINAL-07",
+    "score_change": 3.0
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-DEV-21",
+    "score_change": -4.0
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-FINAL-01",
+    "score_change": -2.722
+  },
+  {
+    "pair": "dense->hybrid_rerank",
+    "direction": "worsened",
+    "question_id": "F-DEV-25",
+    "score_change": -2.0
+  }
+]

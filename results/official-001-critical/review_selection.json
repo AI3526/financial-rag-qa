@@ -1,0 +1,59 @@
+{
+  "seed": 20261110,
+  "candidate_cap": 10,
+  "candidates": [
+    "3e4850dc-4174-4822-a369-1779e31fc355",
+    "da7e29f0-8ded-4728-b2da-ac63859bc6ea"
+  ],
+  "candidates_not_reviewed": {
+    "dense": [],
+    "hybrid": [],
+    "hybrid_rerank": []
+  },
+  "sample": {
+    "dense": [
+      "13386923-e020-4b2b-bb2e-b32648b67b6b",
+      "4e615d3c-f54d-40cb-9add-28d69d1c43a9",
+      "679fdb5c-749a-4e83-a062-7b58a650ac27",
+      "7b8d815f-d585-4f91-a25e-179935dc1678",
+      "975299d3-2d93-4d3b-b4ed-e6b1bed61a7a"
+    ],
+    "hybrid": [
+      "33201ed0-8754-4175-b27e-7002a531a742",
+      "3cc20d29-70c8-40e4-8448-82a1542ba4cb",
+      "b6ed987f-6711-495b-b196-b7203518f17a",
+      "d4f9e7cb-662e-459d-a7bd-3a01bdd85d31",
+      "fa4d46e8-32c7-4277-9d9f-ccb760835d66"
+    ],
+    "hybrid_rerank": [
+      "1f999595-1ffa-4953-b84e-f1b39d4060f6",
+      "798082af-d3f4-4b50-a6af-89f3be46232f",
+      "8a8cdb58-1e4b-4945-8a6c-41ec97bd8cb8",
+      "a4be8e10-97c3-4aed-8204-ae3554f65e34",
+      "da1098a5-c4f3-41b7-84e1-9466d4797b18"
+    ]
+  },
+  "counts": {
+    "dense": {
+      "candidates": 1,
+      "candidates_reviewed": 1,
+      "candidates_cap_applied": false,
+      "not_candidates": 23,
+      "sampled": 5
+    },
+    "hybrid": {
+      "candidates": 0,
+      "candidates_reviewed": 0,
+      "candidates_cap_applied": false,
+      "not_candidates": 21,
+      "sampled": 5
+    },
+    "hybrid_rerank": {
+      "candidates": 1,
+      "candidates_reviewed": 1,
+      "candidates_cap_applied": false,
+      "not_candidates": 18,
+      "sampled": 5
+    }
+  }
+}

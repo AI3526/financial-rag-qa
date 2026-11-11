@@ -1,0 +1,31 @@
+{
+  "classified": 64,
+  "classified_by": [
+    "Claude Code 세션(claude-sonnet-5-5)이 직접 읽고 분류함(gpt-6-luna API 호출 아님)"
+  ],
+  "counts": {
+    "dense": {
+      "candidates": 1,
+      "candidates_reviewed": 1,
+      "candidates_cap_applied": false,
+      "not_candidates": 23,
+      "sampled": 5
+    },
+    "hybrid": {
+      "candidates": 0,
+      "candidates_reviewed": 0,
+      "candidates_cap_applied": false,
+      "not_candidates": 21,
+      "sampled": 5
+    },
+    "hybrid_rerank": {
+      "candidates": 1,
+      "candidates_reviewed": 1,
+      "candidates_cap_applied": false,
+      "not_candidates": 18,
+      "sampled": 5
+    }
+  },
+  "review_requests": 17,
+  "note": "사람이 확인한 건수는 작업지 작성 후 집계한다. counts의 candidates는 AI만 분류한 후보 전체 수이고 candidates_reviewed는 사람이 확인하는 수다."
+}

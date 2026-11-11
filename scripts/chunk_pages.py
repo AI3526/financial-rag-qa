@@ -24,6 +24,14 @@ from src.observability.langfuse_client import get_langfuse  # noqa: E402
 
 OUT_DIRS = {"basic": ROOT / "data" / "processed", "intermediate": ROOT / "data" / "processed_intermediate",
             "advanced": ROOT / "data" / "processed_advanced"}
+# 확장 실험용 청킹 변형(extension/intermediate). 이름 → (청킹 버전 태그, 파라미터). 변형 없이 실행하면 chunk-v1이다.
+# 변형 결과는 `{데이터셋 폴더}_{변형}/`에 따로 저장하고 기존 chunk-v1 결과는 건드리지 않는다.
+VARIANTS = {
+    "v2a": ("chunk-v2a-tailmerge", ck.ChunkParams(min_chunk_chars=60)),
+    "v2b": ("chunk-v2b-max600", ck.ChunkParams(max_chars=600)),
+    "v2c": ("chunk-v2c-tableblock", ck.ChunkParams(table_block=True)),
+    "v2e": ("chunk-v2e-overlap1", ck.ChunkParams(overlap_units=1)),
+}
 
 
 def main() -> int:
@@ -31,10 +39,17 @@ def main() -> int:
     parser.add_argument("--dataset", default="basic", choices=sorted(OUT_DIRS), help="청킹할 데이터셋(기본 basic)")
     parser.add_argument("--force", action="store_true", help="기존 chunks.jsonl/chunking_manifest.json을 덮어쓴다")
     parser.add_argument("--no-langfuse", action="store_true", help="Langfuse 기록을 건너뛴다 (오프라인 실행)")
+    parser.add_argument("--variant", choices=sorted(VARIANTS), help="확장 실험용 청킹 변형(기본: chunk-v1)")
     args = parser.parse_args()
-    OUT_DIR = OUT_DIRS[args.dataset]
+    IN_DIR = OUT_DIRS[args.dataset]
+    OUT_DIR = IN_DIR
+    version, params = ck.CHUNKING_VERSION, ck.ChunkParams()
+    if args.variant:
+        version, params = VARIANTS[args.variant]
+        OUT_DIR = IN_DIR.parent / f"{IN_DIR.name}_{args.variant}"
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    docs_path, pages_path = OUT_DIR / "documents.jsonl", OUT_DIR / "pages.jsonl"
+    docs_path, pages_path = IN_DIR / "documents.jsonl", IN_DIR / "pages.jsonl"
     chunks_path, manifest_path = OUT_DIR / "chunks.jsonl", OUT_DIR / "chunking_manifest.json"
     if not (docs_path.exists() and pages_path.exists()):
         print("STEP 1 결과(documents.jsonl, pages.jsonl)가 없습니다. 먼저 ingest_pdfs.py를 실행하세요.")
@@ -44,21 +59,20 @@ def main() -> int:
         return 1
 
     docs, pages = read_jsonl(docs_path), read_jsonl(pages_path)
-    params = ck.ChunkParams()
     created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     langfuse = None if args.no_langfuse else get_langfuse()
-    meta = {"step": "2", "chunking_version": ck.CHUNKING_VERSION, "chunking_method": ck.CHUNKING_METHOD,
+    meta = {"step": "2", "chunking_version": version, "chunking_method": ck.CHUNKING_METHOD,
             "dataset_version": docs[0]["dataset_version"], "doc_count": len(docs)}
 
     all_chunks: list[dict] = []
     all_warnings: list[dict] = []
-    print(f"청킹: {ck.CHUNKING_METHOD}/{ck.CHUNKING_VERSION} params={params.as_dict()}, 문서 {len(docs)}개")
+    print(f"청킹: {ck.CHUNKING_METHOD}/{version} params={params.as_dict()}, 문서 {len(docs)}개 → {OUT_DIR}")
     with ChunkingTracer(langfuse, meta) as tracer:
         for doc in docs:
             doc_pages = [p for p in pages if p["book_id"] == doc["book_id"]]
             chunks, warnings = tracer.chunk(
                 doc,
-                lambda d=doc, dp=doc_pages: ck.chunk_document(d, dp, params, created_at=created_at),
+                lambda d=doc, dp=doc_pages: ck.chunk_document(d, dp, params, created_at=created_at, version=version),
                 params.as_dict(),
             )
             all_chunks += chunks
@@ -81,7 +95,7 @@ def main() -> int:
     }
     manifest = {
         "chunking_method": ck.CHUNKING_METHOD,
-        "chunking_version": ck.CHUNKING_VERSION,
+        "chunking_version": version,
         "params": params.as_dict(),
         "dataset_id": docs[0]["dataset_id"],
         "dataset_version": docs[0]["dataset_version"],

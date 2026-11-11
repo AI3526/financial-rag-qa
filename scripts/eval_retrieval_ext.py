@@ -165,8 +165,15 @@ def main() -> int:
     ap.add_argument("--grid", help="후보 수 설정 목록 'dense,bm25,fused,rerank;…' (기본: 20,20,20,20)")
     ap.add_argument("--rrf-k", type=int, default=60)
     ap.add_argument("--show-confirm", action="store_true", help="confirm 세트(additional, ext_hold) 결과도 화면에 출력")
+    ap.add_argument("--processed-dir", help="청킹 변형의 chunks.jsonl이 있는 폴더(저장소 루트 기준). --index-name과 함께 쓴다")
+    ap.add_argument("--index-name", help="--processed-dir에 해당하는 numpy 색인 이름")
     args = ap.parse_args()
-    cfg_d = DATASETS[args.dataset]
+    cfg_d = dict(DATASETS[args.dataset])
+    if bool(args.processed_dir) != bool(args.index_name):
+        print("--processed-dir와 --index-name은 함께 줘야 합니다. (중단)")
+        return 1
+    if args.processed_dir:
+        cfg_d["processed"], cfg_d["index"] = ROOT / args.processed_dir, args.index_name
     if args.ext and "ext" not in cfg_d:
         print("이 데이터셋에는 자체 추가 질문이 없습니다. (중단)")
         return 1

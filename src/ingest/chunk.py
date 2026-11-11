@@ -28,6 +28,10 @@ CHUNKING_VERSION = "chunk-v1"
 _BOUNDARY_END = ".?!,;:)”’"
 _FOOTER_RE = re.compile(r"\d+\s*/\s*\d+")
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.?!])\s+")
+# 표 덩어리 판정(table_block): 이 길이 이하의 문단이 TABLE_MIN_RUN개 이상 연속하면 표(또는 짧은 항목 목록)로 본다.
+# Intermediate의 문단 길이 분포가 90자 안팎에서 둘로 갈려(표 줄·제목 ≤ 90자, 본문 문단 ≥ 100자) 정했다.
+TABLE_ROW_MAX_CHARS = 90
+TABLE_MIN_RUN = 3
 
 
 @dataclass(frozen=True)
@@ -36,15 +40,23 @@ class ChunkParams:
     hard_max_chars: int = 800       # 문단 하나를 통째로 둘 수 있는 한도. 넘으면 문장 단위로 나눈다 (e5 입력 한도 512토큰 이내)
     overlap_units: int = 0          # 다음 청크에 되풀이할 문단(또는 문장) 수. 0이면 overlap 없음
     paragraph_ratio: float = 0.85   # 줄 길이가 (페이지 최장 줄 × ratio) 미만이면 문단의 끝
+    # --- 확장 실험용 옵션(extension/intermediate). 기본값에서는 chunk-v1과 결과가 완전히 같다 ---
+    min_chunk_chars: int = 0        # 0보다 크면 이보다 짧은 청크를 같은 쪽의 앞 청크에 합친다(합친 길이가 hard_max_chars 이하일 때)
+    table_block: bool = False       # True면 연속한 짧은 문단(표 줄)을 한 덩어리로 묶어 청크 경계에서 쪼개지지 않게 한다
 
     def as_dict(self) -> dict:
-        return {
+        d = {
             "max_chars": self.max_chars,
             "hard_max_chars": self.hard_max_chars,
             "overlap_units": self.overlap_units,
             "paragraph_ratio": self.paragraph_ratio,
             "join_rule": "empty-join; space after sentence punctuation; keep original leading space",
         }
+        if self.min_chunk_chars:
+            d["min_chunk_chars"] = self.min_chunk_chars
+        if self.table_block:
+            d["table_block"] = {"row_max_chars": TABLE_ROW_MAX_CHARS, "min_run": TABLE_MIN_RUN}
+        return d
 
 
 def _nfkc_len(text: str) -> int:
@@ -119,27 +131,74 @@ def _split_long(text: str, max_chars: int) -> list[str]:
     return pieces
 
 
-def _page_units(paragraphs: list[str], params: ChunkParams) -> list[tuple[str, int]]:
-    """(텍스트, 문단 번호) 단위 목록. 문단은 hard_max_chars까지 통째로 두고, 넘는 문단만 문장 단위로 나눈다."""
-    units: list[tuple[str, int]] = []
+def group_table_blocks(paragraphs: list[str]) -> list[str]:
+    """연속한 짧은 문단(표 줄)을 줄바꿈으로 이은 한 문단으로 묶는다. 묶인 문단에는 `\n`이 들어간다."""
+    out: list[str] = []
+    run: list[str] = []
+
+    def flush() -> None:
+        nonlocal run
+        out.extend(["\n".join(run)] if len(run) >= TABLE_MIN_RUN else run)
+        run = []
+
+    for para in paragraphs:
+        if len(para) <= TABLE_ROW_MAX_CHARS:
+            run.append(para)
+        else:
+            flush()
+            out.append(para)
+    flush()
+    return out
+
+
+def _split_block(block: str, max_chars: int) -> list[str]:
+    """표 덩어리가 너무 길 때 줄 단위로 나누고, 나뉜 조각마다 첫 줄(머리줄·표 제목)을 되풀이한다."""
+    rows = block.split("\n")
+    head, pieces, cur = rows[0], [], [rows[0]]
+    for row in rows[1:]:
+        if len("\n".join(cur + [row])) > max_chars and len(cur) > 1:
+            pieces.append("\n".join(cur))
+            cur = [head]
+        cur.append(row)
+    pieces.append("\n".join(cur))
+    return pieces
+
+
+def _page_units(paragraphs: list[str], params: ChunkParams) -> list[tuple[str, float]]:
+    """(텍스트, 문단 번호) 단위 목록. 문단은 hard_max_chars까지 통째로 두고, 넘는 문단만 문장 단위로 나눈다.
+    표 덩어리(`\n` 포함, table_block)는 문장이 아니라 줄 단위로 나눈다(조각마다 번호가 달라 `\n`으로 이어진다)."""
+    units: list[tuple[str, float]] = []
     for idx, para in enumerate(paragraphs):
         if len(para) <= params.hard_max_chars:
             units.append((para, idx))
+        elif params.table_block and "\n" in para:
+            units.extend((piece, idx + k / 1000) for k, piece in enumerate(_split_block(para, params.max_chars)))
         else:
             units.extend((piece, idx) for piece in _split_long(para, params.max_chars))
     return units
 
 
-def _render(units: list[tuple[str, int]]) -> str:
+def _render(units: list[tuple[str, float]]) -> str:
     out = units[0][0]
     for (prev_text, prev_idx), (text, idx) in zip(units, units[1:]):
         out += (" " if idx == prev_idx else "\n") + text
     return out
 
 
-def pack_units(units: list[tuple[str, int]], params: ChunkParams) -> list[list[tuple[str, int]]]:
-    groups: list[list[tuple[str, int]]] = []
-    current: list[tuple[str, int]] = []
+def merge_small_groups(groups: list[list[tuple[str, float]]], params: ChunkParams) -> list[list[tuple[str, float]]]:
+    """min_chunk_chars보다 짧은 청크를 앞 청크에 합친다(합친 길이가 hard_max_chars 이하일 때만). 첫 청크는 합치지 않는다."""
+    out: list[list[tuple[str, float]]] = []
+    for g in groups:
+        if out and len(_render(g)) < params.min_chunk_chars and len(_render(out[-1] + g)) <= params.hard_max_chars:
+            out[-1] = out[-1] + g
+        else:
+            out.append(g)
+    return out
+
+
+def pack_units(units: list[tuple[str, float]], params: ChunkParams) -> list[list[tuple[str, float]]]:
+    groups: list[list[tuple[str, float]]] = []
+    current: list[tuple[str, float]] = []
     for unit in units:
         candidate = current + [unit]
         if current and len(_render(candidate)) > params.max_chars:
@@ -161,9 +220,14 @@ def chunk_page(page: dict, params: ChunkParams) -> tuple[list[dict], bool]:
     """
     meta, body_lines, structured = parse_page(page["text"])
     paragraphs = [join_lines(p) for p in split_paragraph_lines(body_lines, params.paragraph_ratio)]
+    if params.table_block:
+        paragraphs = group_table_blocks(paragraphs)
     units = _page_units(paragraphs, params)
+    groups = pack_units(units, params) if units else []
+    if params.min_chunk_chars:
+        groups = merge_small_groups(groups, params)
     chunks = []
-    for group in pack_units(units, params) if units else []:
+    for group in groups:
         chunks.append({"page": page["page"], "chunk_text": _render(group), "metadata": dict(meta)})
     return chunks, structured
 
@@ -174,6 +238,7 @@ def chunk_document(
     params: ChunkParams,
     *,
     created_at: str,
+    version: str = CHUNKING_VERSION,
 ) -> tuple[list[dict], list[dict]]:
     """문서 1개의 페이지들을 청킹한다. 반환: (청크 레코드 목록, 경고 목록).
 
@@ -202,7 +267,7 @@ def chunk_document(
                 "chunk_text": c["chunk_text"],
                 "chunk_index": index,
                 "chunking_method": CHUNKING_METHOD,
-                "chunking_version": CHUNKING_VERSION,
+                "chunking_version": version,
                 "dataset_id": doc["dataset_id"],
                 "dataset_version": doc["dataset_version"],
                 "token_count": None,  # 토크나이저가 정해지는 STEP 3에서 계산한다. 확인 전에는 null

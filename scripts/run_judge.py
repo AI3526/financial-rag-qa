@@ -55,6 +55,7 @@ def main() -> int:
     ap.add_argument("--langfuse", action="store_true")
     ap.add_argument("--max-output-tokens", type=int, default=4096)
     ap.add_argument("--prompt", default=DEFAULT_PROMPT, help="prompts/{이름}.json (judge_v1 또는 judge_v2, 기본은 최신 승인 문안)")
+    ap.add_argument("--refs", nargs="+", help="참고 정답 파일 경로들(저장소 루트 기준, 확장 브랜치용). 주면 기본(Basic) 대신 이 파일들의 항목을 합쳐 쓴다(질문 ID가 겹치면 중단)")
     ap.add_argument("--passes", type=int, default=1, help="채점 회차 수. 개발은 1회, 공식 실행은 3회(다수결 + 회차별 병기, D-044·D-045)")
     args = ap.parse_args()
     if args.passes < 1:
@@ -68,7 +69,16 @@ def main() -> int:
     if out.exists():
         print(f"이미 결과가 있습니다(덮어쓰지 않음): {out}. (중단)")
         return 1
-    refs = load_references()
+    if args.refs:
+        refs = {}
+        for rp in args.refs:
+            for item in json.loads((ROOT / rp).read_text(encoding="utf-8")):
+                if item["id"] in refs:
+                    print(f"참고 정답 파일에서 질문 ID가 겹칩니다: {item['id']}. (중단)")
+                    return 1
+                refs[item["id"]] = item
+    else:
+        refs = load_references()
     targets, skipped = load_targets(source, refs, args.limit)
     spec = load_judge_prompt(args.prompt)
     model = os.environ["OPENAI_MODEL"]

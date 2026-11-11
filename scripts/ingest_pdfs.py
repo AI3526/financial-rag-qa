@@ -1,6 +1,6 @@
 """STEP 1: documents/*.pdf 전체를 추출해 data/processed/에 저장한다.
 
-사용: uv run python scripts/ingest_pdfs.py [--force]
+사용: uv run python scripts/ingest_pdfs.py [--dataset basic|intermediate|advanced] [--force] [--no-langfuse]
 
 - 검색 대상은 documents/*.pdf뿐이다 (evaluation/ 은 읽지 않는다).
 - 기존 결과를 덮어쓰지 않는다. 이미 있으면 --force 없이는 중단한다 (CLAUDE.md §4).
@@ -18,17 +18,22 @@ from src.ingest.extract import extraction_version, write_jsonl  # noqa: E402
 from src.observability.ingestion_trace import IngestionTracer  # noqa: E402
 from src.observability.langfuse_client import get_langfuse  # noqa: E402
 
-DATASET_ID = "basic"
-DATASET_VERSION = "basic-v1"
-DOCS_DIR = ROOT / "data" / "finance_basic" / "documents"
-OUT_DIR = ROOT / "data" / "processed"
+# 데이터셋별 설정. 기본(basic)은 STEP 1과 같다. 확장 브랜치는 다른 폴더에만 쓴다(Basic 결과 보존).
+DATASETS = {
+    "basic": ("basic", "basic-v1", ROOT / "data" / "finance_basic" / "documents", ROOT / "data" / "processed"),
+    "intermediate": ("intermediate", "intermediate-v1", ROOT / "data" / "finance_intermediate" / "documents", ROOT / "data" / "processed_intermediate"),
+    "advanced": ("advanced", "advanced-v1", ROOT / "data" / "finance_advanced" / "documents", ROOT / "data" / "processed_advanced"),
+}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", default="basic", choices=sorted(DATASETS), help="추출할 데이터셋(기본 basic)")
     parser.add_argument("--force", action="store_true", help="기존 documents.jsonl/pages.jsonl을 덮어쓴다")
     parser.add_argument("--no-langfuse", action="store_true", help="Langfuse 기록을 건너뛴다 (오프라인 실행)")
     args = parser.parse_args()
+    DATASET_ID, DATASET_VERSION, DOCS_DIR, OUT_DIR = DATASETS[args.dataset]
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     docs_path = OUT_DIR / "documents.jsonl"
     pages_path = OUT_DIR / "pages.jsonl"

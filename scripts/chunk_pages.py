@@ -1,6 +1,6 @@
 """STEP 2: data/processed/pages.jsonl을 청킹해 chunks.jsonl과 chunking_manifest.json을 만든다.
 
-사용: uv run python scripts/chunk_pages.py [--force] [--no-langfuse]
+사용: uv run python scripts/chunk_pages.py [--dataset basic|intermediate|advanced] [--force] [--no-langfuse]
 
 - 입력은 STEP 1 결과(documents.jsonl, pages.jsonl)뿐이다 (evaluation/ 은 읽지 않는다).
 - 기존 결과를 덮어쓰지 않는다. 이미 있으면 --force 없이는 중단한다 (CLAUDE.md §4).
@@ -22,14 +22,17 @@ from src.ingest.extract import read_jsonl, write_jsonl  # noqa: E402
 from src.observability.ingestion_trace import ChunkingTracer  # noqa: E402
 from src.observability.langfuse_client import get_langfuse  # noqa: E402
 
-OUT_DIR = ROOT / "data" / "processed"
+OUT_DIRS = {"basic": ROOT / "data" / "processed", "intermediate": ROOT / "data" / "processed_intermediate",
+            "advanced": ROOT / "data" / "processed_advanced"}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", default="basic", choices=sorted(OUT_DIRS), help="청킹할 데이터셋(기본 basic)")
     parser.add_argument("--force", action="store_true", help="기존 chunks.jsonl/chunking_manifest.json을 덮어쓴다")
     parser.add_argument("--no-langfuse", action="store_true", help="Langfuse 기록을 건너뛴다 (오프라인 실행)")
     args = parser.parse_args()
+    OUT_DIR = OUT_DIRS[args.dataset]
 
     docs_path, pages_path = OUT_DIR / "documents.jsonl", OUT_DIR / "pages.jsonl"
     chunks_path, manifest_path = OUT_DIR / "chunks.jsonl", OUT_DIR / "chunking_manifest.json"

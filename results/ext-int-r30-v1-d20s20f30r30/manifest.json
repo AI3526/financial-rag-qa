@@ -1,0 +1,42 @@
+{
+  "dataset": "intermediate",
+  "index": "intermediate__chunk-v1__e5large-v1",
+  "chunk_count": 9292,
+  "config": {
+    "dense": 20,
+    "sparse": 20,
+    "fused": 30,
+    "rerank": 30,
+    "label": "d20s20f30r30",
+    "page_cap": 0
+  },
+  "ext_questions": true,
+  "queries_file": null,
+  "routes_file": null,
+  "retrieval": {
+    "dense": "numpy exact cosine, e5-large, top-5",
+    "hybrid": {
+      "fusion": "rrf",
+      "rrf_k": 60,
+      "dense_candidates": 20,
+      "sparse_candidates": 20,
+      "fused_top": 30,
+      "final_k": 5,
+      "bm25_tokenizer": "whitespace"
+    },
+    "hybrid_rerank": {
+      "fusion": "rrf",
+      "rrf_k": 60,
+      "dense_candidates": 20,
+      "sparse_candidates": 20,
+      "fused_top": 30,
+      "final_k": 5,
+      "bm25_tokenizer": "whitespace",
+      "reranker": "BAAI/bge-reranker-v2-m3",
+      "reranker_revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+      "rerank_candidates": 30
+    }
+  },
+  "git_commit": "bd4f54e420fa90b1534c83102d13f8ab8e6e817c",
+  "created_at": "2026-11-11T05:59:45+00:00"
+}

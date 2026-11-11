@@ -1,0 +1,20 @@
+{
+  "questions": 78,
+  "with_docs": 78,
+  "doc_count_distribution": {
+    "1": 7,
+    "2": 12,
+    "3": 20,
+    "4": 39
+  },
+  "invalid_ids_dropped": 0,
+  "errors": [],
+  "mean_seconds": 3.02,
+  "usage_total": {
+    "input_tokens": 104183,
+    "output_tokens": 14599,
+    "reasoning_tokens": 12448,
+    "cached_input_tokens": 98791,
+    "cache_write_tokens": 5158
+  }
+}

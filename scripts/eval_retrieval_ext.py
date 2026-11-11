@@ -39,6 +39,7 @@ from src.index.embedding import Embedder  # noqa: E402
 from src.index.numpy_store import NumpyIndex  # noqa: E402
 from src.retrieval.dense import RetrievalConfig  # noqa: E402
 from src.retrieval.dense_np import NumpyDenseRetriever  # noqa: E402
+from src.retrieval.doc_routed import DocRoutedHybrid  # noqa: E402
 from src.retrieval.hybrid import HybridConfig, HybridRetriever  # noqa: E402
 from src.retrieval.multi_query import MultiQueryHybrid  # noqa: E402
 from src.retrieval.rerank import CrossEncoderReranker, RerankConfig, RerankRetriever  # noqa: E402
@@ -112,6 +113,8 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
     hybrid = HybridRetriever(dense, sparse, HybridConfig(dense_candidates=cfg["dense"], sparse_candidates=cfg["sparse"], rrf_k=args.rrf_k, fused_top=cfg["fused"], final_k=5))
     if getattr(args, "lookup", None) is not None:  # 5a: 원래 질문 + 분해한 검색 질의들을 각각 검색해 RRF로 합친다(후보 풀 크기는 그대로)
         hybrid = MultiQueryHybrid(hybrid, args.lookup, top=cfg["fused"], rrf_k=args.rrf_k)
+    if getattr(args, "route_lookup", None) is not None:  # 방법 A: 전체 검색 후보 + 라우팅이 고른 문서 안의 검색 후보를 RRF로 합친다(후보 풀 크기는 그대로)
+        hybrid = DocRoutedHybrid(hybrid, args.route_lookup, top=cfg["fused"], rrf_k=args.rrf_k)
     rerank = RerankRetriever(hybrid, reranker, RerankConfig(candidates=cfg["rerank"], final_k=5))
     retrievers = {"dense": dense, "hybrid": hybrid, "hybrid_rerank": rerank}
     rows = []
@@ -148,7 +151,7 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
     present = {r["set"] for r in rows}
     summary = {"dataset": args.dataset, "config": cfg, "rrf_k": args.rrf_k, "questions": len(questions), "k": 5,
                "groups": {g: group(names) for g, names in GROUPS.items() if present & set(names)}}
-    manifest = {"dataset": args.dataset, "index": cfg_d["index"], "chunk_count": len(chunks), "config": cfg, "ext_questions": bool(args.ext), "queries_file": args.queries_file,
+    manifest = {"dataset": args.dataset, "index": cfg_d["index"], "chunk_count": len(chunks), "config": cfg, "ext_questions": bool(args.ext), "queries_file": args.queries_file, "routes_file": args.routes_file,
                 "retrieval": {"dense": "numpy exact cosine, e5-large, top-5", "hybrid": hybrid.describe(), "hybrid_rerank": rerank.describe()},
                 "git_commit": git_commit(), "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     out.mkdir(parents=True)
@@ -179,6 +182,7 @@ def main() -> int:
     ap.add_argument("--grid", help="후보 수 설정 목록 'dense,bm25,fused,rerank;…' (기본: 20,20,20,20)")
     ap.add_argument("--rrf-k", type=int, default=60)
     ap.add_argument("--queries-file", help="5a: 분해한 검색 질의가 저장된 결과 폴더 이름(decompose_queries_ext.py). 주면 Hybrid·Hybrid+Rerank를 다중 질의로 실행(Dense는 그대로)")
+    ap.add_argument("--routes-file", help="방법 A: 문서 라우팅 결과가 저장된 결과 폴더 이름(route_docs_ext.py). 주면 Hybrid·Hybrid+Rerank에 고른 문서 안의 후보를 더함(Dense는 그대로)")
     ap.add_argument("--page-cap", type=int, default=0, help="4단계: 같은 쪽 청크를 쪽당 최대 N개까지만 최종 5개에 허용(0이면 사용 안 함)")
     ap.add_argument("--show-confirm", action="store_true", help="confirm 세트(additional, ext_hold) 결과도 화면에 출력")
     ap.add_argument("--processed-dir", help="청킹 변형의 chunks.jsonl이 있는 폴더(저장소 루트 기준). --index-name과 함께 쓴다")
@@ -186,6 +190,13 @@ def main() -> int:
     args = ap.parse_args()
     cfg_d = dict(DATASETS[args.dataset])
     args.lookup = None
+    args.route_lookup = None
+    if args.queries_file and args.routes_file:
+        print("--queries-file과 --routes-file은 함께 쓸 수 없습니다(한 번에 하나만 바꿉니다). (중단)")
+        return 1
+    if args.routes_file:
+        rows = [json.loads(l) for l in (ROOT / "results" / args.routes_file / "routes.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
+        args.route_lookup = {r["question"]: r["doc_ids"] for r in rows}
     if args.queries_file:
         rows = [json.loads(l) for l in (ROOT / "results" / args.queries_file / "queries.jsonl").read_text(encoding="utf-8").splitlines() if l.strip()]
         args.lookup = {r["question"]: r["queries"] for r in rows}

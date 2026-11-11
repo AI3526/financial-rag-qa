@@ -1,0 +1,52 @@
+{
+  "dataset": "intermediate",
+  "index": "intermediate__chunk-v2b-max600__e5large-v1",
+  "chunk_count": 7281,
+  "config": {
+    "dense": 20,
+    "sparse": 20,
+    "fused": 30,
+    "rerank": 30,
+    "label": "d20s20f30r30",
+    "page_cap": 0
+  },
+  "ext_questions": true,
+  "queries_file": null,
+  "routes_file": "ext-int-s6-routes-v1",
+  "retrieval": {
+    "dense": "numpy exact cosine, e5-large, top-5",
+    "hybrid": {
+      "fusion": "rrf",
+      "rrf_k": 60,
+      "dense_candidates": 20,
+      "sparse_candidates": 20,
+      "fused_top": 30,
+      "final_k": 5,
+      "bm25_tokenizer": "whitespace",
+      "doc_routed": true,
+      "doc_routed_rrf_k": 60,
+      "doc_routed_pool": 30,
+      "doc_routed_restricted_top": 20,
+      "questions_with_routed_docs": 78
+    },
+    "hybrid_rerank": {
+      "fusion": "rrf",
+      "rrf_k": 60,
+      "dense_candidates": 20,
+      "sparse_candidates": 20,
+      "fused_top": 30,
+      "final_k": 5,
+      "bm25_tokenizer": "whitespace",
+      "doc_routed": true,
+      "doc_routed_rrf_k": 60,
+      "doc_routed_pool": 30,
+      "doc_routed_restricted_top": 20,
+      "questions_with_routed_docs": 78,
+      "reranker": "BAAI/bge-reranker-v2-m3",
+      "reranker_revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+      "rerank_candidates": 30
+    }
+  },
+  "git_commit": "bd4f54e420fa90b1534c83102d13f8ab8e6e817c",
+  "created_at": "2026-11-11T06:02:41+00:00"
+}

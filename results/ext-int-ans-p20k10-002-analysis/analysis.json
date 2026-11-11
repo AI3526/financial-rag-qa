@@ -1,0 +1,517 @@
+{
+  "source": "ext-int-ans-p20k10-002",
+  "method": "hybrid_rerank",
+  "groups": {
+    "tune": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 25,
+            "needs_clarification": 1,
+            "abstained": 1
+          },
+          "match": 25
+        },
+        "clarify": {
+          "questions": 5,
+          "statuses": {
+            "needs_clarification": 4,
+            "answered": 1
+          },
+          "match": 4
+        },
+        "abstain": {
+          "questions": 7,
+          "statuses": {
+            "abstained": 7
+          },
+          "match": 7
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8461538461538461,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9230769230769231,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 37,
+            "not_applicable": 2
+          },
+          "decision": {
+            "rate": 0.9230769230769231,
+            "n": 39,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.8148148148148148,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9259259259259259,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9259259259259259,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.8,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.8,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.8,
+            "n": 5,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 2
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.97703081232493,
+        "n": 34,
+        "not_applicable": 5
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 5,
+        "context_coverage": {
+          "all": 2,
+          "some": 3
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV02",
+          "status": "needs_clarification",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "필수 사실 중 영업이익이 100억원에서 96억원으로 감소해 두 지표가 모두 늘지 않았다는 결론을 답하지 않았고, 확인 요청으로"
+        },
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1은 제시했지만, 필수 사실 2의 ‘E 구매에 루미뷰 정기 이용이 자동 포함되지 않는다’는 점을 명시하지 않고 확인"
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1~3의 분기별 비중과 상반기 비중을 제시하지 않아 필수 사실을 빠뜨렸습니다. [다수결 3/3회]"
+        },
+        {
+          "qid": "IF-DEV21",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "별도 8.00%와 범위 차이만으로 오류를 단정할 수 없다는 점은 맞지만, 필수 사실인 현행 연결 영업이익률 7.45% 대신 최"
+        },
+        {
+          "qid": "IF-DEV30",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "제공액 90백만원, 선수금 20백만원, 미수금 20백만원은 제시했지만 필수 사실 4의 승인 후 정기 서비스 수취액 80백만원과"
+        }
+      ],
+      "operational": {
+        "requests": 39,
+        "ok": 39,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3145.3025641025642,
+        "mean_retrieval_ms": 584.9358974358975,
+        "mean_generation_ms": 2554.6717948717946,
+        "input_tokens": 114518,
+        "output_tokens": 6836,
+        "usage_known_requests": 39,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00457371,
+        "cost_known_requests": 39,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "development": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 25,
+            "needs_clarification": 1,
+            "abstained": 1
+          },
+          "match": 25
+        },
+        "clarify": {
+          "questions": 1,
+          "statuses": {
+            "needs_clarification": 1
+          },
+          "match": 1
+        },
+        "abstain": {
+          "questions": 2,
+          "statuses": {
+            "abstained": 2
+          },
+          "match": 2
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8333333333333334,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9333333333333333,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9333333333333333,
+            "n": 30,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.8148148148148148,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9259259259259259,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9259259259259259,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.9721088435374149,
+        "n": 28,
+        "not_applicable": 2
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 5,
+        "context_coverage": {
+          "all": 2,
+          "some": 3
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV02",
+          "status": "needs_clarification",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "필수 사실 중 영업이익이 100억원에서 96억원으로 감소해 두 지표가 모두 늘지 않았다는 결론을 답하지 않았고, 확인 요청으로"
+        },
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1은 제시했지만, 필수 사실 2의 ‘E 구매에 루미뷰 정기 이용이 자동 포함되지 않는다’는 점을 명시하지 않고 확인"
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1~3의 분기별 비중과 상반기 비중을 제시하지 않아 필수 사실을 빠뜨렸습니다. [다수결 3/3회]"
+        },
+        {
+          "qid": "IF-DEV21",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "별도 8.00%와 범위 차이만으로 오류를 단정할 수 없다는 점은 맞지만, 필수 사실인 현행 연결 영업이익률 7.45% 대신 최"
+        },
+        {
+          "qid": "IF-DEV30",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "제공액 90백만원, 선수금 20백만원, 미수금 20백만원은 제시했지만 필수 사실 4의 승인 후 정기 서비스 수취액 80백만원과"
+        }
+      ],
+      "operational": {
+        "requests": 30,
+        "ok": 30,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3332.1766666666667,
+        "mean_retrieval_ms": 599.9333333333333,
+        "mean_generation_ms": 2725.1566666666668,
+        "input_tokens": 86975,
+        "output_tokens": 5833,
+        "usage_known_requests": 30,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00379435,
+        "cost_known_requests": 30,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "ext_dev": {
+      "confusion": {
+        "answer": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        },
+        "clarify": {
+          "questions": 4,
+          "statuses": {
+            "needs_clarification": 3,
+            "answered": 1
+          },
+          "match": 3
+        },
+        "abstain": {
+          "questions": 5,
+          "statuses": {
+            "abstained": 5
+          },
+          "match": 5
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8888888888888888,
+            "n": 9,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.8888888888888888,
+            "n": 9,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 2
+          },
+          "decision": {
+            "rate": 0.8888888888888888,
+            "n": 9,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.75,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.75,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.75,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 3,
+            "not_applicable": 2
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 1.0,
+        "n": 6,
+        "not_applicable": 3
+      },
+      "zero_facts_context": {
+        "answer_questions": 0,
+        "zero_facts": 0,
+        "context_coverage": {}
+      },
+      "problems": [],
+      "operational": {
+        "requests": 9,
+        "ok": 9,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 2522.3888888888887,
+        "mean_retrieval_ms": 534.9444444444445,
+        "mean_generation_ms": 1986.388888888889,
+        "input_tokens": 27543,
+        "output_tokens": 1003,
+        "usage_known_requests": 9,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00077936,
+        "cost_known_requests": 9,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@ from src.config import ROOT, load_env
 
 
 def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str, cands: tuple[int, int, int, int] = (20, 20, 20, 20),
-                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None):
+                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None, final_k: int | None = None):
     """(app, pipeline)을 돌려준다. cands = (Dense 후보, BM25 후보, fused_top, Rerank 후보)."""
     load_env()
     from src.api.app import create_app
@@ -36,7 +36,7 @@ def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str
     if queries_lookup is not None and routes_lookup is not None:
         raise ValueError("질문 분해와 문서 라우팅은 함께 쓰지 않는다(한 번에 하나만 바꾼다).")
     d, s, f, r = cands
-    settings = PipelineSettings()
+    settings = PipelineSettings() if final_k is None else PipelineSettings(final_k=final_k)  # final_k: 확장 실험용 최종 청크 수(기본은 Basic과 같은 5)
     cfg = RetrievalConfig(dataset_id="intermediate", dataset_version="intermediate-v1", chunking_version=chunking_version)
     index = NumpyIndex.load(index_name)
     dense = NumpyDenseRetriever(index, cfg, embedder=Embedder(cfg.spec))

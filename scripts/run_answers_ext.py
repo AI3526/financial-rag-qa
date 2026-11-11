@@ -61,6 +61,7 @@ def main() -> int:
     ap.add_argument("--config", required=True, choices=sorted(CONFIGS))
     ap.add_argument("--cands", default="20,20,20,20", help="dense,bm25,fused,rerank 후보 수")
     ap.add_argument("--rag-method", default="hybrid_rerank", choices=["dense", "hybrid", "hybrid_rerank"])
+    ap.add_argument("--final-k", type=int, help="최종 청크 수(기본 5, Basic과 같음). 문맥 4,000토큰 한도는 그대로 적용된다")
     ap.add_argument("--queries-file")
     ap.add_argument("--routes-file")
     ap.add_argument("--limit", type=int)
@@ -71,7 +72,7 @@ def main() -> int:
         return 1
     cfg = CONFIGS[args.config]
     cands = tuple(int(x) for x in args.cands.split(","))
-    app, pipeline = build_ext_app(processed_dir=cfg["processed"], index_name=cfg["index"], chunking_version=cfg["version"], cands=cands,  # type: ignore[arg-type]
+    app, pipeline = build_ext_app(processed_dir=cfg["processed"], index_name=cfg["index"], chunking_version=cfg["version"], cands=cands, final_k=args.final_k,  # type: ignore[arg-type]
                                   queries_lookup=lookup_from(args.queries_file, "queries"), routes_lookup=lookup_from(args.routes_file, "routes"))
     client = TestClient(app, raise_server_exceptions=False)
     headers = {"X-Experiment-Id": args.experiment_id, "X-Track": "extension", "X-Run-Type": "general_eval"}

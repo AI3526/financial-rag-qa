@@ -1,0 +1,25 @@
+{
+  "experiment_id": "ext-int-ans-p20k10-002",
+  "track": "extension",
+  "config": "base",
+  "chunking_version": "chunk-v1",
+  "index": "intermediate__chunk-v1__e5large-v1",
+  "cands": [
+    20,
+    20,
+    20,
+    20
+  ],
+  "rag_method": "hybrid_rerank",
+  "queries_file": null,
+  "routes_file": null,
+  "final_k": 10,
+  "prompt_version": "answer-v2",
+  "prompt_sha256": "2ad4bbaa1bcfbc44b32bf8a94650e579e7093e66ef96ec72ef3b361e3185b53f",
+  "questions": 78,
+  "langfuse": false,
+  "qdrant": false,
+  "note": "확장 브랜치 답변 단계 평가용. 사람 확인 없이 자동 평가만 쓴다. 자체 질문은 AI 작성(사람 검증 없음)이며 공식 점수에 합산하지 않는다.",
+  "git_commit": "e48d468acfabfc027f3b943eaeb6640987c86dfa",
+  "created_at": "2026-11-11T08:22:45+00:00"
+}

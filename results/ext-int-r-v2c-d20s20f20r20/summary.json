@@ -1,0 +1,1036 @@
+{
+  "dataset": "intermediate",
+  "config": {
+    "dense": 20,
+    "sparse": 20,
+    "fused": 20,
+    "rerank": 20,
+    "label": "d20s20f20r20",
+    "page_cap": 0
+  },
+  "rrf_k": 60,
+  "questions": 78,
+  "k": 5,
+  "groups": {
+    "tune": {
+      "dense": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.8648648648648649,
+          "n": 37
+        },
+        "recall": {
+          "mean": 0.7567567567567568,
+          "n": 37
+        },
+        "page_hit": {
+          "mean": 0.5675675675675675,
+          "n": 37
+        },
+        "page_recall": {
+          "mean": 0.3581081081081081,
+          "n": 37
+        },
+        "mrr": {
+          "mean": 0.8648648648648649,
+          "n": 37
+        },
+        "page_mrr": {
+          "mean": 0.45045045045045046,
+          "n": 37
+        },
+        "ndcg": {
+          "mean": 0.7679826993109358,
+          "n": 37
+        },
+        "page_ndcg": {
+          "mean": 0.336919495314377,
+          "n": 37
+        },
+        "quote_hit": {
+          "mean": 0.5405405405405406,
+          "n": 37
+        },
+        "quote_recall": {
+          "mean": 0.34459459459459457,
+          "n": 37
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 21.9
+      },
+      "hybrid": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.972972972972973,
+          "n": 37
+        },
+        "recall": {
+          "mean": 0.8693693693693693,
+          "n": 37
+        },
+        "page_hit": {
+          "mean": 0.6486486486486487,
+          "n": 37
+        },
+        "page_recall": {
+          "mean": 0.4391891891891892,
+          "n": 37
+        },
+        "mrr": {
+          "mean": 0.8716216216216216,
+          "n": 37
+        },
+        "page_mrr": {
+          "mean": 0.5288288288288289,
+          "n": 37
+        },
+        "ndcg": {
+          "mean": 0.8093676883400313,
+          "n": 37
+        },
+        "page_ndcg": {
+          "mean": 0.42296318184815146,
+          "n": 37
+        },
+        "quote_hit": {
+          "mean": 0.6216216216216216,
+          "n": 37
+        },
+        "quote_recall": {
+          "mean": 0.39864864864864863,
+          "n": 37
+        },
+        "cand_hit": {
+          "mean": 0.972972972972973,
+          "n": 37
+        },
+        "cand_recall": {
+          "mean": 0.9234234234234233,
+          "n": 37
+        },
+        "cand_page_recall": {
+          "mean": 0.7184684684684685,
+          "n": 37
+        },
+        "mean_total_ms": 59.4
+      },
+      "hybrid_rerank": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.972972972972973,
+          "n": 37
+        },
+        "recall": {
+          "mean": 0.8693693693693693,
+          "n": 37
+        },
+        "page_hit": {
+          "mean": 0.7567567567567568,
+          "n": 37
+        },
+        "page_recall": {
+          "mean": 0.5968468468468469,
+          "n": 37
+        },
+        "mrr": {
+          "mean": 0.927927927927928,
+          "n": 37
+        },
+        "page_mrr": {
+          "mean": 0.6463963963963965,
+          "n": 37
+        },
+        "ndcg": {
+          "mean": 0.8466890031210098,
+          "n": 37
+        },
+        "page_ndcg": {
+          "mean": 0.5554038592425287,
+          "n": 37
+        },
+        "quote_hit": {
+          "mean": 0.6756756756756757,
+          "n": 37
+        },
+        "quote_recall": {
+          "mean": 0.5180180180180181,
+          "n": 37
+        },
+        "cand_hit": {
+          "mean": 0.972972972972973,
+          "n": 37
+        },
+        "cand_recall": {
+          "mean": 0.9234234234234233,
+          "n": 37
+        },
+        "cand_page_recall": {
+          "mean": 0.7184684684684685,
+          "n": 37
+        },
+        "mean_total_ms": 601.6
+      }
+    },
+    "confirm": {
+      "dense": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.8285714285714286,
+          "n": 35
+        },
+        "recall": {
+          "mean": 0.6761904761904762,
+          "n": 35
+        },
+        "page_hit": {
+          "mean": 0.6285714285714286,
+          "n": 35
+        },
+        "page_recall": {
+          "mean": 0.4357142857142857,
+          "n": 35
+        },
+        "mrr": {
+          "mean": 0.8142857142857143,
+          "n": 35
+        },
+        "page_mrr": {
+          "mean": 0.42952380952380953,
+          "n": 35
+        },
+        "ndcg": {
+          "mean": 0.6824813652896379,
+          "n": 35
+        },
+        "page_ndcg": {
+          "mean": 0.36715329423293935,
+          "n": 35
+        },
+        "quote_hit": {
+          "mean": 0.45714285714285713,
+          "n": 35
+        },
+        "quote_recall": {
+          "mean": 0.29047619047619044,
+          "n": 35
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 16.6
+      },
+      "hybrid": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.9142857142857143,
+          "n": 35
+        },
+        "recall": {
+          "mean": 0.7976190476190477,
+          "n": 35
+        },
+        "page_hit": {
+          "mean": 0.7142857142857143,
+          "n": 35
+        },
+        "page_recall": {
+          "mean": 0.5595238095238095,
+          "n": 35
+        },
+        "mrr": {
+          "mean": 0.7842857142857143,
+          "n": 35
+        },
+        "page_mrr": {
+          "mean": 0.51,
+          "n": 35
+        },
+        "ndcg": {
+          "mean": 0.7236932298673935,
+          "n": 35
+        },
+        "page_ndcg": {
+          "mean": 0.46885365360923215,
+          "n": 35
+        },
+        "quote_hit": {
+          "mean": 0.6,
+          "n": 35
+        },
+        "quote_recall": {
+          "mean": 0.4642857142857143,
+          "n": 35
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 35
+        },
+        "cand_recall": {
+          "mean": 0.9095238095238095,
+          "n": 35
+        },
+        "cand_page_recall": {
+          "mean": 0.7309523809523809,
+          "n": 35
+        },
+        "mean_total_ms": 63.6
+      },
+      "hybrid_rerank": {
+        "questions": 39,
+        "hit": {
+          "mean": 0.9714285714285714,
+          "n": 35
+        },
+        "recall": {
+          "mean": 0.8428571428571429,
+          "n": 35
+        },
+        "page_hit": {
+          "mean": 0.8571428571428571,
+          "n": 35
+        },
+        "page_recall": {
+          "mean": 0.6666666666666666,
+          "n": 35
+        },
+        "mrr": {
+          "mean": 0.9380952380952382,
+          "n": 35
+        },
+        "page_mrr": {
+          "mean": 0.8095238095238095,
+          "n": 35
+        },
+        "ndcg": {
+          "mean": 0.832747712879008,
+          "n": 35
+        },
+        "page_ndcg": {
+          "mean": 0.6710321565577297,
+          "n": 35
+        },
+        "quote_hit": {
+          "mean": 0.7714285714285715,
+          "n": 35
+        },
+        "quote_recall": {
+          "mean": 0.5785714285714286,
+          "n": 35
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 35
+        },
+        "cand_recall": {
+          "mean": 0.9095238095238095,
+          "n": 35
+        },
+        "cand_page_recall": {
+          "mean": 0.7309523809523809,
+          "n": 35
+        },
+        "mean_total_ms": 609.1
+      }
+    },
+    "development": {
+      "dense": {
+        "questions": 30,
+        "hit": {
+          "mean": 0.8333333333333334,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.7277777777777777,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.5666666666666667,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.3638888888888889,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.8333333333333334,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.4222222222222222,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.7376942203071953,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.3256816071692758,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.5333333333333333,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.3472222222222222,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 23.7
+      },
+      "hybrid": {
+        "questions": 30,
+        "hit": {
+          "mean": 0.9666666666666667,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.8666666666666667,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.6666666666666666,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.46388888888888885,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.8416666666666667,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.5455555555555556,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.7856032212942359,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.44433380322746974,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.6333333333333333,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.41388888888888886,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": 0.9666666666666667,
+          "n": 30
+        },
+        "cand_recall": {
+          "mean": 0.9333333333333333,
+          "n": 30
+        },
+        "cand_page_recall": {
+          "mean": 0.763888888888889,
+          "n": 30
+        },
+        "mean_total_ms": 65.7
+      },
+      "hybrid_rerank": {
+        "questions": 30,
+        "hit": {
+          "mean": 0.9666666666666667,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.8666666666666667,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.8333333333333334,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.663888888888889,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.9111111111111111,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.7138888888888889,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.8316328428574428,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.6135358108410286,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.7333333333333333,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.5666666666666667,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": 0.9666666666666667,
+          "n": 30
+        },
+        "cand_recall": {
+          "mean": 0.9333333333333333,
+          "n": 30
+        },
+        "cand_page_recall": {
+          "mean": 0.763888888888889,
+          "n": 30
+        },
+        "mean_total_ms": 615.4
+      }
+    },
+    "additional": {
+      "dense": {
+        "questions": 30,
+        "hit": {
+          "mean": 0.8333333333333334,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.6888888888888889,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.6,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.4166666666666667,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.8166666666666667,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.3944444444444445,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.6951695202937971,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.34029943906071874,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.4,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.24722222222222223,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 17.1
+      },
+      "hybrid": {
+        "questions": 30,
+        "hit": {
+          "mean": 0.9333333333333333,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.8055555555555556,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.7,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.5361111111111111,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.7816666666666666,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.47833333333333333,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.7180520329466045,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.4322795154195448,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.5666666666666667,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.425,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 30
+        },
+        "cand_recall": {
+          "mean": 0.8944444444444444,
+          "n": 30
+        },
+        "cand_page_recall": {
+          "mean": 0.7194444444444444,
+          "n": 30
+        },
+        "mean_total_ms": 71.0
+      },
+      "hybrid_rerank": {
+        "questions": 30,
+        "hit": {
+          "mean": 1.0,
+          "n": 30
+        },
+        "recall": {
+          "mean": 0.85,
+          "n": 30
+        },
+        "page_hit": {
+          "mean": 0.8666666666666667,
+          "n": 30
+        },
+        "page_recall": {
+          "mean": 0.6444444444444444,
+          "n": 30
+        },
+        "mrr": {
+          "mean": 0.961111111111111,
+          "n": 30
+        },
+        "page_mrr": {
+          "mean": 0.8111111111111111,
+          "n": 30
+        },
+        "ndcg": {
+          "mean": 0.8423539856128445,
+          "n": 30
+        },
+        "page_ndcg": {
+          "mean": 0.6536858365713534,
+          "n": 30
+        },
+        "quote_hit": {
+          "mean": 0.7666666666666667,
+          "n": 30
+        },
+        "quote_recall": {
+          "mean": 0.5416666666666666,
+          "n": 30
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 30
+        },
+        "cand_recall": {
+          "mean": 0.8944444444444444,
+          "n": 30
+        },
+        "cand_page_recall": {
+          "mean": 0.7194444444444444,
+          "n": 30
+        },
+        "mean_total_ms": 635.3
+      }
+    },
+    "ext_dev": {
+      "dense": {
+        "questions": 9,
+        "hit": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "recall": {
+          "mean": 0.880952380952381,
+          "n": 7
+        },
+        "page_hit": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "page_recall": {
+          "mean": 0.33333333333333337,
+          "n": 7
+        },
+        "mrr": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "page_mrr": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "ndcg": {
+          "mean": 0.8977904664698232,
+          "n": 7
+        },
+        "page_ndcg": {
+          "mean": 0.3850818730790962,
+          "n": 7
+        },
+        "quote_hit": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "quote_recall": {
+          "mean": 0.33333333333333337,
+          "n": 7
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 15.9
+      },
+      "hybrid": {
+        "questions": 9,
+        "hit": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "recall": {
+          "mean": 0.880952380952381,
+          "n": 7
+        },
+        "page_hit": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "page_recall": {
+          "mean": 0.33333333333333337,
+          "n": 7
+        },
+        "mrr": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "page_mrr": {
+          "mean": 0.4571428571428572,
+          "n": 7
+        },
+        "ndcg": {
+          "mean": 0.9112154042505828,
+          "n": 7
+        },
+        "page_ndcg": {
+          "mean": 0.3313748045082159,
+          "n": 7
+        },
+        "quote_hit": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "quote_recall": {
+          "mean": 0.33333333333333337,
+          "n": 7
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "cand_recall": {
+          "mean": 0.880952380952381,
+          "n": 7
+        },
+        "cand_page_recall": {
+          "mean": 0.5238095238095238,
+          "n": 7
+        },
+        "mean_total_ms": 38.8
+      },
+      "hybrid_rerank": {
+        "questions": 9,
+        "hit": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "recall": {
+          "mean": 0.880952380952381,
+          "n": 7
+        },
+        "page_hit": {
+          "mean": 0.42857142857142855,
+          "n": 7
+        },
+        "page_recall": {
+          "mean": 0.3095238095238095,
+          "n": 7
+        },
+        "mrr": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "page_mrr": {
+          "mean": 0.35714285714285715,
+          "n": 7
+        },
+        "ndcg": {
+          "mean": 0.9112154042505828,
+          "n": 7
+        },
+        "page_ndcg": {
+          "mean": 0.30626692382038595,
+          "n": 7
+        },
+        "quote_hit": {
+          "mean": 0.42857142857142855,
+          "n": 7
+        },
+        "quote_recall": {
+          "mean": 0.3095238095238095,
+          "n": 7
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 7
+        },
+        "cand_recall": {
+          "mean": 0.880952380952381,
+          "n": 7
+        },
+        "cand_page_recall": {
+          "mean": 0.5238095238095238,
+          "n": 7
+        },
+        "mean_total_ms": 555.7
+      }
+    },
+    "ext_hold": {
+      "dense": {
+        "questions": 9,
+        "hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "recall": {
+          "mean": 0.6,
+          "n": 5
+        },
+        "page_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_recall": {
+          "mean": 0.55,
+          "n": 5
+        },
+        "mrr": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_mrr": {
+          "mean": 0.64,
+          "n": 5
+        },
+        "ndcg": {
+          "mean": 0.606352435264683,
+          "n": 5
+        },
+        "page_ndcg": {
+          "mean": 0.5282764252662626,
+          "n": 5
+        },
+        "quote_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "quote_recall": {
+          "mean": 0.55,
+          "n": 5
+        },
+        "cand_hit": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "cand_page_recall": {
+          "mean": null,
+          "n": 0
+        },
+        "mean_total_ms": 14.9
+      },
+      "hybrid": {
+        "questions": 9,
+        "hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "recall": {
+          "mean": 0.75,
+          "n": 5
+        },
+        "page_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_recall": {
+          "mean": 0.7,
+          "n": 5
+        },
+        "mrr": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_mrr": {
+          "mean": 0.7,
+          "n": 5
+        },
+        "ndcg": {
+          "mean": 0.7575404113921274,
+          "n": 5
+        },
+        "page_ndcg": {
+          "mean": 0.6882984827473562,
+          "n": 5
+        },
+        "quote_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "quote_recall": {
+          "mean": 0.7,
+          "n": 5
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 5
+        },
+        "cand_recall": {
+          "mean": 1.0,
+          "n": 5
+        },
+        "cand_page_recall": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "mean_total_ms": 39.2
+      },
+      "hybrid_rerank": {
+        "questions": 9,
+        "hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "recall": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_recall": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "mrr": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "page_mrr": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "ndcg": {
+          "mean": 0.7751100764759884,
+          "n": 5
+        },
+        "page_ndcg": {
+          "mean": 0.7751100764759884,
+          "n": 5
+        },
+        "quote_hit": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "quote_recall": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "cand_hit": {
+          "mean": 1.0,
+          "n": 5
+        },
+        "cand_recall": {
+          "mean": 1.0,
+          "n": 5
+        },
+        "cand_page_recall": {
+          "mean": 0.8,
+          "n": 5
+        },
+        "mean_total_ms": 521.7
+      }
+    }
+  }
+}

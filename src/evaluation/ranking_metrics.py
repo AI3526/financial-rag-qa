@@ -38,3 +38,19 @@ def ndcg_at_k(units: Sequence[Hashable], reference: set, k: int = 5) -> float | 
             dcg += 1.0 / math.log2(i + 1)
     ideal = sum(1.0 / math.log2(i + 1) for i in range(1, min(len(reference), k) + 1))
     return dcg / ideal
+
+
+def quote_coverage(chunks: list[dict], evidence_groups: list[list[dict]]) -> tuple[int | None, float | None]:
+    """정답 근거 문장(인용문)이 최종 청크 본문 안에 온전히 들어 있는 정도: (하나라도 있으면 1 아니면 0, 들어 있는 인용문의 비율).
+
+    쪽이 맞아도 정답 문장이 든 청크가 빠지면 답변에 근거가 전달되지 않는다. 쪽 단위 지표가 놓치는 이 부분을 잰다(공백 제외 비교).
+    인용문이 없으면 (None, None)이다. 청크는 `text` 필드에 본문을 가진 딕셔너리다.
+    """
+    import re
+
+    quotes = {re.sub(r"\s+", "", e["quote"]) for g in evidence_groups for e in g if e.get("quote")}
+    if not quotes:
+        return None, None
+    texts = [re.sub(r"\s+", "", c["text"]) for c in chunks]
+    found = sum(1 for q in quotes if any(q in t for t in texts))
+    return (1 if found else 0), found / len(quotes)

@@ -33,7 +33,7 @@ from src.config import load_env  # noqa: E402
 load_env()
 
 from src.evaluation.judge import load_references  # noqa: E402
-from src.evaluation.ranking_metrics import ndcg_at_k, reciprocal_rank  # noqa: E402
+from src.evaluation.ranking_metrics import ndcg_at_k, quote_coverage, reciprocal_rank  # noqa: E402
 from src.evaluation.retrieval_metrics import hit_recall, mean_ignoring_none, question_metrics, reference_books, reference_pages  # noqa: E402
 from src.index.embedding import Embedder  # noqa: E402
 from src.index.numpy_store import NumpyIndex  # noqa: E402
@@ -41,6 +41,7 @@ from src.retrieval.dense import RetrievalConfig  # noqa: E402
 from src.retrieval.dense_np import NumpyDenseRetriever  # noqa: E402
 from src.retrieval.hybrid import HybridConfig, HybridRetriever  # noqa: E402
 from src.retrieval.rerank import CrossEncoderReranker, RerankConfig, RerankRetriever  # noqa: E402
+from src.retrieval.page_select import select_top_pages  # noqa: E402
 from src.retrieval.sparse import SparseRetriever, load_chunks  # noqa: E402
 
 DATASETS = {
@@ -50,7 +51,10 @@ DATASETS = {
 }
 SETS = (("development", "development.json", "development_questions.json"), ("additional", "additional.json", "additional_questions.json"))
 METHODS = ("dense", "hybrid", "hybrid_rerank")
-KEYS = ("hit", "recall", "page_hit", "page_recall", "mrr", "page_mrr", "ndcg", "page_ndcg", "cand_hit", "cand_recall", "cand_page_recall")
+KEYS = ("hit", "recall", "page_hit", "page_recall", "mrr", "page_mrr", "ndcg", "page_ndcg", "quote_hit", "quote_recall", "cand_hit", "cand_recall",
+        "cand_page_recall")
+
+
 GROUPS = {"tune": ("development", "ext_dev"), "confirm": ("additional", "ext_hold"), "development": ("development",), "additional": ("additional",),
           "ext_dev": ("ext_dev",), "ext_hold": ("ext_hold",)}
 
@@ -99,6 +103,7 @@ def load_questions(cfg_d: dict, use_ext: bool):
 
 
 def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder, sparse, reranker) -> Path:
+    cfg = {**cfg, "page_cap": args.page_cap}  # 쪽당 청크 수 제한(0이면 없음)을 결과에 함께 기록한다
     out = ROOT / "results" / (args.out if not args.grid else f"{args.out}-{cfg['label']}")
     if out.exists():
         raise FileExistsError(out)
@@ -112,7 +117,12 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
         rb, rp = reference_books(ev), {(b, p) for b, p in reference_pages(ev)}
         for m in METHODS:
             t = time.perf_counter()
-            res = retrievers[m].retrieve(q["question"])
+            if args.page_cap:  # 후보 풀 전체를 받아 쪽당 청크 수를 제한해 최종 5개를 고른다
+                pool = {"dense": 20, "hybrid": cfg["fused"], "hybrid_rerank": cfg["rerank"]}[m]
+                res = retrievers[m].retrieve(q["question"], k=pool)
+                res.chunks = select_top_pages(res.chunks, 5, args.page_cap)
+            else:
+                res = retrievers[m].retrieve(q["question"])
             total_ms = (time.perf_counter() - t) * 1000
             books = [c["book_id"] for c in res.chunks]
             pages = [(c["book_id"], c["page"]) for c in res.chunks]
@@ -121,6 +131,7 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
                    "retrieved": [{"rank": c["rank"], "chunk_id": c["chunk_id"], "book_id": c["book_id"], "page": c["page"]} for c in res.chunks],
                    **question_metrics(res.chunks, ev), "mrr": reciprocal_rank(books, rb, 5), "page_mrr": reciprocal_rank(pages, rp, 5),
                    "ndcg": ndcg_at_k(books, rb, 5), "page_ndcg": ndcg_at_k(pages, rp, 5), "total_ms": round(total_ms, 1)}
+            row["quote_hit"], row["quote_recall"] = quote_coverage(res.chunks, ev)
             cands = (res.candidates or {}).get("fused") if m != "dense" else None
             if cands:
                 row["cand_size"] = len(cands)
@@ -153,7 +164,7 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
             a = summary["groups"][g][m]
             print(f"  {g:7} {m:14} 문서 H{f(a['hit']['mean'])} R{f(a['recall']['mean'])} MRR{f(a['mrr']['mean'])} nDCG{f(a['ndcg']['mean'])} | "
                   f"쪽 H{f(a['page_hit']['mean'])} R{f(a['page_recall']['mean'])} MRR{f(a['page_mrr']['mean'])} nDCG{f(a['page_ndcg']['mean'])} "
-                  f"| 후보풀 쪽R{f(a['cand_page_recall']['mean'])} | {a['mean_total_ms']}ms (n={a['hit']['n']}/{a['questions']})")
+                  f"| 근거문장 H{f(a['quote_hit']['mean'])} R{f(a['quote_recall']['mean'])} | 후보풀 쪽R{f(a['cand_page_recall']['mean'])} | {a['mean_total_ms']}ms (n={a['hit']['n']}/{a['questions']})")
     return out
 
 
@@ -164,6 +175,7 @@ def main() -> int:
     ap.add_argument("--ext", action="store_true", help="자체 추가 질문(evaluation_ext)을 함께 평가")
     ap.add_argument("--grid", help="후보 수 설정 목록 'dense,bm25,fused,rerank;…' (기본: 20,20,20,20)")
     ap.add_argument("--rrf-k", type=int, default=60)
+    ap.add_argument("--page-cap", type=int, default=0, help="4단계: 같은 쪽 청크를 쪽당 최대 N개까지만 최종 5개에 허용(0이면 사용 안 함)")
     ap.add_argument("--show-confirm", action="store_true", help="confirm 세트(additional, ext_hold) 결과도 화면에 출력")
     ap.add_argument("--processed-dir", help="청킹 변형의 chunks.jsonl이 있는 폴더(저장소 루트 기준). --index-name과 함께 쓴다")
     ap.add_argument("--index-name", help="--processed-dir에 해당하는 numpy 색인 이름")

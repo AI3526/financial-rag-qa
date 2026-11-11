@@ -21,7 +21,7 @@ from src.evaluation.compare import paired_stats  # noqa: E402
 
 GROUPS = {"tune": ("development", "ext_dev"), "confirm": ("additional", "ext_hold"), "development": ("development",), "additional": ("additional",),
           "ext_dev": ("ext_dev",), "ext_hold": ("ext_hold",)}
-METRICS = ("page_recall", "page_hit", "page_mrr", "page_ndcg", "recall", "hit", "mrr", "ndcg")
+METRICS = ("page_recall", "quote_recall", "page_hit", "page_mrr", "page_ndcg", "recall", "hit", "mrr", "ndcg")
 METHODS = ("dense", "hybrid", "hybrid_rerank")
 
 

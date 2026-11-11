@@ -1,0 +1,870 @@
+[
+  {
+    "question_id": "IF-DEV01",
+    "page": [
+      "IF02",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.286
+  },
+  {
+    "question_id": "IF-DEV02",
+    "page": [
+      "IF02",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 2103,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.091
+  },
+  {
+    "question_id": "IF-DEV02",
+    "page": [
+      "IF08",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 60,
+    "bm25_rank": 1412,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.091
+  },
+  {
+    "question_id": "IF-DEV03",
+    "page": [
+      "IF13",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.462
+  },
+  {
+    "question_id": "IF-DEV03",
+    "page": [
+      "IF02",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 17,
+    "bm25_rank": 178,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.154
+  },
+  {
+    "question_id": "IF-DEV03",
+    "page": [
+      "IF03",
+      1
+    ],
+    "status": "missed",
+    "dense_rank": 523,
+    "bm25_rank": 1182,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.0
+  },
+  {
+    "question_id": "IF-DEV04",
+    "page": [
+      "IF05",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 12,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.308
+  },
+  {
+    "question_id": "IF-DEV04",
+    "page": [
+      "IF09",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 14,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.385
+  },
+  {
+    "question_id": "IF-DEV05",
+    "page": [
+      "IF01",
+      1
+    ],
+    "status": "found",
+    "dense_rank": 6,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.357
+  },
+  {
+    "question_id": "IF-DEV06",
+    "page": [
+      "IF06",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 5,
+    "bm25_rank": 9,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.267
+  },
+  {
+    "question_id": "IF-DEV07",
+    "page": [
+      "IF02",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.267
+  },
+  {
+    "question_id": "IF-DEV07",
+    "page": [
+      "IF04",
+      1
+    ],
+    "status": "missed",
+    "dense_rank": 14,
+    "bm25_rank": 49,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.267
+  },
+  {
+    "question_id": "IF-DEV08",
+    "page": [
+      "IF11",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 29,
+    "bm25_rank": 3,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.2
+  },
+  {
+    "question_id": "IF-DEV09",
+    "page": [
+      "IF13",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.353
+  },
+  {
+    "question_id": "IF-DEV09",
+    "page": [
+      "IF11",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 3,
+    "bm25_rank": 172,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.176
+  },
+  {
+    "question_id": "IF-DEV10",
+    "page": [
+      "IF12",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.286
+  },
+  {
+    "question_id": "IF-DEV10",
+    "page": [
+      "IF11",
+      19
+    ],
+    "status": "missed",
+    "dense_rank": 54,
+    "bm25_rank": 546,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.143
+  },
+  {
+    "question_id": "IF-DEV11",
+    "page": [
+      "IF04",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 15,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.438
+  },
+  {
+    "question_id": "IF-DEV12",
+    "page": [
+      "IF50",
+      31
+    ],
+    "status": "found",
+    "dense_rank": 437,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.455
+  },
+  {
+    "question_id": "IF-DEV13",
+    "page": [
+      "IF22",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 3,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.222
+  },
+  {
+    "question_id": "IF-DEV14",
+    "page": [
+      "IF30",
+      11
+    ],
+    "status": "found",
+    "dense_rank": 20,
+    "bm25_rank": 13,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.286
+  },
+  {
+    "question_id": "IF-DEV15",
+    "page": [
+      "IF21",
+      17
+    ],
+    "status": "pool_only",
+    "dense_rank": 10,
+    "bm25_rank": 8,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": false,
+    "overlap": 0.417
+  },
+  {
+    "question_id": "IF-DEV16",
+    "page": [
+      "IF17",
+      9
+    ],
+    "status": "pool_only",
+    "dense_rank": 4,
+    "bm25_rank": 21,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": false,
+    "overlap": 0.261
+  },
+  {
+    "question_id": "IF-DEV16",
+    "page": [
+      "IF17",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 65,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.261
+  },
+  {
+    "question_id": "IF-DEV17",
+    "page": [
+      "IF18",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 3,
+    "bm25_rank": 134,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.167
+  },
+  {
+    "question_id": "IF-DEV17",
+    "page": [
+      "IF18",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 3,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.222
+  },
+  {
+    "question_id": "IF-DEV18",
+    "page": [
+      "IF24",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 6,
+    "bm25_rank": 3,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.24
+  },
+  {
+    "question_id": "IF-DEV18",
+    "page": [
+      "IF24",
+      35
+    ],
+    "status": "pool_only",
+    "dense_rank": 11,
+    "bm25_rank": 252,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": false,
+    "overlap": 0.16
+  },
+  {
+    "question_id": "IF-DEV19",
+    "page": [
+      "IF17",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 53,
+    "bm25_rank": 20,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.227
+  },
+  {
+    "question_id": "IF-DEV19",
+    "page": [
+      "IF17",
+      21
+    ],
+    "status": "pool_only",
+    "dense_rank": 31,
+    "bm25_rank": 7,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": false,
+    "overlap": 0.273
+  },
+  {
+    "question_id": "IF-DEV19",
+    "page": [
+      "IF02",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 4,
+    "bm25_rank": 166,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.182
+  },
+  {
+    "question_id": "IF-DEV19",
+    "page": [
+      "IF19",
+      25
+    ],
+    "status": "found",
+    "dense_rank": 3,
+    "bm25_rank": 109,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.0
+  },
+  {
+    "question_id": "IF-DEV20",
+    "page": [
+      "IF20",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 148,
+    "same_quote_pages": 2,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.182
+  },
+  {
+    "question_id": "IF-DEV21",
+    "page": [
+      "IF22",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.238
+  },
+  {
+    "question_id": "IF-DEV21",
+    "page": [
+      "IF24",
+      19
+    ],
+    "status": "missed",
+    "dense_rank": 34,
+    "bm25_rank": 65,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.19
+  },
+  {
+    "question_id": "IF-DEV21",
+    "page": [
+      "IF24",
+      36
+    ],
+    "status": "missed",
+    "dense_rank": 154,
+    "bm25_rank": 150,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.143
+  },
+  {
+    "question_id": "IF-DEV22",
+    "page": [
+      "IF24",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 126,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.25
+  },
+  {
+    "question_id": "IF-DEV22",
+    "page": [
+      "IF25",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 8,
+    "bm25_rank": 40,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.167
+  },
+  {
+    "question_id": "IF-DEV23",
+    "page": [
+      "IF32",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 4,
+    "bm25_rank": 16,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.31
+  },
+  {
+    "question_id": "IF-DEV23",
+    "page": [
+      "IF33",
+      17
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.414
+  },
+  {
+    "question_id": "IF-DEV24",
+    "page": [
+      "IF34",
+      9
+    ],
+    "status": "pool_only",
+    "dense_rank": 13,
+    "bm25_rank": 9,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.222
+  },
+  {
+    "question_id": "IF-DEV25",
+    "page": [
+      "IF38",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 6,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.261
+  },
+  {
+    "question_id": "IF-DEV25",
+    "page": [
+      "IF39",
+      65
+    ],
+    "status": "found",
+    "dense_rank": 8,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.391
+  },
+  {
+    "question_id": "IF-DEV26",
+    "page": [
+      "IF40",
+      19
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.13
+  },
+  {
+    "question_id": "IF-DEV26",
+    "page": [
+      "IF41",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 3,
+    "bm25_rank": 684,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.087
+  },
+  {
+    "question_id": "IF-DEV27",
+    "page": [
+      "IF50",
+      7
+    ],
+    "status": "missed",
+    "dense_rank": 3588,
+    "bm25_rank": 511,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.0
+  },
+  {
+    "question_id": "IF-DEV28",
+    "page": [
+      "IF49",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 7,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.333
+  },
+  {
+    "question_id": "IF-DEV29",
+    "page": [
+      "IF36",
+      1
+    ],
+    "status": "found",
+    "dense_rank": 8,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.2
+  },
+  {
+    "question_id": "IF-DEV29",
+    "page": [
+      "IF37",
+      1
+    ],
+    "status": "found",
+    "dense_rank": 6,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.25
+  },
+  {
+    "question_id": "IF-DEV30",
+    "page": [
+      "IF42",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 28,
+    "bm25_rank": 2,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.273
+  },
+  {
+    "question_id": "IF-DEV30",
+    "page": [
+      "IF45",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 110,
+    "bm25_rank": 27,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.182
+  },
+  {
+    "question_id": "IFX-ABS-01",
+    "page": [
+      "IF02",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 22,
+    "bm25_rank": 40,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.2
+  },
+  {
+    "question_id": "IFX-ABS-03",
+    "page": [
+      "IF15",
+      69
+    ],
+    "status": "missed",
+    "dense_rank": 68,
+    "bm25_rank": 135,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.111
+  },
+  {
+    "question_id": "IFX-ABS-05",
+    "page": [
+      "IF05",
+      1
+    ],
+    "status": "missed",
+    "dense_rank": 309,
+    "bm25_rank": 78,
+    "same_quote_pages": 1361,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.125
+  },
+  {
+    "question_id": "IFX-CLR-01",
+    "page": [
+      "IF14",
+      1
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 1,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.667
+  },
+  {
+    "question_id": "IFX-CLR-03",
+    "page": [
+      "IF15",
+      3
+    ],
+    "status": "found",
+    "dense_rank": 64,
+    "bm25_rank": 3,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.8
+  },
+  {
+    "question_id": "IFX-CLR-03",
+    "page": [
+      "IF16",
+      9
+    ],
+    "status": "found",
+    "dense_rank": 2,
+    "bm25_rank": 4,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.8
+  },
+  {
+    "question_id": "IFX-CLR-03",
+    "page": [
+      "IF41",
+      9
+    ],
+    "status": "missed",
+    "dense_rank": 238,
+    "bm25_rank": 184,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.4
+  },
+  {
+    "question_id": "IFX-CLR-05",
+    "page": [
+      "IF29",
+      1
+    ],
+    "status": "missed",
+    "dense_rank": 13,
+    "bm25_rank": 35,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.4
+  },
+  {
+    "question_id": "IFX-CLR-05",
+    "page": [
+      "IF30",
+      1
+    ],
+    "status": "missed",
+    "dense_rank": 84,
+    "bm25_rank": 138,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.4
+  },
+  {
+    "question_id": "IFX-CLR-07",
+    "page": [
+      "IF02",
+      21
+    ],
+    "status": "found",
+    "dense_rank": 1,
+    "bm25_rank": 4,
+    "same_quote_pages": 1,
+    "quote_in_pool": true,
+    "quote_in_final5": true,
+    "overlap": 0.4
+  },
+  {
+    "question_id": "IFX-CLR-07",
+    "page": [
+      "IF08",
+      4
+    ],
+    "status": "missed",
+    "dense_rank": 55,
+    "bm25_rank": 735,
+    "same_quote_pages": 1,
+    "quote_in_pool": false,
+    "quote_in_final5": false,
+    "overlap": 0.0
+  }
+]

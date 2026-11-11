@@ -51,3 +51,21 @@ class MultiQueryHybrid:
         return RetrievalResult(
             question=question, method="hybrid", k=k, chunks=chunks, candidate_k=self.config.dense_candidates,
             candidates={"queries": queries, "fused": _brief(merged)}, durations_ms={"total": round((time.perf_counter() - t0) * 1000, 1)})
+
+
+class MaxOverQueriesReranker:
+    """확장 브랜치 (a): 다중 질의 후보 풀을 원래 질문만이 아니라 분해한 질의 각각으로도 재정렬해, 청크마다 가장 높은 점수를 쓴다.
+
+    `RerankRetriever(reranker=…)`에 그대로 끼운다(점수 함수 `score(question, texts)`만 바꾸므로 핵심 코드는 그대로다).
+    추가 질의가 없는 질문은 원래 점수와 완전히 같다. 같은 모델의 점수끼리 최댓값을 취한다.
+    """
+
+    def __init__(self, reranker, lookup: dict[str, list[str]]):
+        self.reranker, self.lookup = reranker, lookup
+        self.model_id = getattr(reranker, "model_id", None)
+        self.revision = getattr(reranker, "revision", None)
+
+    def score(self, question: str, texts: list[str]) -> list[float]:
+        queries = [question] + [q for q in self.lookup.get(question, []) if q != question]
+        per_query = [self.reranker.score(q, texts) for q in queries]
+        return [max(s) for s in zip(*per_query)] if texts else []

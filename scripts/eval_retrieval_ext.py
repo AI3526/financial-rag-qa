@@ -41,7 +41,7 @@ from src.retrieval.dense import RetrievalConfig  # noqa: E402
 from src.retrieval.dense_np import NumpyDenseRetriever  # noqa: E402
 from src.retrieval.doc_routed import DocRoutedHybrid  # noqa: E402
 from src.retrieval.hybrid import HybridConfig, HybridRetriever  # noqa: E402
-from src.retrieval.multi_query import MultiQueryHybrid  # noqa: E402
+from src.retrieval.multi_query import MaxOverQueriesReranker, MultiQueryHybrid  # noqa: E402
 from src.retrieval.rerank import CrossEncoderReranker, RerankConfig, RerankRetriever  # noqa: E402
 from src.retrieval.page_select import select_top_pages  # noqa: E402
 from src.retrieval.sparse import SparseRetriever, load_chunks  # noqa: E402
@@ -115,6 +115,8 @@ def run_config(cfg: dict, args, cfg_d, questions, refs, index, chunks, embedder,
         hybrid = MultiQueryHybrid(hybrid, args.lookup, top=cfg["fused"], rrf_k=args.rrf_k)
     if getattr(args, "route_lookup", None) is not None:  # 방법 A: 전체 검색 후보 + 라우팅이 고른 문서 안의 검색 후보를 RRF로 합친다(후보 풀 크기는 그대로)
         hybrid = DocRoutedHybrid(hybrid, args.route_lookup, top=cfg["fused"], rrf_k=args.rrf_k)
+    if getattr(args, "rerank_max", False):  # (a): 분해 질의 각각으로도 재정렬해 청크별 최대 점수를 쓴다
+        reranker = MaxOverQueriesReranker(reranker, args.lookup)
     rerank = RerankRetriever(hybrid, reranker, RerankConfig(candidates=cfg["rerank"], final_k=5))
     retrievers = {"dense": dense, "hybrid": hybrid, "hybrid_rerank": rerank}
     rows = []
@@ -183,6 +185,7 @@ def main() -> int:
     ap.add_argument("--rrf-k", type=int, default=60)
     ap.add_argument("--queries-file", help="5a: 분해한 검색 질의가 저장된 결과 폴더 이름(decompose_queries_ext.py). 주면 Hybrid·Hybrid+Rerank를 다중 질의로 실행(Dense는 그대로)")
     ap.add_argument("--routes-file", help="방법 A: 문서 라우팅 결과가 저장된 결과 폴더 이름(route_docs_ext.py). 주면 Hybrid·Hybrid+Rerank에 고른 문서 안의 후보를 더함(Dense는 그대로)")
+    ap.add_argument("--rerank-max", action="store_true", help="(a): --queries-file과 함께. 재정렬 점수를 원래 질문과 분해 질의 점수의 최댓값으로 한다")
     ap.add_argument("--page-cap", type=int, default=0, help="4단계: 같은 쪽 청크를 쪽당 최대 N개까지만 최종 5개에 허용(0이면 사용 안 함)")
     ap.add_argument("--show-confirm", action="store_true", help="confirm 세트(additional, ext_hold) 결과도 화면에 출력")
     ap.add_argument("--processed-dir", help="청킹 변형의 chunks.jsonl이 있는 폴더(저장소 루트 기준). --index-name과 함께 쓴다")

@@ -1,0 +1,13 @@
+{
+  "prompt": {
+    "version": "query-decompose-v1",
+    "sha256": "93b1fb9469a196c678be00c9e505f4d13961ea6ebea0341f1e93b03f4604103f"
+  },
+  "model_env": "OPENAI_MODEL",
+  "reasoning_effort": "low",
+  "max_completion_tokens": 2048,
+  "seed": 20261111,
+  "max_queries": 3,
+  "concurrency": 6,
+  "created_at": "2026-11-11T05:18:05+00:00"
+}

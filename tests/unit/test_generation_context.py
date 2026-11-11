@@ -76,7 +76,7 @@ def test_every_prompt_file_has_a_unique_version_matching_its_name_and_no_evaluat
         data = json.loads(path.read_text(encoding="utf-8"))
         # 파일 이름 `answer_v2.json`, `faithfulness_statement_v1.json` -> 버전 `answer-v2`, `faithfulness-statement-v1`
         assert data["version"] == path.stem.replace("_", "-")
-        assert data["type"] in ("answer", "evaluation")
+        assert data["type"] in ("answer", "evaluation", "retrieval")  # retrieval: 확장 브랜치의 검색용 프롬프트(질문 분해). 평가용 용어 금지 검사는 똑같이 적용된다
         if data["type"] == "answer":  # 서비스 답변 프롬프트는 검색 자료와 질문 자리가 있는 시스템·사용자 메시지다
             assert "{context}" in data["user"] and "{question}" in data["user"]
             text = data["system"] + data["user"]

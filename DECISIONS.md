@@ -648,6 +648,13 @@ Langfuse는 Cloud(`https://cloud.langfuse.com`)에 연결되며 인증 확인과
 - **보류한 필수 단계**: STEP 13(보안), 14(운영 지표), 15(문서화)는 사람 확인 후로 미룬다(사용자 결정). 진행할 때는 선택이 확정되기 전까지 '잠정 구성 기준'으로 표시한다. 제출 기한 확인 필요.
 - **Langfuse**: Experiments 비교 화면이 안 보인다는 사용자 관찰이 있으나 원인 미조사(데이터셋 항목 id를 `{데이터셋}:{질문 번호}`로 바꾼 것이 영향을 줬는지 포함). `post_scores.py --apply`는 아직 실행하지 않았다.
 
+### D-047 확장 브랜치(extension/intermediate)의 기술 예외: Langfuse 미사용, Qdrant 대신 numpy 정확 검색 (사용자 승인, 2026-11-11)
+- **범위**: 브랜치 `extension/intermediate`(Advanced는 나중에 `extension/advanced`로 분리)에만 적용한다. `main`의 필수 결과와 구성(Qdrant Cloud, Langfuse)은 바꾸지 않는다.
+- **결정**: ① Intermediate·Advanced 실험은 Langfuse에 기록하지 않고 `results/`의 로컬 파일만 기준 데이터로 쓴다. ② Qdrant 대신 임베딩 행렬(numpy float32, 정규화)로 **정확 검색**을 한다(`src/index/numpy_store.py`, `src/retrieval/dense_np.py`, `scripts/build_numpy_index.py`).
+- **이유**: RAG 실험(청킹, 검색, 표 처리, 프롬프트)에만 집중하기 위해. 이 PC에서 측정한 검색 시간(1,024차원, 질문 1개)은 청크 1,056개 0.12ms, 11,000개 0.40ms, 53,000개 3.7ms, 200,000개 12.8ms로 모델 호출 시간에 비해 무시할 수 있다. 근사 인덱스(FAISS HNSW 등)를 쓰지 않아 검색 알고리즘 비교에 정확도 차이가 섞이지 않는다. FAISS는 수십만 청크를 넘거나 검색 시간이 병목으로 측정될 때 검토한다(Retriever를 분리해 두어 교체 가능).
+- **검증**: Basic 60문항(development 30 + additional 30)에서 numpy Dense와 Qdrant Cloud Dense를 같은 질문 벡터로 비교했다. **상위 5개의 집합 60/60, 순서 60/60 같음, 최대 점수 차이 0.0**(`results/ext-verify-numpy-001/`). 이 검증은 Basic 청크·벡터(1,056개)에 대한 것이며 Intermediate 규모의 정확도는 색인 후 검증 대상이다.
+- **주의**: 이 예외는 CLAUDE.md §3.4의 '확정된 기술 스택의 변경'에 해당해 사용자 승인으로 진행했다. 확장 결과는 새 데이터셋 이름·새 결과 폴더(`ext-*`)·새 색인 폴더(`data/numpy_index/`, Git 제외)로 Basic과 분리한다. 진행 상황은 `EXTENSION_INTERMEDIATE_LOG.md`에 기록한다.
+
 ---
 
 ## 4. 변경 이력

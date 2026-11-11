@@ -16,6 +16,7 @@ htmlcov/
 # 벡터 DB 로컬 저장소 (Qdrant 로컬 모드, 재생성 가능)
 qdrant_storage/
 data/qdrant/
+data/numpy_index/
 
 # 모델 가중치·다운로드 캐시 (수 GB, HF_HOME을 저장소 밖으로 두는 것을 권장)
 models/

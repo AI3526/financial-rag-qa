@@ -1,0 +1,168 @@
+{
+  "source": "ext-int-ans-p40k12-retry-broad-001",
+  "method": "hybrid_rerank",
+  "groups": {
+    "tune": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 26,
+            "abstained": 1
+          },
+          "match": 26
+        },
+        "clarify": {
+          "questions": 5,
+          "statuses": {
+            "needs_clarification": 2,
+            "answered": 3
+          },
+          "match": 2
+        },
+        "abstain": {
+          "questions": 7,
+          "statuses": {
+            "abstained": 7
+          },
+          "match": 7
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8974358974358975,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9487179487179487,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 38,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 0.8974358974358975,
+            "n": 39,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.9259259259259259,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9629629629629629,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.6,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.6,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.4,
+            "n": 5,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 6,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.9747089947089946,
+        "n": 35,
+        "not_applicable": 4
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 2,
+        "context_coverage": {
+          "some": 2
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "대표 제공물과 E가 확장형 모델이라는 사실은 답했지만, 필수 사실 2의 ‘E 구매에 루미뷰 정기 이용계약이 자동 포함되는 것은"
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "각 분기 비중과 상반기 비중을 제시하지 않았고, 필수 사실 1~3의 요청된 계산 결과를 빠뜨렸습니다. [다수결 3/3회]"
+        }
+      ],
+      "operational": {
+        "requests": 39,
+        "ok": 39,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 4835.858974358975,
+        "mean_retrieval_ms": 1034.1102564102564,
+        "mean_generation_ms": 3423.671794871795,
+        "input_tokens": 173129,
+        "output_tokens": 8538,
+        "usage_known_requests": 39,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.01030768,
+        "cost_known_requests": 39,
+        "cost_unknown_requests": 0,
+        "retries": 12
+      }
+    }
+  }
+}

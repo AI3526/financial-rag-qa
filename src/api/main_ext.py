@@ -14,7 +14,7 @@ from src.config import ROOT, load_env
 
 
 def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str, cands: tuple[int, int, int, int] = (20, 20, 20, 20),
-                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None, final_k: int | None = None):
+                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None, final_k: int | None = None, retry: bool | str = False):
     """(app, pipeline)을 돌려준다. cands = (Dense 후보, BM25 후보, fused_top, Rerank 후보)."""
     load_env()
     from src.api.app import create_app
@@ -49,5 +49,8 @@ def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str
     reranked = RerankRetriever(hybrid, CrossEncoderReranker(), RerankConfig(candidates=r, final_k=settings.final_k))
     prompt = load_prompt(prompt_name) if prompt_name else load_prompt()
     generator = LangChainGenerator(settings, prompt=prompt, callbacks_factory=None)
-    pipeline = RagPipeline(dense, generator, settings, pricing=load_pricing(), retrievers={"dense": dense, "hybrid": hybrid, "hybrid_rerank": reranked}, langfuse=None)
+    if retry:  # 2단계: 되묻기·보류일 때 reason으로 재검색(src/api/retry_ext.py). 켜지 않으면 기존과 같다
+        from src.api.retry_ext import RetryRagPipeline as RagPipeline  # noqa: F811
+    extra = {"variant": retry} if isinstance(retry, str) and retry else {}  # retry="broad"|"reason"|"base"
+    pipeline = RagPipeline(dense, generator, settings, pricing=load_pricing(), retrievers={"dense": dense, "hybrid": hybrid, "hybrid_rerank": reranked}, langfuse=None, **extra)
     return create_app(pipeline, langfuse=None, recorder=RunRecorder(ROOT / "results")), pipeline

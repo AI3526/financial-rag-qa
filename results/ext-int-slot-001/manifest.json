@@ -1,0 +1,26 @@
+{
+  "method": "slot_query_rerank",
+  "k": 12,
+  "pool": 40,
+  "sub_slots": 3,
+  "sub_cap": 6,
+  "queries_file": "ext-int-s5-queries-v1",
+  "baseline": "ext-int-k-base-001 p40 k=12",
+  "describe": {
+    "fusion": "rrf",
+    "rrf_k": 60,
+    "dense_candidates": 20,
+    "sparse_candidates": 20,
+    "fused_top": 40,
+    "final_k": 12,
+    "bm25_tokenizer": "whitespace",
+    "reranker": "BAAI/bge-reranker-v2-m3",
+    "reranker_revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e",
+    "rerank_candidates": 40,
+    "slot_query": true,
+    "slot_pool": 40,
+    "slot_sub_slots": 3,
+    "slot_sub_cap": 6,
+    "questions_with_extra_queries": 72
+  }
+}

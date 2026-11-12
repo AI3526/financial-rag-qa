@@ -62,6 +62,8 @@ def main() -> int:
     ap.add_argument("--cands", default="20,20,20,20", help="dense,bm25,fused,rerank 후보 수")
     ap.add_argument("--rag-method", default="hybrid_rerank", choices=["dense", "hybrid", "hybrid_rerank"])
     ap.add_argument("--final-k", type=int, help="최종 청크 수(기본 5, Basic과 같음). 문맥 4,000토큰 한도는 그대로 적용된다")
+    ap.add_argument("--retry-variant", choices=["base", "broad", "reason"], help="--retry 변형: base(기본) / broad(answered라도 '확인되지 않음' 표현이 있으면 재검색) / reason(질의를 reason만으로)")
+    ap.add_argument("--retry", action="store_true", help="2단계: 되묻기·보류이면 reason을 질의에 더해 한 번 더 검색해 다시 답한다(문맥 = 첫 문맥 8 + 새 청크 4)")
     ap.add_argument("--queries-file")
     ap.add_argument("--routes-file")
     ap.add_argument("--sets", nargs="+", choices=["development", "additional", "ext_dev", "ext_hold"], help="이 세트의 질문만 실행(기본: 78개 전부). 예: --sets development ext_dev = 판단용 tune 39개")
@@ -73,7 +75,7 @@ def main() -> int:
         return 1
     cfg = CONFIGS[args.config]
     cands = tuple(int(x) for x in args.cands.split(","))
-    app, pipeline = build_ext_app(processed_dir=cfg["processed"], index_name=cfg["index"], chunking_version=cfg["version"], cands=cands, final_k=args.final_k,  # type: ignore[arg-type]
+    app, pipeline = build_ext_app(processed_dir=cfg["processed"], index_name=cfg["index"], chunking_version=cfg["version"], cands=cands, final_k=args.final_k, retry=(args.retry_variant or True) if args.retry else False,  # type: ignore[arg-type]
                                   queries_lookup=lookup_from(args.queries_file, "queries"), routes_lookup=lookup_from(args.routes_file, "routes"))
     client = TestClient(app, raise_server_exceptions=False)
     headers = {"X-Experiment-Id": args.experiment_id, "X-Track": "extension", "X-Run-Type": "general_eval"}
@@ -91,7 +93,7 @@ def main() -> int:
                "operational": ops}
     manifest = {"experiment_id": args.experiment_id, "track": "extension", "config": args.config, "chunking_version": cfg["version"], "index": cfg["index"], "cands": list(cands),
                 "rag_method": args.rag_method, "queries_file": args.queries_file, "routes_file": args.routes_file, "final_k": pipeline.settings.final_k,
-                "prompt_version": pipeline.generator.prompt_version, "prompt_sha256": pipeline.generator.prompt_sha256, "questions": len(questions), "sets": args.sets, "langfuse": False, "qdrant": False,
+                "prompt_version": pipeline.generator.prompt_version, "prompt_sha256": pipeline.generator.prompt_sha256, "questions": len(questions), "sets": args.sets, "retry": args.retry, "retry_variant": args.retry_variant, "langfuse": False, "qdrant": False,
                 "note": "확장 브랜치 답변 단계 평가용. 사람 확인 없이 자동 평가만 쓴다. 자체 질문은 AI 작성(사람 검증 없음)이며 공식 점수에 합산하지 않는다.",
                 "git_commit": git_commit(), "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     (out / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

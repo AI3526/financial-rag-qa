@@ -1,0 +1,268 @@
+{
+  "by_method": {
+    "hybrid_rerank": {
+      "answers": 39,
+      "service_errors": 0,
+      "status_mismatch": 4,
+      "items": {
+        "facts": {
+          "scored": 39,
+          "ones": 33,
+          "rate": 0.8461538461538461,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "conditions": {
+          "scored": 39,
+          "ones": 38,
+          "rate": 0.9743589743589743,
+          "not_applicable": 0,
+          "unevaluable": 0
+        },
+        "evidence": {
+          "scored": 37,
+          "ones": 37,
+          "rate": 1.0,
+          "not_applicable": 0,
+          "unevaluable": 2
+        },
+        "decision": {
+          "scored": 39,
+          "ones": 35,
+          "rate": 0.8974358974358975,
+          "not_applicable": 0,
+          "unevaluable": 0
+        }
+      },
+      "context_check": {
+        "scored": 39,
+        "not_applicable": 0,
+        "unevaluable": 0,
+        "facts_total": 95,
+        "facts_yes": 89,
+        "facts_partial": 3,
+        "facts_no": 3,
+        "fact_yes_rate": 0.9368421052631579,
+        "answers_all": 33,
+        "answers_some": 4,
+        "answers_none": 2,
+        "facts_zero": {
+          "answers": 6,
+          "context_all": 2,
+          "context_some": 4,
+          "context_none": 0
+        }
+      }
+    }
+  },
+  "passes": [
+    1,
+    2,
+    3
+  ],
+  "per_pass": {
+    "1": {
+      "hybrid_rerank": {
+        "answers": 39,
+        "service_errors": 0,
+        "status_mismatch": 4,
+        "items": {
+          "facts": {
+            "scored": 39,
+            "ones": 33,
+            "rate": 0.8461538461538461,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "conditions": {
+            "scored": 39,
+            "ones": 38,
+            "rate": 0.9743589743589743,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "evidence": {
+            "scored": 38,
+            "ones": 38,
+            "rate": 1.0,
+            "not_applicable": 1,
+            "unevaluable": 0
+          },
+          "decision": {
+            "scored": 39,
+            "ones": 35,
+            "rate": 0.8974358974358975,
+            "not_applicable": 0,
+            "unevaluable": 0
+          }
+        },
+        "context_check": {
+          "scored": 39,
+          "not_applicable": 0,
+          "unevaluable": 0,
+          "facts_total": 95,
+          "facts_yes": 88,
+          "facts_partial": 4,
+          "facts_no": 3,
+          "fact_yes_rate": 0.9263157894736842,
+          "answers_all": 33,
+          "answers_some": 4,
+          "answers_none": 2,
+          "facts_zero": {
+            "answers": 6,
+            "context_all": 2,
+            "context_some": 4,
+            "context_none": 0
+          }
+        }
+      }
+    },
+    "2": {
+      "hybrid_rerank": {
+        "answers": 39,
+        "service_errors": 0,
+        "status_mismatch": 4,
+        "items": {
+          "facts": {
+            "scored": 39,
+            "ones": 33,
+            "rate": 0.8461538461538461,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "conditions": {
+            "scored": 39,
+            "ones": 38,
+            "rate": 0.9743589743589743,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "evidence": {
+            "scored": 38,
+            "ones": 37,
+            "rate": 0.9736842105263158,
+            "not_applicable": 1,
+            "unevaluable": 0
+          },
+          "decision": {
+            "scored": 39,
+            "ones": 35,
+            "rate": 0.8974358974358975,
+            "not_applicable": 0,
+            "unevaluable": 0
+          }
+        },
+        "context_check": {
+          "scored": 39,
+          "not_applicable": 0,
+          "unevaluable": 0,
+          "facts_total": 95,
+          "facts_yes": 88,
+          "facts_partial": 4,
+          "facts_no": 3,
+          "fact_yes_rate": 0.9263157894736842,
+          "answers_all": 33,
+          "answers_some": 4,
+          "answers_none": 2,
+          "facts_zero": {
+            "answers": 6,
+            "context_all": 2,
+            "context_some": 4,
+            "context_none": 0
+          }
+        }
+      }
+    },
+    "3": {
+      "hybrid_rerank": {
+        "answers": 39,
+        "service_errors": 0,
+        "status_mismatch": 4,
+        "items": {
+          "facts": {
+            "scored": 39,
+            "ones": 34,
+            "rate": 0.8717948717948718,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "conditions": {
+            "scored": 39,
+            "ones": 38,
+            "rate": 0.9743589743589743,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "evidence": {
+            "scored": 39,
+            "ones": 36,
+            "rate": 0.9230769230769231,
+            "not_applicable": 0,
+            "unevaluable": 0
+          },
+          "decision": {
+            "scored": 39,
+            "ones": 35,
+            "rate": 0.8974358974358975,
+            "not_applicable": 0,
+            "unevaluable": 0
+          }
+        },
+        "context_check": {
+          "scored": 39,
+          "not_applicable": 0,
+          "unevaluable": 0,
+          "facts_total": 95,
+          "facts_yes": 87,
+          "facts_partial": 5,
+          "facts_no": 3,
+          "fact_yes_rate": 0.9157894736842105,
+          "answers_all": 32,
+          "answers_some": 5,
+          "answers_none": 2,
+          "facts_zero": {
+            "answers": 5,
+            "context_all": 1,
+            "context_some": 4,
+            "context_none": 0
+          }
+        }
+      }
+    }
+  },
+  "range": {
+    "hybrid_rerank": {
+      "facts": 0.02564102564102566,
+      "conditions": 0.0,
+      "evidence": 0.07692307692307687,
+      "decision": 0.0
+    }
+  },
+  "disagreement": {
+    "hybrid_rerank": {
+      "facts": 1,
+      "conditions": 0,
+      "evidence": 4,
+      "decision": 0
+    }
+  },
+  "ties": {
+    "hybrid_rerank": {
+      "facts": 0,
+      "conditions": 0,
+      "evidence": 2,
+      "decision": 0
+    }
+  },
+  "skipped": {
+    "not_general_eval": 0,
+    "no_reference": 0
+  },
+  "evaluation_usage": {
+    "calls": 117,
+    "input_tokens": 573318,
+    "output_tokens": 64623,
+    "reasoning_tokens": 11894,
+    "cached_input_tokens": 445148
+  }
+}

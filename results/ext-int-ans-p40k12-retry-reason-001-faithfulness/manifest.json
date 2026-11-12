@@ -1,0 +1,25 @@
+{
+  "out": "ext-int-ans-p40k12-retry-reason-001-faithfulness",
+  "source": "ext-int-ans-p40k12-retry-reason-001",
+  "metric": "ragas-faithfulness",
+  "tools": {
+    "ragas": "0.4.3",
+    "openai_in_eval_env": "3.3.0",
+    "langchain-community": "0.3.31",
+    "ragas_telemetry": "disabled"
+  },
+  "model": "gpt-6-luna",
+  "statement_prompt": {
+    "version": "faithfulness-statement-v1",
+    "sha256": "6893940177e2a04e583a65db854bd416b63264347c6e6ab7396bba84de33e321"
+  },
+  "nli_prompt": "ragas 0.4.3 기본값(수정 없음)",
+  "max_output_tokens": 4096,
+  "passes": 3,
+  "concurrency": 6,
+  "answers": 39,
+  "langfuse": false,
+  "track": "development",
+  "note": "평가 호출의 사용량은 서비스 답변 생성 사용량과 분리해 기록한다. N/A와 평가 불가는 평균에서 빼고 개수로 센다.",
+  "created_at": "2026-11-12T01:36:25+00:00"
+}

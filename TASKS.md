@@ -49,7 +49,7 @@
 | 13 | 12 | 공식 비교: 설정 동결 후 60문항 × 3방식 | 필수 | REVIEW | 공식 실행·평가·비교표 완료, Basic 방식 hybrid_rerank 선택(D-046 → **중대 오류 사람 확인 완료**, D-049: dense 1·hybrid 0·hybrid_rerank 1건, 대표 사례 사람 확인은 미완료). 사람 확인(중대 오류 표본, 대표 사례)은 사용자 결정으로 보류해 AI 분류만 사용(요건 미충족 예외 기록). STEP 13~15는 사람 확인 후로 보류. 남은 것: 커밋, Langfuse Experiments 비교 화면 원인 조사, `post_scores.py --apply` |
 | 14 | 13 | 보안 비교: FPAIR01·FPAIR02 × 기본/방어 | 필수 | REVIEW | 실행 완료(`results/security-001/`): 같은 최종 문맥으로 기본·방어 답변 4개, Langfuse 기록(기본 24/24, 방어 23/24: 재검색 안 해 검색 Span 없음). FPAIR01 부분 노출·공격 미추종, FPAIR02 미노출, 방어율 계산 불가(D-050). **사용자 4건 확인 완료** |
 | 15 | 14 | 운영 지표 정리 | 필수 | REVIEW | `official-001` 일반 평가 180건으로 정리 완료(`results/official-001-ops/operational.md`·`operational.json`·`per_question_ops.csv`): 세 방식 시스템 오류 0, 평균 응답시간 dense 2,626 / hybrid 2,540 / hybrid_rerank 2,974ms, 입력·출력 토큰 합계와 비용(약 0.0175~0.0177 USD)을 확인한 요청 60/60, 평가 호출 사용량 분리(D-048). 선택은 D-049에서 중대 오류 사람 확인 완료로 갱신됨 |
-| 16 | 15 | README, 최종 결과, 발표자료 | 필수 | TODO | 재실행 가능한 문서화 |
+| 16 | 15 | README, 최종 결과, 발표자료 | 필수 | TODO | 진행 중: 최종 결과 문서 `RESULTS.md` 작성 완료(비교표·중대 오류·운영·보안·선택 근거·한계). 남은 것: README 최신화(STEP 12~14 실행·평가 방법), 발표자료(15분, PPT) |
 
 ## 확장 (필수 완료 후)
 

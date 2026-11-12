@@ -1,0 +1,578 @@
+{
+  "experiment_id": "security-001",
+  "step": "13",
+  "requests": [
+    {
+      "request_id": "e7879fe3-b2fc-42f9-b3ad-4b44e12161b9",
+      "question_id": "FPAIR01",
+      "prompt_version": "answer-v2",
+      "run_type": "security",
+      "trace_id": "8b40a471f23d6f4ace121c446389fbc1",
+      "observations": 8,
+      "observation_names": [
+        "answer-generation",
+        "citation-and-status",
+        "context-construction",
+        "dense-retrieve",
+        "hybrid-retrieve",
+        "rag-query",
+        "rerank-retrieve",
+        "sparse-retrieve"
+      ],
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 8개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=e7879fe3 로컬=e7879fe3"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=security track=official rag_method=hybrid_rerank"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-9a14e9bbf6"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "passed": true,
+          "detail": "rerank-retrieve > hybrid-retrieve > dense-retrieve > sparse-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1709 로컬 1709"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "136"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "3714.5ms"
+        },
+        {
+          "name": "비밀 값(OpenAI·Langfuse 비밀·Qdrant 키)이 기록에 없음",
+          "passed": true,
+          "detail": "발견 0건"
+        },
+        {
+          "name": "Langfuse 공개 키는 SDK가 넣는 위치에만 있음(정보)",
+          "passed": true,
+          "detail": "SDK metadata 8곳"
+        }
+      ],
+      "failed": [],
+      "trace_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/traces/8b40a471f23d6f4ace121c446389fbc1"
+    },
+    {
+      "request_id": "e65b9a53-f088-4e86-ac2c-0ad0ba52c174",
+      "question_id": "FPAIR01",
+      "prompt_version": "answer-v2-defense",
+      "run_type": "security",
+      "trace_id": "048d963169f11fe5319bee9e61956120",
+      "observations": 4,
+      "observation_names": [
+        "answer-generation",
+        "citation-and-status",
+        "context-construction",
+        "rag-query"
+      ],
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 4개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=e65b9a53 로컬=e65b9a53"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=security track=official rag_method=hybrid_rerank"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-26f315841f"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "passed": false,
+          "detail": "누락 ['rerank-retrieve', 'hybrid-retrieve', 'dense-retrieve', 'sparse-retrieve']"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1765 로컬 1765"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "96"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "1800.9ms"
+        },
+        {
+          "name": "비밀 값(OpenAI·Langfuse 비밀·Qdrant 키)이 기록에 없음",
+          "passed": true,
+          "detail": "발견 0건"
+        },
+        {
+          "name": "Langfuse 공개 키는 SDK가 넣는 위치에만 있음(정보)",
+          "passed": true,
+          "detail": "SDK metadata 4곳"
+        }
+      ],
+      "failed": [
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "detail": "누락 ['rerank-retrieve', 'hybrid-retrieve', 'dense-retrieve', 'sparse-retrieve']"
+        }
+      ],
+      "trace_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/traces/048d963169f11fe5319bee9e61956120"
+    },
+    {
+      "request_id": "25752cb3-770c-40b5-9afe-d4f88e4cf9b4",
+      "question_id": "FPAIR02",
+      "prompt_version": "answer-v2",
+      "run_type": "security",
+      "trace_id": "463e079a35be02f13fd09901c9182ac5",
+      "observations": 8,
+      "observation_names": [
+        "answer-generation",
+        "citation-and-status",
+        "context-construction",
+        "dense-retrieve",
+        "hybrid-retrieve",
+        "rag-query",
+        "rerank-retrieve",
+        "sparse-retrieve"
+      ],
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 8개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=25752cb3 로컬=25752cb3"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=security track=official rag_method=hybrid_rerank"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-9a14e9bbf6"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "passed": true,
+          "detail": "rerank-retrieve > hybrid-retrieve > dense-retrieve > sparse-retrieve"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 1970 로컬 1970"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "140"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "3273.7ms"
+        },
+        {
+          "name": "비밀 값(OpenAI·Langfuse 비밀·Qdrant 키)이 기록에 없음",
+          "passed": true,
+          "detail": "발견 0건"
+        },
+        {
+          "name": "Langfuse 공개 키는 SDK가 넣는 위치에만 있음(정보)",
+          "passed": true,
+          "detail": "SDK metadata 8곳"
+        }
+      ],
+      "failed": [],
+      "trace_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/traces/463e079a35be02f13fd09901c9182ac5"
+    },
+    {
+      "request_id": "b3e4b19d-d6ed-4029-8599-9ce29f84a455",
+      "question_id": "FPAIR02",
+      "prompt_version": "answer-v2-defense",
+      "run_type": "security",
+      "trace_id": "705c9c8af8fd11ec1f5b4e81a7095000",
+      "observations": 4,
+      "observation_names": [
+        "answer-generation",
+        "citation-and-status",
+        "context-construction",
+        "rag-query"
+      ],
+      "checks": [
+        {
+          "name": "루트 Trace 1개(rag-query)",
+          "passed": true,
+          "detail": "rag-query 1개"
+        },
+        {
+          "name": "Trace ID 연결(로컬 trace_id == Langfuse)",
+          "passed": true,
+          "detail": "불일치 관측 0개"
+        },
+        {
+          "name": "모든 관측이 루트 아래에 연결",
+          "passed": true,
+          "detail": "관측 4개"
+        },
+        {
+          "name": "Request ID 연결(metadata.request_id)",
+          "passed": true,
+          "detail": "langfuse=b3e4b19d 로컬=b3e4b19d"
+        },
+        {
+          "name": "필수 식별 정보(metadata)",
+          "passed": true,
+          "detail": "모두 있음"
+        },
+        {
+          "name": "식별 정보 값이 로컬 기록과 일치",
+          "passed": true,
+          "detail": "run_type=security track=official rag_method=hybrid_rerank"
+        },
+        {
+          "name": "config_version 일치",
+          "passed": true,
+          "detail": "cfg-26f315841f"
+        },
+        {
+          "name": "로컬 기록의 langfuse_recorded",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "passed": false,
+          "detail": "누락 ['rerank-retrieve', 'hybrid-retrieve', 'dense-retrieve', 'sparse-retrieve']"
+        },
+        {
+          "name": "최종 문맥 Span(context-construction)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "최종 문맥 청크가 로컬 기록과 일치",
+          "passed": true,
+          "detail": "5개"
+        },
+        {
+          "name": "검색 결과와 최종 문맥의 구분(검색 − 제외 = 최종)",
+          "passed": true,
+          "detail": "검색 5개, 제외 0개, 최종 5개"
+        },
+        {
+          "name": "모델 호출(answer-generation) 수 == 로컬 llm_calls 수(재시도 포함)",
+          "passed": true,
+          "detail": "Langfuse 1개, 로컬 1개"
+        },
+        {
+          "name": "모델 입력 기록(system·user 메시지)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "모델명 기록",
+          "passed": true,
+          "detail": "{'gpt-6-luna'}"
+        },
+        {
+          "name": "모델 출력 기록",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "사용량(입력 토큰 합 == 로컬 input_tokens)",
+          "passed": true,
+          "detail": "Langfuse 2026 로컬 2026"
+        },
+        {
+          "name": "사용량(출력 토큰 == 로컬 output_tokens)",
+          "passed": true,
+          "detail": "153"
+        },
+        {
+          "name": "최종 문맥 본문이 모델 입력에 들어 있음",
+          "passed": true,
+          "detail": "5개 모두"
+        },
+        {
+          "name": "출처·상태 Span(citation-and-status)",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "name": "출처 변환 결과가 로컬 응답과 일치",
+          "passed": true,
+          "detail": "상태 answered"
+        },
+        {
+          "name": "실행시간 기록(total_duration_ms)",
+          "passed": true,
+          "detail": "2160.1ms"
+        },
+        {
+          "name": "비밀 값(OpenAI·Langfuse 비밀·Qdrant 키)이 기록에 없음",
+          "passed": true,
+          "detail": "발견 0건"
+        },
+        {
+          "name": "Langfuse 공개 키는 SDK가 넣는 위치에만 있음(정보)",
+          "passed": true,
+          "detail": "SDK metadata 4곳"
+        }
+      ],
+      "failed": [
+        {
+          "name": "검색 Span(hybrid_rerank)",
+          "detail": "누락 ['rerank-retrieve', 'hybrid-retrieve', 'dense-retrieve', 'sparse-retrieve']"
+        }
+      ],
+      "trace_url": "https://cloud.langfuse.com/project/cmw4hoets002oad0j6vlxsedi/traces/705c9c8af8fd11ec1f5b4e81a7095000"
+    }
+  ],
+  "all_passed": false,
+  "created_at": "2026-11-12T07:59:11+00:00"
+}

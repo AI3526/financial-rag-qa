@@ -31,6 +31,7 @@ VARIANTS = {
     "v2b": ("chunk-v2b-max600", ck.ChunkParams(max_chars=600)),
     "v2c": ("chunk-v2c-tableblock", ck.ChunkParams(table_block=True)),
     "v2e": ("chunk-v2e-overlap1", ck.ChunkParams(overlap_units=1)),
+    "v2f": ("chunk-v2f-punctjoin", ck.ChunkParams(punct_join=True)),
 }
 
 

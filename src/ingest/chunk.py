@@ -43,6 +43,8 @@ class ChunkParams:
     # --- 확장 실험용 옵션(extension/intermediate). 기본값에서는 chunk-v1과 결과가 완전히 같다 ---
     min_chunk_chars: int = 0        # 0보다 크면 이보다 짧은 청크를 같은 쪽의 앞 청크에 합친다(합친 길이가 hard_max_chars 이하일 때)
     table_block: bool = False       # True면 연속한 짧은 문단(표 줄)을 한 덩어리로 묶어 청크 경계에서 쪼개지지 않게 한다
+    punct_join: bool = False        # True면 짧은 줄이라도 `prose_min_chars` 이상이고 문장부호(. ? !)로 끝나지 않으면 문단의 끝으로 보지 않고 다음 줄과 잇는다(chunk-v2f)
+    prose_min_chars: int = 50       # punct_join에서 '본문 줄'로 보는 최소 줄 길이. 이보다 짧은 줄(표 칸, 제목, 마지막 줄)은 이전처럼 문단의 끝으로 본다
 
     def as_dict(self) -> dict:
         d = {
@@ -54,6 +56,8 @@ class ChunkParams:
         }
         if self.min_chunk_chars:
             d["min_chunk_chars"] = self.min_chunk_chars
+        if self.punct_join:
+            d["punct_join"] = {"prose_min_chars": self.prose_min_chars, "sentence_end": ".?!"}
         if self.table_block:
             d["table_block"] = {"row_max_chars": TABLE_ROW_MAX_CHARS, "min_run": TABLE_MIN_RUN}
         return d
@@ -82,8 +86,12 @@ def parse_page(text: str) -> tuple[dict, list[str], bool]:
     return {}, lines, False
 
 
-def split_paragraph_lines(body_lines: list[str], ratio: float) -> list[list[str]]:
-    """줄 길이로 문단을 나눈다. 빈 줄은 건너뛴다."""
+def split_paragraph_lines(body_lines: list[str], ratio: float, punct_join: bool = False, prose_min_chars: int = 50) -> list[list[str]]:
+    """줄 길이로 문단을 나눈다. 빈 줄은 건너뛴다.
+
+    punct_join=True(chunk-v2f)이면 짧은 줄이라도 길이가 prose_min_chars 이상이고 문장부호(. ? !)로 끝나지 않으면 문단의 끝이 아니다.
+    쪽에 최장 줄(표·긴 문단)이 있어 기준이 높아지면 보통 본문 줄이 모두 '문단의 끝'으로 오판되기 때문이다(EXTENSION_INTERMEDIATE_LOG 청킹 진단).
+    """
     lines = [l for l in body_lines if l.strip()]
     if not lines:
         return []
@@ -93,7 +101,10 @@ def split_paragraph_lines(body_lines: list[str], ratio: float) -> list[list[str]
     current: list[str] = []
     for line, length in zip(lines, lengths):
         current.append(line)
-        if length < threshold:
+        ends = length < threshold
+        if ends and punct_join and length >= prose_min_chars and line.rstrip()[-1:] not in ".?!":
+            ends = False
+        if ends:
             paragraphs.append(current)
             current = []
     if current:
@@ -219,7 +230,7 @@ def chunk_page(page: dict, params: ChunkParams) -> tuple[list[dict], bool]:
     청크에는 chunk_text, page, metadata만 채우고 나머지 식별 필드는 chunk_document가 붙인다.
     """
     meta, body_lines, structured = parse_page(page["text"])
-    paragraphs = [join_lines(p) for p in split_paragraph_lines(body_lines, params.paragraph_ratio)]
+    paragraphs = [join_lines(p) for p in split_paragraph_lines(body_lines, params.paragraph_ratio, params.punct_join, params.prose_min_chars)]
     if params.table_block:
         paragraphs = group_table_blocks(paragraphs)
     units = _page_units(paragraphs, params)

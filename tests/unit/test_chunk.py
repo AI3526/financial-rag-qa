@@ -124,3 +124,18 @@ def test_chunking_is_deterministic():
     a, _ = ck.chunk_page(page, PARAMS)
     b, _ = ck.chunk_page(page, PARAMS)
     assert a == b
+
+
+def test_punct_join_keeps_wrapped_prose_lines_together_but_default_is_unchanged():
+    # 최장 줄(표 줄)이 기준을 올린 쪽: 기본 규칙은 본문 줄마다 문단을 끊고, v2f는 문장부호로 끝나지 않은 본문 줄을 다음 줄과 잇는다
+    long_line = "표 줄 " + "가" * 66
+    prose0 = "본문은 줄마다 폭이 일정하게 나뉘어 있어서 한 문장이 여러 줄에 걸쳐 이어" + "진다"
+    prose1 = "서 쓰인 경우에도 문장 중간에서 문단이 끊기지 않아야 한다."
+    lines = ["제목", long_line, prose0, prose1, "표 칸"]
+    default = ck.split_paragraph_lines(lines, 0.85)
+    joined = ck.split_paragraph_lines(lines, 0.85, punct_join=True, prose_min_chars=40)
+    same_paragraph = lambda paras: any(prose0 in p and prose1 in p for p in paras)  # noqa: E731
+    assert not same_paragraph(default)  # 기본: prose0 뒤에서 문단이 끊김(문장 중간)
+    assert same_paragraph(joined)  # v2f: 한 문단
+    assert ["표 칸"] in joined  # 짧은 줄(표 칸)은 이전처럼 문단의 끝
+    assert ck.ChunkParams().as_dict() == ck.ChunkParams(punct_join=False).as_dict()

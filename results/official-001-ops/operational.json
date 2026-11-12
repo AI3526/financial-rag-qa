@@ -1,0 +1,147 @@
+{
+  "experiment": "official-001",
+  "requests_per_method": {
+    "dense": 60,
+    "hybrid": 60,
+    "hybrid_rerank": 60
+  },
+  "operational": {
+    "dense": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2625.758333333333,
+      "mean_retrieval_ms": 276.88,
+      "mean_generation_ms": 2346.766666666667,
+      "input_tokens": 99240,
+      "output_tokens": 10925,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.0176823,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    },
+    "hybrid": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2539.608333333333,
+      "mean_retrieval_ms": 256.61833333333334,
+      "mean_generation_ms": 2281.5299999999997,
+      "input_tokens": 100070,
+      "output_tokens": 10510,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.0175738,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    },
+    "hybrid_rerank": {
+      "requests": 60,
+      "ok": 60,
+      "errors": 0,
+      "error_rate": 0.0,
+      "mean_total_ms": 2974.1549999999997,
+      "mean_retrieval_ms": 692.7133333333334,
+      "mean_generation_ms": 2279.548333333333,
+      "input_tokens": 101598,
+      "output_tokens": 10049,
+      "usage_known_requests": 60,
+      "usage_unknown_requests": 0,
+      "cost_usd": 0.01753925,
+      "cost_known_requests": 60,
+      "cost_unknown_requests": 0,
+      "retries": 0
+    }
+  },
+  "extra": {
+    "dense": {
+      "total_ms": {
+        "n": 60,
+        "mean": 2625.758333333333,
+        "median": 2437.45,
+        "min": 1660.3,
+        "max": 5415.4
+      },
+      "status_counts": {
+        "needs_clarification": 6,
+        "answered": 44,
+        "abstained": 10
+      },
+      "mean_reranking_ms": null,
+      "reranking_known_requests": 0,
+      "reasoning_tokens": 1411,
+      "cached_input_tokens": 1572,
+      "mean_input_tokens_per_request": 1654.0,
+      "mean_output_tokens_per_request": 182.08333333333334,
+      "mean_cost_per_request_usd": 0.00029470500000000003
+    },
+    "hybrid": {
+      "total_ms": {
+        "n": 60,
+        "mean": 2539.608333333333,
+        "median": 2362.45,
+        "min": 1683.1,
+        "max": 5169.4
+      },
+      "status_counts": {
+        "needs_clarification": 6,
+        "answered": 44,
+        "abstained": 10
+      },
+      "mean_reranking_ms": null,
+      "reranking_known_requests": 0,
+      "reasoning_tokens": 1122,
+      "cached_input_tokens": 1613,
+      "mean_input_tokens_per_request": 1667.8333333333333,
+      "mean_output_tokens_per_request": 175.16666666666666,
+      "mean_cost_per_request_usd": 0.00029289666666666665
+    },
+    "hybrid_rerank": {
+      "total_ms": {
+        "n": 60,
+        "mean": 2974.155,
+        "median": 2768.15,
+        "min": 2267.4,
+        "max": 5878.8
+      },
+      "status_counts": {
+        "needs_clarification": 8,
+        "answered": 43,
+        "abstained": 9
+      },
+      "mean_reranking_ms": 511.385,
+      "reranking_known_requests": 60,
+      "reasoning_tokens": 679,
+      "cached_input_tokens": 1570,
+      "mean_input_tokens_per_request": 1693.3,
+      "mean_output_tokens_per_request": 167.48333333333332,
+      "mean_cost_per_request_usd": 0.0002923208333333333
+    }
+  },
+  "run_wall_clock": {
+    "started_at": "2026-11-10T08:34:24+00:00",
+    "finished_at": "2026-11-10T08:43:00+00:00"
+  },
+  "evaluation_usage_separate": {
+    "judge": {
+      "calls": 540,
+      "input_tokens": 1681842,
+      "output_tokens": 286473,
+      "reasoning_tokens": 62001,
+      "cached_input_tokens": 1388057
+    },
+    "faithfulness": {
+      "calls": 1047,
+      "input_tokens": 1497144,
+      "output_tokens": 347347,
+      "reasoning_tokens": 136140,
+      "cached_input_tokens": 138727
+    }
+  },
+  "hybrid_rerank_slower_than_hybrid_by_1s_questions": 8
+}

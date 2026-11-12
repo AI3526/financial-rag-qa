@@ -1,0 +1,11 @@
+{
+  "experiment": "official-001",
+  "source": [
+    "results/official-001/runs.jsonl",
+    "results/official-001-judge/summary.json",
+    "results/official-001-faithfulness/summary.json",
+    "results/official-001/experiment_log.json"
+  ],
+  "scope": "general_eval 180건(60문항 x 3방식), 평가 호출·보안·모의 오류·예행·중단 실행 제외",
+  "created_at": "2026-11-12T06:53:47+00:00"
+}

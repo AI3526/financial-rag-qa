@@ -45,14 +45,16 @@ METRICS = ("hit", "recall", "page_hit", "page_recall", "quote_recall", "fact_cov
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
+    ap.add_argument("--processed-dir", default="data/processed_intermediate", help="청킹 변형의 chunks.jsonl이 있는 폴더(저장소 루트 기준)")
+    ap.add_argument("--index-name", default="intermediate__chunk-v1__e5large-v1", help="위 청킹에 해당하는 numpy 색인 이름")
     args = ap.parse_args()
     out = ROOT / "results" / args.out
     if out.exists():
         print(f"이미 결과가 있습니다(덮어쓰지 않음): {out}. (중단)")
         return 1
     refs = load_refs()
-    chunks = load_chunks(ROOT / "data" / "processed_intermediate" / "chunks.jsonl")
-    index = NumpyIndex.load("intermediate__chunk-v1__e5large-v1")
+    chunks = load_chunks(ROOT / args.processed_dir / "chunks.jsonl")
+    index = NumpyIndex.load(args.index_name)
     dense = NumpyDenseRetriever(index, RetrievalConfig(), embedder=Embedder(RetrievalConfig().spec))
     sparse = SparseRetriever(chunks=chunks)
     reranker = CrossEncoderReranker()
@@ -82,7 +84,7 @@ def main() -> int:
     out.mkdir(parents=True)
     (out / "rows.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
     (out / "ranked.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in ranked_dump), encoding="utf-8")
-    (out / "manifest.json").write_text(json.dumps({"pools": POOLS, "ks": KS, "index": "intermediate__chunk-v1__e5large-v1", "method": "hybrid_rerank",
+    (out / "manifest.json").write_text(json.dumps({"pools": POOLS, "ks": KS, "index": args.index_name, "processed_dir": args.processed_dir, "method": "hybrid_rerank",
                                                   "questions": len(questions)}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     # 화면에는 tune만 출력한다.
     tune = [r for r in rows if r["set"] in TUNE]

@@ -1,0 +1,19 @@
+{
+  "frozen": true,
+  "frozen_at": "2026-11-12T03:47:34+00:00",
+  "files": {
+    "hard_full.json": "cfbe7dd063dcdcca54046d27cb4dd0d7c898a8e95b3e174f65595cf1625ae7ab",
+    "hard_questions.json": "b6257f76b86a21864897a47d48fb838b84e47070e0370698d50ba87f029df1f7"
+  },
+  "counts": {
+    "dev": 10,
+    "hold": 10
+  },
+  "rules": {
+    "dev": "어려운 경로(계산형·분기·지역 표) 튜닝·선택에 사용",
+    "hold": "최종 후보 확인에만 사용, 튜닝 중에는 결과를 보지 않음(제공 additional과 같은 취급)",
+    "official_score": "공식 점수에 합산하지 않고 별도 보고"
+  },
+  "verification": "자동: 근거 인용문이 지정한 쪽에 원문 그대로 존재, 숫자는 코드로 계산(scripts/build_ext_hard.py). 사람 검증 없음(verified_by_human=false)",
+  "note": "사용자가 질문 문구를 확인하고 이 20개로 기준선을 먼저 돌려 본 뒤 필요하면 유형을 추가하기로 했다(2026-11-12). 동결 후 수정하면 새 버전(hard-v2)으로 따로 저장한다."
+}

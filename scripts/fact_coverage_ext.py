@@ -26,7 +26,8 @@ sys.path.insert(0, str(ROOT))
 from src.evaluation.compare import paired_stats  # noqa: E402
 
 CHUNK_DIRS = {"chunk-v1": "processed_intermediate", "chunk-v2a-tailmerge": "processed_intermediate_v2a", "chunk-v2b-max600": "processed_intermediate_v2b",
-              "chunk-v2c-tableblock": "processed_intermediate_v2c", "chunk-v2e-overlap1": "processed_intermediate_v2e", "chunk-v3a-tablerows": "processed_intermediate_v3a"}
+              "chunk-v2c-tableblock": "processed_intermediate_v2c", "chunk-v2e-overlap1": "processed_intermediate_v2e", "chunk-v3a-tablerows": "processed_intermediate_v3a",
+              "chunk-v2f-punctjoin": "processed_intermediate_v2f"}
 NUM = re.compile(r"\d[\d,\.]*\s*(?:억원|백만원|%|퍼센트)?")
 TUNE = {"development", "ext_dev"}
 
@@ -66,6 +67,10 @@ def load_refs() -> dict[str, dict]:
             refs[q["id"]] = q
     for q in json.loads((ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "ext_full.json").read_text(encoding="utf-8")):
         refs[q["id"]] = q
+    hard = ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "hard_full.json"
+    if hard.exists():
+        for q in json.loads(hard.read_text(encoding="utf-8")):
+            refs[q["id"]] = q
     return refs
 
 

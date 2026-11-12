@@ -1,0 +1,200 @@
+{
+  "reviewed_by": "사용자(사람)",
+  "reviewed_at": "2026-11-12",
+  "worksheet": "results/official-001-critical/worksheet_critical.md",
+  "reviewed_items": 17,
+  "human_critical_counts": {
+    "dense": 1,
+    "hybrid": 0,
+    "hybrid_rerank": 1
+  },
+  "human_critical_items": {
+    "dense": [
+      "F-FINAL-01"
+    ],
+    "hybrid_rerank": [
+      "F-DEV-09"
+    ]
+  },
+  "ai_preclassification_counts": {
+    "dense": 1,
+    "hybrid": 0,
+    "hybrid_rerank": 1
+  },
+  "agreement": "AI 사전 분류와 사람 판정이 17건 모두 일치(후보 2건 중대 확인, 표본 15건 중대 아님)",
+  "sampling": "방식별 후보가 10건 이하여서 후보 전부(dense 1, hybrid_rerank 1)와 '중대 아님' 표본 방식당 5건(seed 20261110)을 확인함. 표본에서 사람이 중대로 본 건이 없어 나머지 '중대 아님' 분류의 전수 확인은 하지 않음.",
+  "not_reviewed": "대표 사례 작업지(worksheet_cases.md 18건)는 사람 확인 미완료",
+  "items": [
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-03",
+      "rag_method": "dense",
+      "human_judgment_text": "'장비 제품군의 확장형' 포함 안 됐지만 중대 오류까지는 아니라고 봄",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-19",
+      "rag_method": "dense",
+      "human_judgment_text": "어느 회사인지 되물었고, 상반기 실적이 나와 있다고 했으므로 충분히 답변했다고 생각됨. 중대오류 아님",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-22",
+      "rag_method": "dense",
+      "human_judgment_text": "회사 전체 매출 누락은 중요한 정보인데 누락. 검색의 질 문제이지 틀린 수치는 없어서 중대 오류로 분류할 건 아닌 것 같음.",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "후보",
+      "question_id": "F-FINAL-01",
+      "rag_method": "dense",
+      "human_judgment_text": "중대 오류 (40%)",
+      "critical": true,
+      "type": "C2",
+      "type_note": "C2 (사용자가 2026-11-12 대화에서 확인, AI가 기입)",
+      "memo": "편집실 문의 문구(S5)의 '재생 원료 40%'를 공식 자료(30%)와의 '자료 간 불일치'처럼 소개해 근거 없는 사실로 제시함(사용자 확인)."
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-FINAL-10",
+      "rag_method": "dense",
+      "human_judgment_text": "검색의 질 문제로 수치 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-FINAL-21",
+      "rag_method": "dense",
+      "human_judgment_text": "수치 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-13",
+      "rag_method": "hybrid",
+      "human_judgment_text": "수치 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-14",
+      "rag_method": "hybrid",
+      "human_judgment_text": "영업이익의 증감 여부 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-19",
+      "rag_method": "hybrid",
+      "human_judgment_text": "기간 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-25",
+      "rag_method": "hybrid",
+      "human_judgment_text": "수치 누락. 중대 오류로 분류하지는 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-FINAL-13",
+      "rag_method": "hybrid",
+      "human_judgment_text": "중대 오류 아님",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "후보",
+      "question_id": "F-DEV-09",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "\"정정 전 값을 현행으로 답함\" 중대 오류(C1), 원인은 검색 실패",
+      "critical": true,
+      "type": "C1",
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-19",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "중대 오류 아님",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-20",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "오류 없음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-21",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "검색 실패, 중대 오류로 분류하지 않음",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-DEV-26",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "중대 오류 아님",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    },
+    {
+      "kind": "표본",
+      "question_id": "F-FINAL-28",
+      "rag_method": "hybrid_rerank",
+      "human_judgment_text": "중대 오류 아님",
+      "critical": false,
+      "type": null,
+      "type_note": null,
+      "memo": null
+    }
+  ],
+  "note": "'유형'란은 사용자가 비워 둔 곳 중 F-FINAL-01(C2)만 사용자 확인에 따라 AI가 기입했다. F-DEV-09의 C1은 사용자가 판정란에 적은 문장에서 읽었다. 판정 원문은 human_judgment_text에 그대로 보존했다. critical 여부는 판정 문장에서 '아님/않/아니/아닌/오류 없음'이 들어가면 중대 아님으로 읽었고 17건 모두 눈으로 대조했다."
+}

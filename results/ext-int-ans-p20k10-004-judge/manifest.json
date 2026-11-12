@@ -1,0 +1,21 @@
+{
+  "out": "ext-int-ans-p20k10-004-judge",
+  "source": "ext-int-ans-p20k10-004",
+  "metric": "llm-judge-4items",
+  "model": "gpt-6-luna",
+  "prompt": {
+    "version": "judge-v2",
+    "sha256": "181ca989a6242dc2ffba50b0740432118058d186417860fca92263053b692347",
+    "diagnostic": "required_facts_in_context"
+  },
+  "max_output_tokens": 4096,
+  "reasoning_effort": "low",
+  "concurrency": 6,
+  "passes": 3,
+  "answers": 39,
+  "langfuse": false,
+  "aggregation": "다수결(상태·점수 모두 절반 초과, 동점은 평가 불가) + 회차별 충족률·범위·갈린 답변 수 병기",
+  "reference_data": "development/additional/expansion_validation 평가 파일(evidence_groups 제외)",
+  "note": "평가 호출 사용량은 서비스 답변 생성 사용량과 분리해 기록한다. 해당 없음과 평가 불가는 평균에서 빼고 개수로 센다. 상태 비교와 서비스 오류 처리는 코드가 한다.",
+  "created_at": "2026-11-12T00:55:03+00:00"
+}

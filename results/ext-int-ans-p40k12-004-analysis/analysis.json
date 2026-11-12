@@ -1,0 +1,175 @@
+{
+  "source": "ext-int-ans-p40k12-004",
+  "method": "hybrid_rerank",
+  "groups": {
+    "tune": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 26,
+            "abstained": 1
+          },
+          "match": 26
+        },
+        "clarify": {
+          "questions": 5,
+          "statuses": {
+            "needs_clarification": 2,
+            "answered": 3
+          },
+          "match": 2
+        },
+        "abstain": {
+          "questions": 7,
+          "statuses": {
+            "abstained": 7
+          },
+          "match": 7
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8461538461538461,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.8974358974358975,
+            "n": 39,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.8888888888888888,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9629629629629629,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.8,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.4,
+            "n": 5,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 0.7142857142857143,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.9910884353741496,
+        "n": 35,
+        "not_applicable": 4
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 3,
+        "context_coverage": {
+          "some": 3
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "대표 제품·서비스와 루미센서 E가 확장형이라는 사실은 제시했지만, E 구매에 루미뷰 정기 이용이 자동 포함되지 않는다는 필수 "
+        },
+        {
+          "qid": "IF-DEV07",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "상반기 운영서비스사업 매출 480억원은 제시했지만, 필수 사실 2의 정기 이용 업무 두 가지를 설명하지 않았습니다. [다수결 "
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "분기별 운영서비스 매출은 제시했지만, 필수 사실 1·2의 비중과 필수 사실 3의 상반기 비중을 산출하지 않았습니다. [다수결 "
+        }
+      ],
+      "operational": {
+        "requests": 39,
+        "ok": 39,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3521.802564102564,
+        "mean_retrieval_ms": 1046.520512820513,
+        "mean_generation_ms": 2470.64358974359,
+        "input_tokens": 131845,
+        "output_tokens": 6872,
+        "usage_known_requests": 39,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.01948238,
+        "cost_known_requests": 39,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    }
+  }
+}

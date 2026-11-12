@@ -1,0 +1,30 @@
+{
+  "questions": 53,
+  "records": 53,
+  "http_status": {
+    "200": 53
+  },
+  "response_status": {
+    "answered": 41,
+    "abstained": 9,
+    "needs_clarification": 3
+  },
+  "errors": [],
+  "operational": {
+    "requests": 53,
+    "ok": 53,
+    "errors": 0,
+    "error_rate": 0.0,
+    "mean_total_ms": 4058.1018867924527,
+    "mean_retrieval_ms": 1135.7358490566037,
+    "mean_generation_ms": 2918.818867924528,
+    "input_tokens": 175958,
+    "output_tokens": 10898,
+    "usage_known_requests": 53,
+    "usage_unknown_requests": 0,
+    "cost_usd": 0.00722289,
+    "cost_known_requests": 53,
+    "cost_unknown_requests": 0,
+    "retries": 0
+  }
+}

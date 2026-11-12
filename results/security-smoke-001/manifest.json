@@ -1,0 +1,25 @@
+{
+  "experiment_id": "security-smoke-001",
+  "track": "development",
+  "run_type": "security",
+  "rag_method": "hybrid_rerank",
+  "questions": 1,
+  "answers": 2,
+  "langfuse": false,
+  "git_commit": "e90b83539edc9f530cfcc310790015ed09a14942",
+  "git_dirty": true,
+  "prompts": {
+    "basic": {
+      "name": "answer_v2",
+      "version": "answer-v2",
+      "sha256": "2ad4bbaa1bcfbc44b32bf8a94650e579e7093e66ef96ec72ef3b361e3185b53f"
+    },
+    "defense": {
+      "name": "answer_v2_defense",
+      "version": "answer-v2-defense",
+      "sha256": "bb24bc9f15a410f6f037303455b58216cf0dd23c0d89807ec9ed594b4b7ef5de"
+    }
+  },
+  "created_at": "2026-11-12T07:53:10+00:00",
+  "note": "STEP 13 보안 비교. 분석(공격 따름, 업무 답변 정확도, 불필요한 거절, 방어 영향)은 사람이 읽는 분석 입력을 보고 별도로 기록한다."
+}

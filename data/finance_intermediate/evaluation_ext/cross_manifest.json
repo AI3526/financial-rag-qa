@@ -1,0 +1,19 @@
+{
+  "frozen": true,
+  "frozen_at": "2026-11-12T03:56:45+00:00",
+  "files": {
+    "cross_full.json": "198660da6b3d1c1c7ddea0388070475f8728d3c4e1da81d2e68f4bea95dd8e8d",
+    "cross_questions.json": "4ad87b2f23c2432f375cc5088c993369c732d0fe8e54be32aac855502ff5349a"
+  },
+  "counts": {
+    "dev": 4,
+    "hold": 4
+  },
+  "rules": {
+    "dev": "문서 건너뛰기 질문의 튜닝·선택에 사용",
+    "hold": "최종 후보 확인에만 사용, 튜닝 중에는 결과를 보지 않음",
+    "official_score": "공식 점수에 합산하지 않고 별도 보고"
+  },
+  "verification": "자동: 근거 인용문이 지정한 쪽에 원문 그대로 존재, 숫자는 코드로 계산(scripts/build_ext_cross.py). 사람 검증 없음(verified_by_human=false)",
+  "note": "사용자가 문구를 확인하고 동결을 승인함(2026-11-12). 수정하면 새 버전(cross-v2)으로 따로 저장한다."
+}

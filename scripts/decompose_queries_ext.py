@@ -41,6 +41,9 @@ def load_questions() -> list[dict]:
     if (EXT / "hard_questions.json").exists():  # 어려운 질문 세트(IFH, hard_dev·hard_hold)
         hard = {x["id"]: x["split"] for x in json.loads((EXT / "hard_full.json").read_text(encoding="utf-8"))}
         out += [{"question_id": q["id"], "question": q["question"], "set": "hard_" + hard[q["id"]]} for q in json.loads((EXT / "hard_questions.json").read_text(encoding="utf-8"))]
+    if (EXT / "cross_questions.json").exists():  # 문서 건너뛰기 질문 세트(IFX2, cross_dev·cross_hold)
+        cross = {x["id"]: x["split"] for x in json.loads((EXT / "cross_full.json").read_text(encoding="utf-8"))}
+        out += [{"question_id": q["id"], "question": q["question"], "set": "cross_" + cross[q["id"]]} for q in json.loads((EXT / "cross_questions.json").read_text(encoding="utf-8"))]
     return out
 
 

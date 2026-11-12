@@ -67,10 +67,11 @@ def load_refs() -> dict[str, dict]:
             refs[q["id"]] = q
     for q in json.loads((ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "ext_full.json").read_text(encoding="utf-8")):
         refs[q["id"]] = q
-    hard = ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "hard_full.json"
-    if hard.exists():
-        for q in json.loads(hard.read_text(encoding="utf-8")):
-            refs[q["id"]] = q
+    for name in ("hard_full.json", "cross_full.json"):
+        extra = ROOT / "data" / "finance_intermediate" / "evaluation_ext" / name
+        if extra.exists():
+            for q in json.loads(extra.read_text(encoding="utf-8")):
+                refs[q["id"]] = q
     return refs
 
 

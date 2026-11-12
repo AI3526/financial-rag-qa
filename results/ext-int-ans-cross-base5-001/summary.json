@@ -1,0 +1,28 @@
+{
+  "questions": 4,
+  "records": 4,
+  "http_status": {
+    "200": 4
+  },
+  "response_status": {
+    "answered": 4
+  },
+  "errors": [],
+  "operational": {
+    "requests": 4,
+    "ok": 4,
+    "errors": 0,
+    "error_rate": 0.0,
+    "mean_total_ms": 3808.3,
+    "mean_retrieval_ms": 648.45,
+    "mean_generation_ms": 3126.0,
+    "input_tokens": 7063,
+    "output_tokens": 853,
+    "usage_known_requests": 4,
+    "usage_unknown_requests": 0,
+    "cost_usd": 0.00130909,
+    "cost_known_requests": 4,
+    "cost_unknown_requests": 0,
+    "retries": 0
+  }
+}

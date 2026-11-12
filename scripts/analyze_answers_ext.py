@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from decompose_queries_ext import load_questions  # noqa: E402
 
 GROUPS = {"tune": ("development", "ext_dev"), "confirm": ("additional", "ext_hold"), "development": ("development",), "additional": ("additional",),
-          "ext_dev": ("ext_dev",), "ext_hold": ("ext_hold",), "hard_dev": ("hard_dev",), "hard_hold": ("hard_hold",)}
+          "ext_dev": ("ext_dev",), "ext_hold": ("ext_hold",), "hard_dev": ("hard_dev",), "hard_hold": ("hard_hold",), "cross_dev": ("cross_dev",), "cross_hold": ("cross_hold",)}
 ITEMS = ("facts", "conditions", "evidence", "decision")
 LABEL = {"facts": "사실", "conditions": "조건", "evidence": "근거", "decision": "판단"}
 EXPECTED_STATUS = {"answer": "answered", "clarify": "needs_clarification", "abstain": "abstained"}
@@ -38,10 +38,11 @@ def load_refs() -> dict:
             refs[q["id"]] = q
     for q in json.loads((ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "ext_full.json").read_text(encoding="utf-8")):
         refs[q["id"]] = q
-    hard = ROOT / "data" / "finance_intermediate" / "evaluation_ext" / "hard_full.json"
-    if hard.exists():
-        for q in json.loads(hard.read_text(encoding="utf-8")):
-            refs[q["id"]] = q
+    for name in ("hard_full.json", "cross_full.json"):
+        extra = ROOT / "data" / "finance_intermediate" / "evaluation_ext" / name
+        if extra.exists():
+            for q in json.loads(extra.read_text(encoding="utf-8")):
+                refs[q["id"]] = q
     return refs
 
 

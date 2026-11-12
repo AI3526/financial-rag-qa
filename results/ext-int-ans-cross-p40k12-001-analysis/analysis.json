@@ -1,0 +1,145 @@
+{
+  "source": "ext-int-ans-cross-p40k12-001",
+  "method": "hybrid_rerank",
+  "groups": {
+    "cross_dev": {
+      "confusion": {
+        "answer": {
+          "questions": 4,
+          "statuses": {
+            "answered": 4
+          },
+          "match": 4
+        },
+        "clarify": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        },
+        "abstain": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.8958333333333334,
+        "n": 4,
+        "not_applicable": 0
+      },
+      "zero_facts_context": {
+        "answer_questions": 4,
+        "zero_facts": 0,
+        "context_coverage": {}
+      },
+      "problems": [],
+      "operational": {
+        "requests": 4,
+        "ok": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3821.2749999999996,
+        "mean_retrieval_ms": 1191.125,
+        "mean_generation_ms": 2595.575,
+        "input_tokens": 14033,
+        "output_tokens": 611,
+        "usage_known_requests": 4,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00205931,
+        "cost_known_requests": 4,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    }
+  }
+}

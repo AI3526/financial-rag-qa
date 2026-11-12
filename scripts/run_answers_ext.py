@@ -66,7 +66,7 @@ def main() -> int:
     ap.add_argument("--retry", action="store_true", help="2단계: 되묻기·보류이면 reason을 질의에 더해 한 번 더 검색해 다시 답한다(문맥 = 첫 문맥 8 + 새 청크 4)")
     ap.add_argument("--queries-file")
     ap.add_argument("--routes-file")
-    ap.add_argument("--sets", nargs="+", choices=["development", "additional", "ext_dev", "ext_hold", "hard_dev", "hard_hold"], help="이 세트의 질문만 실행(기본: 78개 전부). 예: --sets development ext_dev = 판단용 tune 39개")
+    ap.add_argument("--sets", nargs="+", choices=["development", "additional", "ext_dev", "ext_hold", "hard_dev", "hard_hold", "cross_dev", "cross_hold"], help="이 세트의 질문만 실행(기본: 78개 전부). 예: --sets development ext_dev = 판단용 tune 39개")
     ap.add_argument("--limit", type=int)
     args = ap.parse_args()
     out = ROOT / "results" / args.experiment_id

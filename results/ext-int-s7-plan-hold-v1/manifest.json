@@ -1,0 +1,19 @@
+{
+  "prompt": {
+    "version": "query-plan-v1",
+    "sha256": "9c987eb1a52b2bc0e346475cdd3e7bc13fefe259ea082becf8bfe7b4605be233"
+  },
+  "model_env": "OPENAI_MODEL",
+  "reasoning_effort": "low",
+  "max_completion_tokens": 2048,
+  "seed": 20261111,
+  "max_queries": 8,
+  "sets": [
+    "additional",
+    "ext_hold",
+    "hard_hold",
+    "cross_hold"
+  ],
+  "concurrency": 6,
+  "created_at": "2026-11-12T05:26:05+00:00"
+}

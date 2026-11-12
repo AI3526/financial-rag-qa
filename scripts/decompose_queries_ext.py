@@ -52,14 +52,16 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--concurrency", type=int, default=6)
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--prompt", default="query_decompose_v1", help="prompts/{이름}.json (query_decompose_v1 또는 query_plan_v1)")
+    ap.add_argument("--sets", nargs="+", help="이 세트의 질문만 분해(기본: 전부). 확인용 세트(additional, ext_hold, hard_hold, cross_hold)는 최종 확인 때만 넣는다")
     args = ap.parse_args()
     out = ROOT / "results" / args.out
     if out.exists():
         print(f"이미 결과가 있습니다(덮어쓰지 않음): {out}. (중단)")
         return 1
-    spec = qd.load_prompt()
+    spec = qd.load_prompt(ROOT / "prompts" / f"{args.prompt}.json")
     llm = qd.build_llm()
-    questions = load_questions()[: args.limit]
+    questions = [q for q in load_questions() if not args.sets or q["set"] in args.sets][: args.limit]
     with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
         results = list(pool.map(lambda q: {**q, **qd.decompose(llm, spec, q["question"])}, questions))
     out.mkdir(parents=True)
@@ -76,7 +78,7 @@ def main() -> int:
                "errors": [{"question_id": r["question_id"], "error": r["error"]} for r in results if r["error"]],
                "mean_seconds": round(sum(r["seconds"] for r in results) / len(results), 2), "usage_total": dict(usage)}
     manifest = {"prompt": {"version": spec["version"], "sha256": spec["sha256"]}, "model_env": "OPENAI_MODEL", "reasoning_effort": "low", "max_completion_tokens": 2048,
-                "seed": 20261111, "max_queries": qd.MAX_QUERIES, "concurrency": args.concurrency, "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+                "seed": 20261111, "max_queries": int(spec.get("max_queries", qd.MAX_QUERIES)), "sets": args.sets, "concurrency": args.concurrency, "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     (out / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: v for k, v in summary.items() if k != "errors"}, ensure_ascii=False), "| 오류", len(summary["errors"]))

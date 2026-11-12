@@ -14,7 +14,7 @@ from src.config import ROOT, load_env
 
 
 def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str, cands: tuple[int, int, int, int] = (20, 20, 20, 20),
-                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None, final_k: int | None = None, retry: bool | str = False):
+                  prompt_name: str | None = None, queries_lookup: dict | None = None, routes_lookup: dict | None = None, final_k: int | None = None, retry: bool | str = False, plan_lookup: dict | None = None):
     """(app, pipeline)을 돌려준다. cands = (Dense 후보, BM25 후보, fused_top, Rerank 후보)."""
     load_env()
     from src.api.app import create_app
@@ -47,6 +47,10 @@ def build_ext_app(*, processed_dir: Path, index_name: str, chunking_version: str
     if routes_lookup is not None:
         hybrid = DocRoutedHybrid(hybrid, routes_lookup, top=f)
     reranked = RerankRetriever(hybrid, CrossEncoderReranker(), RerankConfig(candidates=r, final_k=settings.final_k))
+    if plan_lookup is not None:  # 어려운 경로: 분해 계획 기반 자리 배정(원래 질문 재정렬 + 분해 질의 Hybrid), src/retrieval/plan_slot.py
+        from src.retrieval.plan_slot import PlanSlotRetriever
+
+        reranked = PlanSlotRetriever(reranked, hybrid, plan_lookup, pool=r)
     prompt = load_prompt(prompt_name) if prompt_name else load_prompt()
     generator = LangChainGenerator(settings, prompt=prompt, callbacks_factory=None)
     if retry:  # 2단계: 되묻기·보류일 때 reason으로 재검색(src/api/retry_ext.py). 켜지 않으면 기존과 같다

@@ -1,0 +1,28 @@
+{
+  "questions": 1,
+  "records": 1,
+  "http_status": {
+    "200": 1
+  },
+  "response_status": {
+    "answered": 1
+  },
+  "errors": [],
+  "operational": {
+    "requests": 1,
+    "ok": 1,
+    "errors": 0,
+    "error_rate": 0.0,
+    "mean_total_ms": 8529.5,
+    "mean_retrieval_ms": 1700.9,
+    "mean_generation_ms": 6696.1,
+    "input_tokens": 3452,
+    "output_tokens": 636,
+    "usage_known_requests": 1,
+    "usage_unknown_requests": 0,
+    "cost_usd": 0.00035279,
+    "cost_known_requests": 1,
+    "cost_unknown_requests": 0,
+    "retries": 0
+  }
+}

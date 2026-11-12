@@ -69,7 +69,7 @@ def decompose(llm, spec: dict, question: str) -> dict:
     try:
         msg = llm.invoke(build_messages(spec, question))
         row["raw"], row["usage"] = _text(msg.content), _usage(msg)
-        row["queries"], row["error"] = parse_queries(row["raw"], question)
+        row["queries"], row["error"] = parse_queries(row["raw"], question, int(spec.get("max_queries", MAX_QUERIES)))
     except Exception as exc:  # noqa: BLE001 - 호출 실패가 평가 전체를 멈추지 않게 기록한다
         row["error"] = f"{type(exc).__name__}: {str(exc)[:200]}"
     row["seconds"] = round(time.perf_counter() - started, 2)

@@ -1,0 +1,793 @@
+{
+  "source": "ext-int-ans-plan-p40k12-001",
+  "method": "hybrid_rerank",
+  "groups": {
+    "tune": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 26,
+            "abstained": 1
+          },
+          "match": 26
+        },
+        "clarify": {
+          "questions": 5,
+          "statuses": {
+            "needs_clarification": 2,
+            "answered": 3
+          },
+          "match": 2
+        },
+        "abstain": {
+          "questions": 7,
+          "statuses": {
+            "abstained": 7
+          },
+          "match": 7
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.7948717948717948,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9487179487179487,
+            "n": 39,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 38,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 0.8974358974358975,
+            "n": 39,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.8148148148148148,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9629629629629629,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.6,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.6,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.4,
+            "n": 5,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 0.8571428571428571,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 6,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 7,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.9871031746031745,
+        "n": 36,
+        "not_applicable": 3
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 5,
+        "context_coverage": {
+          "some": 4,
+          "all": 1
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "대표 제품·서비스와 루미센서 E의 확장형 모델 설명은 맞지만, 필수 사실 2의 ‘구매에 루미뷰 정기 이용계약이 자동 포함되지 "
+        },
+        {
+          "qid": "IF-DEV07",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "운영서비스사업 매출 480억원은 맞지만, 질문이 요구한 루미뷰 정기 이용의 대표 업무 두 가지를 제시하지 않았습니다(필수 사실"
+        },
+        {
+          "qid": "IF-DEV16",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1과 4에 필요한 1분기 매출값 및 증가율 계산을 빠뜨렸습니다. 참고 정보의 필수 사실 1~4를 모두 충족하지 못했"
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실인 분기별 비중과 상반기 비중 37.50%를 제시하지 않고, 1분기 회사 매출이 확인되지 않는다고 보류했습니다. 참고"
+        },
+        {
+          "qid": "IF-DEV30",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "제공액 90백만원, 선수금 20백만원, 미수금 20백만원은 맞지만, 필수 사실 4의 승인 후 정기 서비스 수취액 80백만원과 "
+        }
+      ],
+      "operational": {
+        "requests": 39,
+        "ok": 39,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3609.35641025641,
+        "mean_retrieval_ms": 1112.4051282051282,
+        "mean_generation_ms": 2492.405128205128,
+        "input_tokens": 132138,
+        "output_tokens": 6665,
+        "usage_known_requests": 39,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.01984681,
+        "cost_known_requests": 39,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "hard_dev": {
+      "confusion": {
+        "answer": {
+          "questions": 10,
+          "statuses": {
+            "answered": 10
+          },
+          "match": 10
+        },
+        "clarify": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        },
+        "abstain": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 10,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 1.0,
+        "n": 10,
+        "not_applicable": 0
+      },
+      "zero_facts_context": {
+        "answer_questions": 10,
+        "zero_facts": 0,
+        "context_coverage": {}
+      },
+      "problems": [],
+      "operational": {
+        "requests": 10,
+        "ok": 10,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3817.34,
+        "mean_retrieval_ms": 1182.74,
+        "mean_generation_ms": 2633.67,
+        "input_tokens": 33211,
+        "output_tokens": 1838,
+        "usage_known_requests": 10,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.0050696,
+        "cost_known_requests": 10,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "cross_dev": {
+      "confusion": {
+        "answer": {
+          "questions": 4,
+          "statuses": {
+            "answered": 4
+          },
+          "match": 4
+        },
+        "clarify": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        },
+        "abstain": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 1.0,
+        "n": 4,
+        "not_applicable": 0
+      },
+      "zero_facts_context": {
+        "answer_questions": 4,
+        "zero_facts": 0,
+        "context_coverage": {}
+      },
+      "problems": [],
+      "operational": {
+        "requests": 4,
+        "ok": 4,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3838.625,
+        "mean_retrieval_ms": 1262.375,
+        "mean_generation_ms": 2575.3,
+        "input_tokens": 13298,
+        "output_tokens": 725,
+        "usage_known_requests": 4,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00202445,
+        "cost_known_requests": 4,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "ext_dev": {
+      "confusion": {
+        "answer": {
+          "questions": 0,
+          "statuses": {},
+          "match": 0
+        },
+        "clarify": {
+          "questions": 4,
+          "statuses": {
+            "answered": 3,
+            "needs_clarification": 1
+          },
+          "match": 1
+        },
+        "abstain": {
+          "questions": 5,
+          "statuses": {
+            "abstained": 5
+          },
+          "match": 5
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.7777777777777778,
+            "n": 9,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.8888888888888888,
+            "n": 9,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 8,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 0.6666666666666666,
+            "n": 9,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": null,
+            "n": 0,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.75,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.75,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.25,
+            "n": 4,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 0.8,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 4,
+            "not_applicable": 1
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 5,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 1.0,
+        "n": 7,
+        "not_applicable": 2
+      },
+      "zero_facts_context": {
+        "answer_questions": 0,
+        "zero_facts": 0,
+        "context_coverage": {}
+      },
+      "problems": [],
+      "operational": {
+        "requests": 9,
+        "ok": 9,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3051.3,
+        "mean_retrieval_ms": 1020.9888888888888,
+        "mean_generation_ms": 2029.2444444444445,
+        "input_tokens": 31707,
+        "output_tokens": 1011,
+        "usage_known_requests": 9,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.00446819,
+        "cost_known_requests": 9,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    },
+    "development": {
+      "confusion": {
+        "answer": {
+          "questions": 27,
+          "statuses": {
+            "answered": 26,
+            "abstained": 1
+          },
+          "match": 26
+        },
+        "clarify": {
+          "questions": 1,
+          "statuses": {
+            "needs_clarification": 1
+          },
+          "match": 1
+        },
+        "abstain": {
+          "questions": 2,
+          "statuses": {
+            "abstained": 2
+          },
+          "match": 2
+        }
+      },
+      "judge": {
+        "전체": {
+          "facts": {
+            "rate": 0.8,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.9666666666666667,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 30,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9666666666666667,
+            "n": 30,
+            "not_applicable": 0
+          }
+        },
+        "기대 answer": {
+          "facts": {
+            "rate": 0.8148148148148148,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 27,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 0.9629629629629629,
+            "n": 27,
+            "not_applicable": 0
+          }
+        },
+        "기대 clarify": {
+          "facts": {
+            "rate": 0.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 0.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 1,
+            "not_applicable": 0
+          }
+        },
+        "기대 abstain": {
+          "facts": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "conditions": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "evidence": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          },
+          "decision": {
+            "rate": 1.0,
+            "n": 2,
+            "not_applicable": 0
+          }
+        }
+      },
+      "faithfulness": {
+        "mean": 0.9839901477832512,
+        "n": 29,
+        "not_applicable": 1
+      },
+      "zero_facts_context": {
+        "answer_questions": 27,
+        "zero_facts": 5,
+        "context_coverage": {
+          "some": 4,
+          "all": 1
+        }
+      },
+      "problems": [
+        {
+          "qid": "IF-DEV03",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "대표 제품·서비스와 루미센서 E의 확장형 모델 설명은 맞지만, 필수 사실 2의 ‘구매에 루미뷰 정기 이용계약이 자동 포함되지 "
+        },
+        {
+          "qid": "IF-DEV07",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "운영서비스사업 매출 480억원은 맞지만, 질문이 요구한 루미뷰 정기 이용의 대표 업무 두 가지를 제시하지 않았습니다(필수 사실"
+        },
+        {
+          "qid": "IF-DEV16",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실 1과 4에 필요한 1분기 매출값 및 증가율 계산을 빠뜨렸습니다. 참고 정보의 필수 사실 1~4를 모두 충족하지 못했"
+        },
+        {
+          "qid": "IF-DEV19",
+          "status": "abstained",
+          "facts": 0,
+          "ctx": "some",
+          "reason": "필수 사실인 분기별 비중과 상반기 비중 37.50%를 제시하지 않고, 1분기 회사 매출이 확인되지 않는다고 보류했습니다. 참고"
+        },
+        {
+          "qid": "IF-DEV30",
+          "status": "answered",
+          "facts": 0,
+          "ctx": "all",
+          "reason": "제공액 90백만원, 선수금 20백만원, 미수금 20백만원은 맞지만, 필수 사실 4의 승인 후 정기 서비스 수취액 80백만원과 "
+        }
+      ],
+      "operational": {
+        "requests": 30,
+        "ok": 30,
+        "errors": 0,
+        "error_rate": 0.0,
+        "mean_total_ms": 3776.773333333333,
+        "mean_retrieval_ms": 1139.8300000000002,
+        "mean_generation_ms": 2631.3533333333335,
+        "input_tokens": 100431,
+        "output_tokens": 5654,
+        "usage_known_requests": 30,
+        "usage_unknown_requests": 0,
+        "cost_usd": 0.015378619999999999,
+        "cost_known_requests": 30,
+        "cost_unknown_requests": 0,
+        "retries": 0
+      }
+    }
+  }
+}

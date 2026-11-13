@@ -257,14 +257,14 @@ uv run python scripts/ops_percentiles_official.py      # [확장] P50·P90·P95�
 # 터미널 1: API 서버
 uv run uvicorn --factory src.api.main:build_default_app --port 8000
 # 터미널 2: 화면 (브라우저에서 http://127.0.0.1:8501)
-uv run --with streamlit streamlit run ui/app.py --server.address 127.0.0.1 --server.port 8501
+uv run --group ui streamlit run ui/app.py --server.address 127.0.0.1 --server.port 8501
 ```
 
 - 채팅창, 상태 배지(답변 / 추가 확인 필요 / 근거 부족 / 오류), 출처(문서명·쪽), 검색 방식 선택(기본 Hybrid + Rerank), 서버 상태 확인, 마지막 요청의 `request_id`·`trace_id`를 보여 준다. 검색 대상은 Basic PDF 15개뿐이다.
 - 질문마다 독립 요청이며 대화 메모리와 캐시는 없다. 화면에 쌓이는 기록은 보여 주기 위한 것이다.
 - 이 서비스는 `.env`의 OpenAI 키로 모델을 호출하므로 **`--server.address 127.0.0.1`을 빼지 않는다**(생략하면 네트워크의 다른 PC에서도 접속될 수 있다).
 - UI 요청은 `X-Track: extension`으로 표시되어 공식 평가 지표에 섞이지 않고 `results/service/runs.jsonl`(Git 제외)에 기록된다. 서버 주소는 사이드바나 환경 변수 `UI_API_BASE_URL`로 바꾼다.
-- Streamlit은 필수 의존성이 아니라서 `pyproject.toml`에는 없고 `uv run --with streamlit`으로 쓴다. 화면 테스트는 `uv run --with streamlit pytest tests/unit/test_ui_app.py tests/unit/test_ui_client.py`이며, Streamlit이 없으면 화면 테스트는 건너뛴다.
+- Streamlit은 필수 의존성이 아니라서 선택 그룹 `ui`(`pyproject.toml`의 `[dependency-groups]`)에만 있다. 기본 `uv sync`에는 설치되지 않으며 화면을 쓸 때 `uv sync --group ui`(또는 위처럼 `uv run --group ui`)로 설치한다. 화면 테스트는 `uv run --group ui pytest tests/unit/test_ui_app.py tests/unit/test_ui_client.py`이며, Streamlit이 없으면 화면 테스트는 건너뛴다.
 
 ## 디렉터리 안내
 

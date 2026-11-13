@@ -30,7 +30,7 @@
 - 질문과 정답이 공개돼 있어 결과를 비공개 테스트 성능으로 읽으면 안 된다. 평가 모델이 생성 모델과 같다(`gpt-6-luna`, 자기 평가 편향 가능성).
 - 대표 사례 18건(`results/official-001-critical/worksheet_cases.md`)의 사람 확인은 하지 못했다. 중대 오류는 64건 전수가 아니라 후보 2건과 표본 15건을 사람이 확인했다.
 - 보안 비교는 질문 2개, 각 1회라 방어 효과를 평가하지 못했다. 운영 지표는 한 번 실행한 결과이며 동시성 1이다.
-- Basic 코퍼스(PDF 15개) 기준 선택이다. 서비스 화면, 대화 메모리, 부하 시험 같은 서비스화 항목은 하지 않았다.
+- Basic 코퍼스(PDF 15개) 기준 선택이다. 화면은 시연용 기본 화면만 있고(메모리·캐시·권한 없음), 대화 메모리, 부하 시험 같은 서비스화 항목은 하지 않았다.
 
 ## 확장 실험 요약 (별도 브랜치, 공식 결과에 영향 없음)
 
@@ -249,12 +249,30 @@ uv run python scripts/ops_percentiles_official.py      # [확장] P50·P90·P95�
 
 읽기 전용이며 새 모델·검색 호출이 없다. 결과는 `results/official-001-ops/`에 저장된다. 보안·평가 호출은 일반 질문의 운영 지표와 구분해 따로 집계한다(`DECISIONS.md` D-048).
 
+## 질의응답 화면 ([확장], Streamlit)
+
+기존 API 서버를 HTTP로 호출만 하는 시연용 화면이다. 공식 구현과 결과는 바꾸지 않으며 코드는 `ui/`에만 있다.
+
+```bash
+# 터미널 1: API 서버
+uv run uvicorn --factory src.api.main:build_default_app --port 8000
+# 터미널 2: 화면 (브라우저에서 http://127.0.0.1:8501)
+uv run --with streamlit streamlit run ui/app.py --server.address 127.0.0.1 --server.port 8501
+```
+
+- 채팅창, 상태 배지(답변 / 추가 확인 필요 / 근거 부족 / 오류), 출처(문서명·쪽), 검색 방식 선택(기본 Hybrid + Rerank), 서버 상태 확인, 마지막 요청의 `request_id`·`trace_id`를 보여 준다. 검색 대상은 Basic PDF 15개뿐이다.
+- 질문마다 독립 요청이며 대화 메모리와 캐시는 없다. 화면에 쌓이는 기록은 보여 주기 위한 것이다.
+- 이 서비스는 `.env`의 OpenAI 키로 모델을 호출하므로 **`--server.address 127.0.0.1`을 빼지 않는다**(생략하면 네트워크의 다른 PC에서도 접속될 수 있다).
+- UI 요청은 `X-Track: extension`으로 표시되어 공식 평가 지표에 섞이지 않고 `results/service/runs.jsonl`(Git 제외)에 기록된다. 서버 주소는 사이드바나 환경 변수 `UI_API_BASE_URL`로 바꾼다.
+- Streamlit은 필수 의존성이 아니라서 `pyproject.toml`에는 없고 `uv run --with streamlit`으로 쓴다. 화면 테스트는 `uv run --with streamlit pytest tests/unit/test_ui_app.py tests/unit/test_ui_client.py`이며, Streamlit이 없으면 화면 테스트는 건너뛴다.
+
 ## 디렉터리 안내
 
 | 위치 | 내용 |
 |---|---|
 | `src/` | 추출·청킹(`ingest`), 임베딩·색인(`index`), 검색(`retrieval`), 생성(`generation`), API(`api`), 평가(`evaluation`), 관측(`observability`) |
 | `scripts/` | 단계별 실행 스크립트 |
+| `ui/` | [확장] Streamlit 질의응답 화면(API 서버를 HTTP로 호출) |
 | `prompts/` | 프롬프트 원본(답변 `answer_v2`, 방어 `answer_v2_defense`, Judge `judge_v2` 등. 바꿀 때는 새 버전 파일을 추가한다) |
 | `configs/` | 동결 설정(`official_freeze.json`), 모델 단가(`pricing.json`) |
 | `results/` | 실험 결과(`official-001*`, `security-001` 등). 기존 결과는 덮어쓰지 않는다 |

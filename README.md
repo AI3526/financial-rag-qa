@@ -61,7 +61,8 @@ cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 | `OPENAI_MODEL` | 생성 모델 이름 (`gpt-6-luna`) |
 | `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` | Langfuse 프로젝트 키 (비밀) |
 | `LANGFUSE_BASE_URL` | Langfuse 호스트 (Cloud: `https://cloud.langfuse.com`) |
-| `QDRANT_PATH` | Qdrant 로컬 저장소 경로 (STEP 3부터 사용) |
+| `QDRANT_URL`, `QDRANT_API_KEY` | Qdrant Cloud(또는 서버) 주소와 API 키 (비밀). 공식 실행에 사용한 설정이다. `QDRANT_URL`을 비우면 로컬 저장소를 쓴다 |
+| `QDRANT_PATH` | `QDRANT_URL`이 비어 있을 때만 쓰는 로컬 저장소 폴더(기본 `data/qdrant`) |
 | `HF_HOME` | 모델 다운로드 캐시 경로. 저장소 밖을 권장 (STEP 3부터 사용) |
 
 ```bash
@@ -71,6 +72,31 @@ uv run python scripts/check_connections.py all
 # 4. 단위 테스트
 uv run pytest
 ```
+
+## 외부 서비스 연결 (Qdrant, Langfuse)
+
+**Qdrant (벡터 저장소)**
+
+- `.env`에 `QDRANT_URL`, `QDRANT_API_KEY`가 있으면 Qdrant Cloud(서버)에, 없으면 `QDRANT_PATH`의 로컬 폴더에 연결한다. 색인 스크립트와 API 서버가 같은 설정을 읽는다(`src/index/qdrant_store.py`). 공식 실행은 Qdrant Cloud를 썼다.
+- 컬렉션 이름에는 데이터셋·청킹·임베딩 버전이 들어간다. 공식 컬렉션은 `basic__chunk-v1__e5large-v1`(청크 1,056개), 비교 후보는 `basic__chunk-v1__bgem3-v1`(보존)이다. 컬렉션은 `scripts/build_index.py`가 한 번씩 만들고, 이미 있으면 덮어쓰지 않고 중단한다.
+- 처음 환경을 만드는 순서: `ingest_pdfs.py`(STEP 1) → `chunk_pages.py`(STEP 2) → `build_index.py --model e5`(STEP 3) → API 서버 기동.
+- 검색 요청은 timeout 10초, 최대 3회 시도(간격 1초·2초)이며 모두 실패하면 응답은 500 `retrieval_error`다.
+
+**Langfuse (실행 관측)**
+
+- `.env`에 `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_BASE_URL`을 넣는다(Langfuse Cloud 프로젝트에서 발급). 키가 없거나 연결이 실패해도 서비스 답변과 결과 저장은 막히지 않고 관측 기록만 건너뛴다(`langfuse_recorded=false`로 run 레코드에 남는다).
+- 기록되는 것:
+
+| 대상 | Trace 이름 | 내용 |
+|---|---|---|
+| 서비스 요청 | `rag-query` | 검색 결과, 최종 문맥, 모델 입출력, 토큰 사용량. `environment`는 요청의 `X-Track`(development / official / extension) |
+| 공식 비교 실행 | 요청 Trace가 Langfuse Experiments 항목 아래에 붙음 | 방식마다 하나의 실험(run). 같은 질문끼리 나란히 비교 가능 |
+| 평가 점수 | 요청 Trace의 Score | `post_scores.py --apply`로 올림 |
+| 색인·추출·청킹·임베딩 비교 | `document-ingestion`, `document-chunking`, `document-indexing`, `embedding-comparison` | 단계별 Span |
+| 보안 비교 | `rag-query`(`run_type=security`) | 기본·방어 프롬프트 답변 4건 |
+
+- 요청 하나의 식별자는 `request_id`(서버가 만드는 UUID), `trace_id`(실제 기록된 Trace ID), `experiment_id`이며 서로 다른 값이다. 응답 헤더 `X-Request-Id`, `X-Trace-Id`로 확인한다.
+- 단계 스크립트의 Langfuse 기록은 `--no-langfuse`로 끌 수 있다.
 
 ## PDF 추출 (STEP 1)
 
